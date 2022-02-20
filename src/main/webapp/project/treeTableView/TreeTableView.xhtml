@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Gokce Onen on 2022.2.20
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition>
+
+    <!--
+    =====================
+    |  TREE TABLE VIEW  |
+    =====================
+    -->
+    <div align="center">
+        <p:growl id="growl" showDetail="true"/>
+        <h:form id="treeForm" style="background-color: ghostwhite">
+
+            <!--
+            ==============================================================
+            |  Create Root, Add Child, Add Sibling, Add Parent, Buttons  |
+            ==============================================================
+            -->
+            <p:panel>
+                <h:outputStylesheet library="css" name="panelStyle.css"/>
+                <p:commandButton value="Create Root"
+                                 id="rootButton"
+                                 process="@this"
+                                 update=":CreateRootDlg"
+                                 disabled="#{not empty treeTableController.rootTreeNode}"
+                                 oncomplete="PF('CreateRootDialog').show()"/>&nbsp;
+                <p:commandButton value="Add Child"
+                                 id="childButton"
+                                 process="@this"
+                                 update=":AddChildDlg"
+                                 disabled="#{empty treeTableController.selectedNode}"
+                                 oncomplete="PF('AddChildDialog').show()"/>&nbsp;
+                <p:commandButton value="Add Sibling"
+                                 id="siblingButton"
+                                 process="@this"
+                                 update=":AddSiblingDlg"
+                                 disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root}"
+                                 oncomplete="PF('AddSiblingDialog').show()"/>&nbsp;
+                <p:commandButton value="Add Parent"
+                                 id="parentButton"
+                                 process="@this"
+                                 update=":AddParentDlg"
+                                 disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root}"
+                                 oncomplete="PF('AddParentDialog').show()"/>
+            </p:panel>
+            <!--
+            ========================================
+            |  Export Graph, Import Graph Buttons  |
+            ========================================
+            -->
+            <p:panel>
+                <h:outputStylesheet library="css" name="panelStyle.css"/>
+                <p:commandButton value="Store to DB"
+                                 id="storeButton"
+                                 action="#{treeTableController.storeToDb}"
+                                 update="growl"
+                                 process="@this"
+                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;
+                <p:commandButton value="Retrieve from DB"
+                                 id="retrieveButton"
+                                 action="#{treeTableController.retrieveFromDb}"
+                                 update="treeForm"
+                                 process="@this"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <p:commandButton value="Delete Graph"
+                                 id="deleteButton"
+                                 action="#{treeTableController.deleteGraph}"
+                                 update="treeForm, tabForm"
+                                 style="padding: 0 !important;"
+                                 process="@this"
+                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <p:commandButton value="Export Graph"
+                                 id="exportButton"
+                                 action="#{treeTableController.exportGraph}"
+                                 update="growl"
+                                 process="@this"
+                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;
+                <p:commandButton value="Import Graph"
+                                 id="importButton"
+                                 action="#{treeTableController.importGraph}"
+                                 update="treeForm"
+                                 process="@this"/>&nbsp;
+            </p:panel>
+            <!--
+            ================
+            |  Tree Table  |
+            ================
+            -->
+            <p:treeTable value="#{treeTableController.rootTreeNode}"
+                         rendered="#{treeTableController.rootTreeNode != null}"
+                         style="padding-top: 20px"
+                         id="tree"
+                         var="node"
+                         selectionMode="single"
+                         selection="#{treeTableController.selectedNode}"
+                         dynamic="true">
+                <p:ajax event="select" update="treeForm, :tabForm, :sliderForm"
+                        listener="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"/>
+                <p:column>
+                    <h:outputText value="#{node.name}"/>
+                </p:column>
+            </p:treeTable>
+            <br/>
+        </h:form>
+    </div>
+
+    <ui:include src="/project/treeTableView/CreateRootDialog.xhtml"/>
+    <ui:include src="/project/treeTableView/AddChildDialog.xhtml"/>
+    <ui:include src="/project/treeTableView/AddParentDialog.xhtml"/>
+    <ui:include src="/project/treeTableView/AddSiblingDialog.xhtml"/>
+
+</ui:composition>
+
+</html>

@@ -3,7 +3,8 @@
   - Created by Osman Balci on 2022.1.7
   - Copyright © 2022 Osman Balci. All rights reserved.
   -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -15,15 +16,32 @@
 <ui:composition template="/template/siteTemplate.xhtml">
     <ui:define name="title">
         <!-- Set the page title -->
-        <h:outputText value="Project Specification" />
+        <h:outputText value="Project Specification"/>
     </ui:define>
 
     <!-- Create the content for this page below -->
     <ui:define name="editableContent">
         <div align="center">
-            <h:form id="ProjectSpecForm">
-                <h:outputLabel value="This page will show Gökçe's Indicators Module for the selected project"/>
-            </h:form>
+            <table style="max-width: 2200px">
+                <tr>
+                    <!--
+                    =====================
+                    |  TREE TABLE VIEW  |
+                    =====================
+                    -->
+                    <td style="width: 40%; vertical-align: top; background-color: white">
+                        <ui:include src="/project/treeTableView/TreeTableView.xhtml"/>
+                    </td>
+                    <!--
+                    ==============
+                    |  TAB VIEW  |
+                    ==============
+                    -->
+                    <td style="width: 60%; vertical-align: top; background-color: white">
+                        <ui:include src="/project/tabView/TabView.xhtml"/>
+                    </td>
+                </tr>
+            </table>
         </div>
     </ui:define>
 </ui:composition>

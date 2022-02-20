@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Gokce Onen on 2022.2.20
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<ui:composition>
+
+    <div style="margin-left: 30px; margin-top: 20px">
+        <table>
+            <tr>
+                <td style="width: 40%">
+                    <!--
+                    =========================================================
+                    |  Relative weights of children of selected indicator   |
+                    =========================================================
+                    -->
+                    <c:if test="#{treeTableController.selectedNode != null}">
+                        <h1>Evaluator Relative Weights</h1><br/>
+                    </c:if>
+
+                    <table border="1" cellpadding="10" cellspacing="10" width="200px" style="border-collapse:collapse">
+                        <tr>
+                            <td>
+                                <h:outputText value="Evaluator"/>
+                            </td>
+                            <td>
+                                <h:outputText value = "Weight" />
+                            </td>
+                            <td>
+                                <h:outputText value = "Numerical Score" />
+                            </td>
+                        </tr>
+                        <p:repeat value="#{tabViewController.selectedIndicator.childIndicators}" var="item" varStatus="status">
+                            <tr>
+                                <td>
+                                    <h:outputText value="#{item.name}:"
+                                                  style="font-weight: bold"/>&nbsp;
+                                </td>
+                                <td>
+                                    <h:outputText value="#{tabViewController.selectedIndicator.childWeights.get(item)}" >
+                                        <f:convertNumber minFractionDigits="5" />
+                                    </h:outputText><br/>
+                                </td>
+                                <td>
+                                    <h:outputText value="#{tabViewController.evaluatorScores.get(status.index)}" style="white-space: nowrap" /><br/>
+                                </td>
+                            </tr>
+                        </p:repeat>
+                    </table>
+                    <br/><br/>
+                </td>
+                <td style="width: 60%">
+                    <!--
+                    ===========================================
+                    |  Radar Chart of child relative weights  |
+                    ===========================================
+                    -->
+                    <div align="center" style="width: 600px">
+                        <p:radarChart model="#{tabViewController.getRadarModel()}"/>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="card" style="margin-left: 30px; margin-top: 20px">
+        <c:if test="#{treeTableController.selectedNode != null}">
+            <h1>Criticality Weightings of Evaluators</h1>
+        </c:if>
+        <!--
+        ========================================
+        |  Data Table of Pairwise Comparisons  |
+        ========================================
+        -->
+        <p:remoteCommand name="onCellEdit" update="weightsTable, tabForm"/>
+        <p:dataTable id="evaluatorWeightsTable" var="row" rowIndexVar="rowIndex"
+                     value="#{tabViewController.comparisons}"
+                     editable="true" editMode="cell"
+                     editInitEvent="click"
+                     rendered="#{treeTableController.selectedNode != null}"
+                     style="margin-top: 40px">
+            <p:ajax event="cellEdit"
+                    listener="#{tabViewController.getCriticalityWeightings}"
+                    oncomplete="onCellEdit()"/>
+            <!--
+            ===========================
+            |  Indicator name column  |
+            ===========================
+            -->
+            <p:column headerText="Evaluator"
+                      style="background: #f8f9fa;
+                                                              border-bottom: none !important;
+                                                              border-top: none;
+                                                              border-left: none;
+                                                              font-weight: bold;">
+                <h:outputText value="#{row.get(0).indicator1.name}"/>
+            </p:column>
+            <!--
+            ===================
+            |  Value columns  |
+            ===================
+            -->
+            <c:forEach items="#{tabViewController.comparisons.get(rowIndex)}"
+                       var="cell" varStatus="columnStatus">
+                <p:column headerText="#{cell.indicator2.name}">
+                    <!--
+                    ===================================
+                    |  Diagonal cells (not editable)  |
+                    ===================================
+                    -->
+                    <p:commandButton value="#{cell.formattedValue}"
+                                     disabled="true"
+                                     style="background-color: antiquewhite; color: black; border-color: gray"
+                                     rendered="#{rowIndex == columnStatus.index}">
+                    </p:commandButton>
+                    <!--
+                    ===============================================
+                    |  Upper and lower triangle cells (editable)  |
+                    ===============================================
+                    -->
+                    <p:commandButton value="#{cell.formattedValue}"
+                                     update=":tabForm, sliderForm"
+                                     action="#{tabViewController.createSlider(rowIndex, columnStatus.index)}"
+                                     style="background-color: white; color: black; border-color: gray"
+                                     rendered="#{rowIndex != columnStatus.index}">
+                    </p:commandButton>
+                </p:column>
+            </c:forEach>
+        </p:dataTable>
+        <br/>
+    </div>
+
+</ui:composition>
+
+</html>

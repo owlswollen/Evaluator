@@ -1,0 +1,12 @@
+/*******************************************************
+*   CSS Style Definitions for the p:panel component    *
+*   Created by Gokce Onen as an output style sheet     *
+********************************************************/
+
+/**
+ * Created for changing panel content style without overwriting the p:panel component style
+ * Used only inside the related p:panel tag as an output style sheet
+ */
+body .ui-panel .ui-panel-content {
+    border: none !important;
+}

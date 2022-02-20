@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Gokce Onen on 2022.2.20
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<ui:composition>
+    <!--
+    ===========================================================
+    |  Clicking the VIEW button in UsersList.xhtml displays   |
+    |  this Dialog window showing the selected user's data.   |
+    ===========================================================
+    -->
+    <p:dialog id="AddSiblingDlg" widgetVar="AddSiblingDialog" modal="true"
+              resizable="false" appendTo="@(body)">
+
+        <h:form id="AddSiblingForm" class="ui-datatable-data">
+            <div align="center">
+                <p:selectOneRadio id="console" value="#{treeTableController.existingNode}">
+                    <p:ajax update="panelGrid" />
+                    <f:selectItem itemLabel="New Node" itemValue="#{false}"/>
+                    <f:selectItem itemLabel="Existing Node" itemValue="#{true}"/>
+                    <!--    TODO: Warn user if an existing node's name is entered after selecting New Node    -->
+                </p:selectOneRadio>
+                <p:panelGrid id="panelGrid" columns="2" columnClasses="panelGridColumn1, panelGridColumn2">
+                    <h:outputText value="Sibling Indicator Name:" style="font-weight: bold"/>
+                    <h:inputText value="#{treeTableController.newNodeName}"
+                                 rendered="#{!treeTableController.existingNode}"
+                                 style="font-size: medium; padding: 6px" />
+                    <p:selectOneMenu id="parentSelect"
+                                     rendered="#{treeTableController.existingNode}"
+                                     value="#{treeTableController.newNodeName}">
+                        <f:selectItems value="#{treeTableController.siblingOptionNames}"/>
+                    </p:selectOneMenu>
+                </p:panelGrid>
+                <br/>
+                <h:panelGroup>
+                    <p:commandButton value="Add"
+                                     actionListener="#{treeTableController.addSiblingToGraph}"
+                                     update=":treeForm"
+                                     action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
+                                     onclick="PF('AddSiblingDialog').hide()"/>
+                </h:panelGroup>
+            </div>
+        </h:form>
+
+    </p:dialog>
+
+</ui:composition>
+</html>

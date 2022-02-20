@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Gokce Onen on 2022.2.20
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<ui:composition>
+    <p:dialog id="AddParentDlg" widgetVar="AddParentDialog" modal="true"
+              resizable="false" appendTo="@(body)">
+
+        <h:form id="AddParentForm" class="ui-datatable-data">
+            <div align="center">
+                <p:panelGrid columns="2" columnClasses="panelGridColumn1, panelGridColumn2">
+                    <h:outputText value="Parent Indicator Name:" style="font-weight: bold"/>
+                    <p:selectOneMenu id="parentSelect" value="#{treeTableController.newNodeName}">
+                        <f:selectItems value="#{treeTableController.parentAndChildOptionNames}"/>
+                    </p:selectOneMenu>
+                </p:panelGrid>
+                <br/>
+                <h:panelGroup>
+                    <p:commandButton value="Add"
+                                     actionListener="#{treeTableController.addParentToGraph}"
+                                     update=":treeForm"
+                                     action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
+                                     onclick="PF('AddParentDialog').hide()"/>
+                </h:panelGroup>
+            </div>
+        </h:form>
+
+    </p:dialog>
+
+</ui:composition>
+</html>

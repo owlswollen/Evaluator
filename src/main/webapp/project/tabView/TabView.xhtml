@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Gokce Onen on 2022.2.20
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<ui:composition>
+    <div class="card">
+        <h:form id="tabForm">
+            <p:tabView dynamic="true">
+                <p:ajax event="tabChange"
+                        update=":sliderForm"
+                        listener="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"/>
+                <p:ajax event="tabClose"/>
+                <!--
+                ====================
+                |  EVALUATORS TAB  |
+                ====================
+                -->
+                <p:tab title="Evaluators" rendered="#{tabViewController.selectedIndicator.isLeaf()}">
+                    <ui:include src="/project/tabView/EvaluatorsTab.xhtml"/>
+                </p:tab>
+                <!--
+                =================
+                |  WEIGHTS TAB  |
+                =================
+                -->
+                <p:tab title="Weights" rendered="#{!tabViewController.selectedIndicator.isLeaf()}">
+                    <ui:include src="/project/tabView/WeightsTab.xhtml"/>
+                </p:tab>
+                <!--
+                ================
+                |  SCORES TAB  |
+                ================
+                -->
+                <p:tab title="Scores" rendered="#{!tabViewController.selectedIndicator.isLeaf()}">
+                    <ui:include src="/project/tabView/ScoresTab.xhtml"/>
+                </p:tab>
+                <!--
+                =====================
+                |  DESCRIPTION TAB  |
+                =====================
+                -->
+                <p:tab title="Description">
+                    <ui:include src="/project/tabView/DescriptionTab.xhtml"/>
+                </p:tab>
+            </p:tabView>
+        </h:form>
+        <h:form id="sliderForm">
+            <!--
+            =========================================
+            |  Slider to edit pairwise comparisons  |
+            =========================================
+            Only visible in WeightsTab
+            Created on an outer form to prevent the slider from resetting itself when the tabForm is updated by the slider
+            -->
+            <c:if test="#{tabViewController.sliderVisible and tabViewController.selectedIndicator != null}">
+                <div align="center">
+                    <br/>
+                    <h:outputText
+                            value="#{tabViewController.comparedIndicator1}" style="font-size: large"/><br/>
+                    <h:outputText value="is" style="font-size: large"/>
+
+
+                    <p:inputText id="decimal"
+                                 style="visibility: hidden; width: 0; height: 0"
+                                 valueChangeListener="#{tabViewController.onSlideEnd}"
+                                 value="#{tabViewController.sliderValue}">
+                        <p:ajax process="@this" update="tabForm"
+                                listener="#{tabViewController.onSlideEnd}"/>
+                    </p:inputText>
+                    <p:slider for="decimal" minValue="1" maxValue="9" step="0.1"
+                              display="decimal" style="margin-top: 10px; height: 10px; width: 82%">
+                        <p:ajax event="slideEnd"
+                                listener="#{tabViewController.onSlideEnd}"
+                                update="tabForm"/>
+                    </p:slider><br/>
+
+
+                    <div style="display: grid">
+                        <div style="grid-row: 1; grid-column: 1">
+                            <p:outputLabel value="1" style="margin-left: 44px"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 2">
+                            <p:outputLabel value="2"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 3">
+                            <p:outputLabel value="3"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 4">
+                            <p:outputLabel value="4"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 5">
+                            <p:outputLabel value="5"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 6">
+                            <p:outputLabel value="6"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 7">
+                            <p:outputLabel value="7"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 8">
+                            <p:outputLabel value="8"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 9">
+                            <p:outputLabel value="9" style="margin-right: 44px"/>
+                        </div>
+                    </div>
+
+                    <div style="display: grid">
+                        <div style="grid-row: 1; grid-column: 1 / span 2">
+                            <p:outputLabel value="Equally" style="margin-right: 20px"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 3 / span 2">
+                            <p:outputLabel value="Moderately" style="margin-left: 0"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 5 / span 2">
+                            <p:outputLabel value="Strongly" style="margin-right: 0"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 7 / span 2">
+                            <p:outputLabel value="Very Strongly" style="margin-right: 40px"/>
+                        </div>
+                        <div style="grid-row: 1; grid-column: 9">
+                            <p:outputLabel value="Extremely" style="margin-right: 20px"/>
+                        </div>
+                    </div>
+                    <br/>
+                    <h:outputText value="more important than" style="font-size: large"/><br/>
+                    <h:outputText value="#{tabViewController.comparedIndicator2}" style="font-size: large"/><br/><br/>
+                    <br/>
+                </div>
+                <br/>
+            </c:if>
+        </h:form>
+    </div>
+
+</ui:composition>
+
+</html>

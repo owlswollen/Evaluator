@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Osman Balci on 2022.1.12
+  - Copyright © 2022 Osman Balci. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="Edit Project"/>
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+
+        <!-- class="ui-datatable-data" in siteStyles reduces row paddings -->
+        <h:form id="EditProjectForm" class="ui-datatable-data">
+            <h:panelGroup id="display">
+                <div align="center">
+                    <h1>Edit Selected Evaluation Project</h1>
+                    <br/>
+                    <!--
+                    ********************************
+                    *         Project Title        *
+                    ********************************
+                    -->
+                    <p:outputLabel value="Edit Project Title" for="title" styleClass="heading"/>
+                    <br/><br/>
+                    <p:inputText id="title" value="#{projectController.selectedProject.title}" style="width: 70%"
+                                 required="true" requiredMessage="Project Title is required!">
+                        <f:validateLength minimum="2"/>
+                    </p:inputText>
+
+                    <!--
+                    ********************************
+                    *      Project Description     *
+                    ********************************
+                    -->
+                    <br/><br/>
+                    <p:outputLabel value="Edit Project Description" for="description" styleClass="heading"/>
+                    <br/><br/>
+                    <!--
+                    ================================================
+                    |   PrimeFaces HTML Text Editor UI Component   |
+                    ================================================
+                    -->
+                    <p:textEditor id="description" secure='false' value="#{editorController.editorContent}" height="360"
+                                  required="true" requiredMessage="Project Description is required!"
+                                  placeholder="Enter your project description here"/>
+                    <br/><br/>
+                    <!--
+                    =======================================
+                    |   Selected Project Administrators   |
+                    =======================================
+                    -->
+                    <h:outputText value="Selected Project Administrators" styleClass="heading"/>
+                    <br/><br/>
+                    <table cellpadding="5" cellspacing="0">
+                        <ui:repeat value="#{projectController.adminUserObjRefs(projectController.selectedProject)}" var="user">
+                            <tr>
+                                <td><p:graphicImage cache="false" styleClass="smallProfilePhoto"
+                                                    value="#{userController.photoOfUser(user.getId())}" /></td>
+                                <td><h:outputText value="#{user.getFirstName()} #{user.getLastName()}"
+                                                  escape="false" style="white-space:pre-line;"/></td>
+                            </tr>
+                        </ui:repeat>
+                    </table>
+                    <br/><br/>
+                    <!--
+                    *******************************************
+                    *   Reselect All Project Administrators   *
+                    *******************************************
+                    -->
+                    <p:outputLabel value="Reselect All Project Administrators to Update" for="selectAdmins" styleClass="heading"/>
+                    <br/>
+                    <h:outputText value="You must reselect already selected one to keep it!" styleClass="message"/>
+                    <br/><br/>
+                    <p:selectManyMenu id="selectAdmins" value="#{projectController.selectedAdministrators}"
+                                      var="u" filter="true" filterMatchMode="contains" showCheckbox="true"
+                                      required="true" requiredMessage="Selection of at least one administrator is required!"
+                                      scrollHeight="300" style="width: 50%" styleClass="manymenu-advanced">
+                        <f:selectItems value="#{projectController.getAllUsersExceptSuperUser()}" var="user"
+                                       itemLabel="#{user.firstName} #{user.lastName}" itemValue="#{user}"/>
+                        <p:column>
+                            <p:graphicImage cache="false" styleClass="smallProfilePhoto"
+                                            value="#{userController.photoOfUser(u.id)}"/>
+                        </p:column>
+                        <p:column>
+                            <h:outputText value="#{u.firstName} #{u.lastName}"/>
+                        </p:column>
+                    </p:selectManyMenu>
+                    <br/><br/>
+                    <!--
+                    ***********************************
+                    *   Selected Project Evaluators   *
+                    ***********************************
+                    -->
+                    <h:outputText value="Selected Project Evaluators" styleClass="heading"/>
+                    <br/><br/>
+                    <table cellpadding="5" cellspacing="0">
+                        <ui:repeat value="#{projectController.evaluatorUserObjRefs(projectController.selectedProject)}" var="user">
+                            <tr>
+                                <td><p:graphicImage cache="false" styleClass="smallProfilePhoto"
+                                                    value="#{userController.photoOfUser(user.getId())}" /></td>
+                                <td><h:outputText value="#{user.getFirstName()} #{user.getLastName()}"
+                                                  escape="false" style="white-space:pre-line;"/></td>
+                            </tr>
+                        </ui:repeat>
+                    </table>
+                    <br/><br/>
+                    <!--
+                    ***************************************
+                    *   Reselect All Project Evaluators   *
+                    ***************************************
+                    -->
+                    <p:outputLabel value="Reselect All Project Evaluators to Update" for="selectEvaluators" styleClass="heading"/>
+                    <br/>
+                    <h:outputText value="You must reselect already selected one to keep it!" styleClass="message"/>
+                    <br/><br/>
+                    <p:selectManyMenu id="selectEvaluators" value="#{projectController.selectedEvaluators}"
+                                      var="u" filter="true" filterMatchMode="contains" showCheckbox="true"
+                                      scrollHeight="300" style="width: 50%" styleClass="manymenu-advanced">
+                        <f:selectItems value="#{projectController.getAllUsersExceptSuperUser()}" var="user"
+                                       itemLabel="#{user.firstName} #{user.lastName}" itemValue="#{user}"/>
+                        <p:column>
+                            <p:graphicImage cache="false" styleClass="smallProfilePhoto"
+                                            value="#{userController.photoOfUser(u.id)}"/>
+                        </p:column>
+                        <p:column>
+                            <h:outputText value="#{u.firstName} #{u.lastName}"/>
+                        </p:column>
+                    </p:selectManyMenu>
+                </div>
+            </h:panelGroup>
+            <!-- ========================================================================== -->
+            <br/><br/>
+            <br/>
+            <h:panelGroup>
+                <div align="center">
+                    <!-- SAVE button -->
+                    <p:commandButton value="Save" icon="fas fa-save" styleClass="rounded-button"
+                                     ajax="false" actionListener="#{projectController.updateProject()}"
+                                     update="display,:ProjectListForm:datalist,:growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
+                                     action="/project/List?faces-redirect=true" />
+                    &nbsp;
+                    <!-- CANCEL button -->
+                    <p:commandButton value="Cancel" icon="fas fa-undo" styleClass="ui-button-outlined"
+                                     ajax="false" immediate="true"
+                                     actionListener="#{projectController.cancelEdit()}" />
+                </div>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

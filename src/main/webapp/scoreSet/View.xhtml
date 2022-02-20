@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Osman Balci on 2022.1.12
+  - Copyright © 2022 Osman Balci. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="View Score Set"/>
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+        <h:form id="ViewScoreSetForm">
+            <h:panelGroup id="display">
+                <div align="center">
+                    <h1>Nominal Score Set</h1>
+                    <br/>
+                    <h:outputText value="#{scoreSetController.selected.title}" class="heading"/>
+                    <br/><br/>
+                    <table border="1" cellpadding="5" cellspacing="0">
+                        <tr bgcolor="LemonChiffon">
+                            <td>Nominal Score</td>
+                            <td>Low Score</td>
+                            <td>High Score</td>
+                        </tr>
+                        <ui:repeat value="#{scoreSetController.getListOfScoreSetRows(scoreSetController.selected)}" var="row">
+                            <tr>
+                                <td style="white-space:nowrap;"><h:outputText value="#{row.getName()}"/></td>
+                                <td><h:outputText value="#{row.getLowScore()}"/></td>
+                                <td><h:outputText value="#{row.getHighScore()}"/></td>
+                            </tr>
+                        </ui:repeat>
+                    </table>
+                </div>
+            </h:panelGroup>
+            <br/><br/><br/>
+            <h:panelGroup>
+                <div align="center">
+                    <!-- CLOSE button -->
+                    <p:button outcome="/scoreSet/List" value="Back" icon="fas fa-arrow-left"
+                              styleClass="ui-button-outlined"/>
+                </div>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

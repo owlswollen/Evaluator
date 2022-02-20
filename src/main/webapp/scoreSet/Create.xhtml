@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Osman Balci on 2022.1.13
+  - Copyright © 2022 Osman Balci. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition>
+    <!--
+    ===================================================================
+    |  Clicking the CREATE button in List.xhtml displays this Dialog  |
+    |  window for the user to create a new nominal score set.         |
+    ===================================================================
+    -->
+    <p:dialog id="ScoreSetCreateDlg" header="New Score Set Creation" widgetVar="ScoreSetCreateDialog"
+              modal="true" position="center" appendTo="@(body)" width="60%"
+              showEffect="slide" hideEffect="fade" responsive="true">
+
+        <div align="center">
+            <!-- class="ui-datatable-data" in siteStyles reduces row paddings -->
+            <h:form id="ScoreSetCreateForm" class="ui-datatable-data">
+                <p:panel header="Create a New Nominal Score Set">
+                    <h:panelGroup id="display">
+                        <div align="center">
+                            <h:outputText value="Title" class="heading"/>
+                            <br/><br/>
+                            <p:inputText id="title" value="#{scoreSetController.selected.title}" style="width: 90%"
+                                         required="true" requiredMessage="Score Set Title is Required!"/>
+                            <br/><br/><br/>
+                            <h:outputText value="Definition" class="heading"/>
+                            <br/><br/>
+                            <p:inputTextarea id="definition" value="#{scoreSetController.selected.definition}"
+                                             autoResize="true" style="width: 90%"
+                                             required="true" requiredMessage="Score Set Definition is Required!"/>
+                        </div>
+                    </h:panelGroup>
+                    <br/><br/><br/>
+                    <h:panelGroup>
+                        <div align="center">
+                            <!-- SAVE button -->
+                            <p:commandButton value="Save" icon="fas fa-save" styleClass="rounded-button"
+                                             ajax="false" actionListener="#{scoreSetController.createAfterValidation()}"
+                                             update="display,:ScoreSetListForm:datalist,:growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
+                                             oncomplete="handleSubmit(args,'ScoreSetCreateDialog');"/>
+                            &nbsp;
+                            <!-- CANCEL button -->
+                            <p:commandButton value="Cancel" icon="fas fa-ban" styleClass="ui-button-outlined"
+                                             immediate="true" onclick="PF('ScoreSetCreateDialog').hide()"/>
+                        </div>
+                    </h:panelGroup>
+                </p:panel>
+            </h:form>
+        </div>
+    </p:dialog>
+</ui:composition>
+</html>

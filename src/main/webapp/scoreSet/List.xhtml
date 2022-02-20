@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Osman Balci on 2022.1.13
+  - Copyright © 2022 Osman Balci. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="Score Sets List"/>
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+
+        <!-- In case of JSF validation error, set 'selected' to null in scoreSetController -->
+        <c:if test="#{facesContext.validationFailed}">
+            ${scoreSetController.unselect()}
+        </c:if>
+
+        <!-- Set 'selected' to null in scoreSetController when the user refreshes / reloads this JSF page -->
+        <f:metadata>
+            <f:viewAction action="#{scoreSetController.unselect()}" rendered="#{facesContext.postback}"/>
+        </f:metadata>
+
+        <div align="center" style="width: 70%; margin: auto;">
+            <h:form id="ScoreSetListForm">
+                <p:panel header="List of Nominal Score Sets">
+                    <p:dataTable id="datalist"
+                                 value="#{scoreSetController.listOfScoreSets}"
+                                 var="aScoreSet"
+                                 widgetVar="scoreSetsDataTable"
+                                 selectionMode="single"
+                                 selection="#{scoreSetController.selected}"
+                                 reflow="true"
+                                 showGridlines="true"
+                                 paginator="true"
+                                 rowKey="#{aScoreSet.id}"
+                                 rows="5"
+                                 rowsPerPageTemplate="5,10,20,30,50,70,90"
+                                 emptyMessage="No score set found for the search query entered!">
+
+                        <c:if test="#{userController.isSuperUser() == true}">
+                            <p:ajax event="rowSelect" update="createButton viewButton editButton deleteButton "/>
+                            <p:ajax event="rowUnselect" update="createButton viewButton editButton deleteButton "/>
+                        </c:if>
+
+                        <c:if test="#{userController.isSuperUser() == false}">
+                            <p:ajax event="rowSelect" update="viewButton"/>
+                            <p:ajax event="rowUnselect" update="viewButton "/>
+                        </c:if>
+
+                        <!--
+                        *************************
+                        *   Data Table Header   *
+                        *************************
+                        -->
+                        <f:facet name="header">
+                            <div align="center">
+                                <p:inputText id="globalFilter" onkeyup="PF('scoreSetsDataTable').filter()"
+                                             filterMatchMode="contains"
+                                             style="width: 250px"
+                                             placeholder="Enter Global Search Query"/>
+                                &nbsp;
+                                <p:commandButton type="button" value="Clear All Filters" styleClass="ui-button-outlined"
+                                                 icon="fas fa-undo" onclick="PF('scoreSetsDataTable').clearFilters()"/>
+                            </div>
+                        </f:facet>
+
+                        <!--
+                        ***********************
+                        *   Score Set Title   *
+                        ***********************
+                        -->
+                        <p:column headerText="Title" sortBy="#{aScoreSet.title}"
+                                  style="vertical-align: top; width: 200px"
+                                  filterBy="#{aScoreSet.title}" filterMatchMode="contains">
+
+                            <h:outputText value="#{aScoreSet.title}"/>
+                        </p:column>
+
+                        <!--
+                        ****************************
+                        *   Score Set Definition   *
+                        ****************************
+                        -->
+                        <p:column headerText="Definition" style="vertical-align: top"
+                                  filterBy="#{aScoreSet.definition}" filterMatchMode="contains">
+
+                            <table border="1" cellpadding="5" cellspacing="0">
+                                <tr bgcolor="LemonChiffon">
+                                    <td>Nominal Score</td>
+                                    <td style="width: 120px;">Low Score</td>
+                                    <td style="width: 120px;">High Score</td>
+                                </tr>
+                                <ui:repeat value="#{scoreSetController.getListOfScoreSetRows(aScoreSet)}" var="row">
+                                    <tr>
+                                        <td><h:outputText value="#{row.getName()}"/></td>
+                                        <td style="width: 120px;"><h:outputText value="#{row.getLowScore()}"/></td>
+                                        <td style="width: 120px;"><h:outputText value="#{row.getHighScore()}"/></td>
+                                    </tr>
+                                </ui:repeat>
+                            </table>
+                            <br/>
+                        </p:column>
+
+                        <!--
+                        *************************
+                        *   Data Table Footer   *
+                        *************************
+                        -->
+                        <f:facet name="footer">
+                            <div align="center">
+                                <c:if test="#{userController.isSuperUser() == true}">
+                                    <p:commandButton id="createButton" value="Create" icon="fas fa-plus"
+                                                     styleClass="rounded-button"
+                                                     actionListener="#{scoreSetController.prepareCreate()}"
+                                                     update=":ScoreSetCreateForm"
+                                                     oncomplete="PF('ScoreSetCreateDialog').show()"/>
+                                </c:if>
+                                &nbsp;
+                                <p:button id="viewButton" outcome="/scoreSet/View" value="View"
+                                          icon="fas fa-eye" styleClass="rounded-button"
+                                          disabled="#{empty scoreSetController.selected}"/>
+                                &nbsp;
+                                <c:if test="#{userController.isSuperUser() == true}">
+                                    <p:commandButton id="editButton" value="Edit" icon="fas fa-edit"
+                                                     styleClass="rounded-button"
+                                                     update=":ScoreSetEditDlg"
+                                                     oncomplete="PF('ScoreSetEditDialog').show()"
+                                                     disabled="#{empty scoreSetController.selected}"/>
+                                </c:if>
+                                &nbsp;
+                                <c:if test="#{userController.isSuperUser() == true}">
+                                    <!-- ***************************************************
+                                    Display a Confirmation dialog for the DELETE button
+                                    id is used since it is referenced to be activated or not
+                                    **************************************************** -->
+                                    <p:commandButton id="deleteButton" value="Delete" icon="fas fa-trash-alt"
+                                                     styleClass="rounded-button"
+                                                     actionListener="#{scoreSetController.destroy()}"
+                                                     update="datalist,:growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
+                                                     disabled="#{empty scoreSetController.selected}">
+
+                                        <p:confirm header="Deletion Confirmation"
+                                                   message="Are you sure you want to permanently delete the selected score set from the database?"/>
+                                    </p:commandButton>
+
+                                    <p:confirmDialog id="confirmDialogBox" global="true" showEffect="fade"
+                                                     hideEffect="fade"
+                                                     responsive="true" width="350">
+                                        <div align="center">
+                                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no"
+                                                             icon="fas fa-window-close"/>
+                                            &nbsp;
+                                            <p:commandButton value="Yes" type="button"
+                                                             class="ui-confirmdialog-yes ui-button-danger"
+                                                             icon="fas fa-check-square"/>
+                                        </div>
+                                    </p:confirmDialog>
+                                    <!-- *******************************************
+                                    End of Display of the DELETE Confirmation dialog
+                                    ******************************************** -->
+                                </c:if>
+                            </div>
+                        </f:facet>
+                    </p:dataTable>
+                </p:panel>
+            </h:form>
+        </div>
+
+        <!-- Clicking the Create button displays the included Create.xhtml file in a dialog window on top of this page. -->
+        <ui:include src="/scoreSet/Create.xhtml"/>
+
+        <!-- Clicking the Edit button displays the included Edit.xhtml file in a dialog window on top of this page. -->
+        <ui:include src="/scoreSet/Edit.xhtml"/>
+    </ui:define>
+</ui:composition>
+</html>

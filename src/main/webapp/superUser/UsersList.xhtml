@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Osman Balci on 2022.1.13
+  - Copyright © 2022 Osman Balci. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="Users List"/>
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+        <!--
+        *** Prevent Security Breach ***
+        While the app is running, entering http://localhost:8080/Evaluator/superUser/UsersList.xhtml
+        accesses the users list resulting in a security breach.
+        -->
+        <c:if test="#{userController.isSuperUser() == true}">
+            <!--
+            ********************************************
+            *   Let Only the SuperUser See this Page   *
+            ********************************************
+            -->
+            <div align="center">
+                <h:form id="UsersListForm">
+                    <p:panel header="List of All Users">
+                        <p:dataTable id="datalist" value="#{userController.allUsers}" var="aUser"
+                                     selectionMode="single" selection="#{userController.selected}"
+                                     reflow="true"
+                                     paginator="true"
+                                     rowKey="#{aUser.id}"
+                                     rows="10"
+                                     rowsPerPageTemplate="5,10,20,30,40,50"
+                                     class="dataTable">
+
+                            <p:ajax event="rowSelect" update="viewButton"/>
+                            <p:ajax event="rowUnselect" update="viewButton"/>
+
+                            <!--
+                            ******************
+                            *   User Photo   *
+                            ******************
+                            -->
+                            <p:column headerText="User Photo" style="text-align:center; width:80px;">
+                                <!--
+                                Display the user's photo in a small circle. The cache="false" option
+                                enables immediate display of a newly uploaded photo without using cache.
+                                -->
+                                <p:graphicImage cache="false" class="smallProfilePhoto"
+                                                value="#{userController.photoOfUser(aUser.id)}"/>
+                            </p:column>
+
+                            <!--
+                            *******************
+                            *    First Name   *
+                            *******************
+                            -->
+                            <p:column headerText="First Name">
+                                <h:outputText value="#{aUser.firstName}"/>
+                            </p:column>
+
+                            <!--
+                            ******************
+                            *    Last Name   *
+                            ******************
+                            -->
+                            <p:column sortBy="#{aUser.lastName}" headerText="Last Name">
+                                <h:outputText value="#{aUser.lastName}"/>
+                            </p:column>
+
+                            <!--
+                            *******************
+                            *     Username    *
+                            *******************
+                            -->
+                            <p:column sortBy="#{aUser.username}" headerText="Username">
+                                <h:outputText value="#{aUser.username}"/>
+                            </p:column>
+
+                            <f:facet name="footer">
+                                <div align="center">
+                                    <!--
+                                    ===========
+                                    VIEW Button
+                                    ===========
+                                    -->
+                                    <p:commandButton id="viewButton" icon="fas fa-eye" value="View"
+                                                     styleClass="rounded-button"
+                                                     update=":UserViewDlg" oncomplete="PF('UserViewDialog').show()"
+                                                     disabled="#{empty userController.selected}"/>
+                                </div>
+                            </f:facet>
+
+                        </p:dataTable>
+                    </p:panel>
+                </h:form>
+            </div>
+        </c:if>
+        <c:if test="#{userController.isSuperUser() == false}">
+            <div align="center"><h1>Cybercriminal Activity is Detected and Rejected!</h1></div>
+        </c:if>
+
+        <br/>
+
+        <!--
+        ===================================================
+        |  Clicking the VIEW button displays this Dialog  |
+        |  window showing the selected user's data.       |
+        ===================================================
+        -->
+        <p:dialog id="UserViewDlg" widgetVar="UserViewDialog" modal="true"
+                  resizable="false" appendTo="@(body)"
+                  header="#{userController.selected.firstName}&nbsp;#{userController.selected.lastName}">
+
+            <h:form id="UserViewForm" class="ui-datatable-data">
+                <div align="center">
+                    <h1> #{userController.selected.firstName}&nbsp;#{userController.selected.lastName} </h1>
+                    <!--
+                    USER'S PROFILE PHOTO: Display the user's account profile photo in a circle.
+                    The cache="false" option enables immediate display of a newly uploaded photo without using cache.
+                    -->
+                    <p:graphicImage cache="false" class="profilePhoto"
+                                    value="#{userController.photoOfUser(userController.selected.id)}"/>
+                    <br/>
+                    <br/>
+                    <p:panelGrid columns="2" columnClasses="panelGridColumn1, panelGridColumn2">
+
+                        <h:outputText value="First Name:"/>
+                        <h:outputText value="#{userController.selected.firstName}"/>
+
+                        <h:outputText value="Middle Name:"/>
+                        <h:outputText value="#{userController.selected.middleName}"/>
+
+                        <h:outputText value="Last Name:"/>
+                        <h:outputText value="#{userController.selected.lastName}"/>
+
+                        <h:outputText value="Address Line 1:"/>
+                        <h:outputText value="#{userController.selected.address1}"/>
+
+                        <h:outputText value="Address Line 2:"/>
+                        <h:outputText value="#{userController.selected.address2}"/>
+
+                        <h:outputText value="City:"/>
+                        <h:outputText value="#{userController.selected.city}"/>
+
+                        <h:outputText value="State:"/>
+                        <h:outputText value="#{userController.selected.state}"/>
+
+                        <h:outputText value="Zip Code:"/>
+                        <h:outputText value="#{userController.selected.zipcode}"/>
+
+                        <h:outputText value="Email:"/>
+                        <h:outputText value="#{userController.selected.email}"/>
+
+                        <h:outputText value="Username:"/>
+                        <h:outputText value="#{userController.selected.username}"/>
+
+                    </p:panelGrid>
+                    <br/>
+                    <h:panelGroup>
+                        <!-- CLOSE button -->
+                        <p:commandButton value="Close" onclick="PF('UserViewDialog').hide()"
+                                         icon="fas fa-window-close" styleClass="ui-button-outlined"/>
+                    </h:panelGroup>
+                </div>
+            </h:form>
+        </p:dialog>
+    </ui:define>
+</ui:composition>
+</html>

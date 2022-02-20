@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Osman Balci on 2022.1.6
+  - Copyright © 2022 Osman Balci. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <!-- Do not enter tags before the composition line since they are ignored by JSF -->
+
+    <!-- This page is constructed based on the siteTemplate -->
+    <ui:composition template="/template/siteTemplate.xhtml">
+        <ui:define name="title">
+            <!-- Set the page title -->
+            <h:outputText value="About" />
+        </ui:define>
+
+        <!-- Create the content for this page below -->
+        <ui:define name="editableContent">
+            <div align="center">
+                <h1>Evaluator Project Researchers</h1>
+                <br />
+                <table width="90%" border="0" cellspacing="0" cellpadding="5">
+                    <tr>
+                        <td width="150px" align="center" valign="middle">
+                            <a href="https://www.linkedin.com/in/onengokce/" target="_blank">
+                                <img src="#{resource['images:people/GokceOnen.png']}" class="profilePhoto" alt="Gökçe Önen"/></a>
+                        </td>
+                        <td>
+                            <span class="heading">Gökçe Önen</span><br/>is a graduate student in the Department of Computer Science at Virginia Tech. Her areas of expertise include Apple mobile software engineering and cloud software engineering. Ms. Önen's current research focuses on &ldquo;Collaborative Evaluation Methodology: Cloud Software and Applications&rdquo;.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="150px" align="center" valign="middle">
+                            <a href="https://manta.cs.vt.edu/balci/" target="_blank">
+                                <img src="#{resource['images:people/OsmanBalci.png']}" class="profilePhoto" alt="Osman Balci"/></a>
+                        </td>
+                        <td>
+                            <span class="heading">Osman Balci</span><br/>is Director of Mobile/Cloud Software Engineering Lab and Professor of Computer Science (CS) at Virginia Tech. His current areas of expertise center on Apple mobile software engineering, cloud software engineering, digital game-based learning, and modeling and simulation. Dr. Balci is interested in creating solutions to complex problems by way of engineering mobile and cloud software applications. He received the Virginia Tech College of Engineering 2018 W.S. &ldquo;Pete&rdquo; White Innovation in Engineering Education Award for his creation of mobile and cloud software development courses in the CS curriculum and his hands-on &ldquo;Learning by Examples&rdquo; pedagogy.
+                        </td>
+                    </tr>
+                </table>
+                <br/><br/><br/>
+            </div>
+        </ui:define>
+    </ui:composition>
+    <!-- Do not enter tags after the composition line since they are ignored by JSF -->
+</html>

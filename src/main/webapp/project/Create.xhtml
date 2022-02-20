@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Osman Balci on 2022.1.14
+  - Copyright © 2022 Osman Balci. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="Create Project"/>
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+        <div align="center" style="width:90%; margin:0 auto;">
+            <h:form id="ProjectCreationForm">
+                <h1>Create an Evaluation Project</h1>
+                <br/>
+                <!--
+                ********************************
+                *         Project Title        *
+                ********************************
+                -->
+                <p:outputLabel value="Project Title" for="title" styleClass="heading"/>
+                <br/><br/>
+                <p:inputText id="title" value="#{projectController.selectedProject.title}" style="width: 70%"
+                             required="true" requiredMessage="Project Title is required!">
+                    <f:validateLength minimum="2"/>
+                </p:inputText>
+
+                <!--
+                ********************************
+                *      Project Description     *
+                ********************************
+                -->
+                <br/><br/>
+                <p:outputLabel value="Project Description" for="description" styleClass="heading"/>
+                <br/><br/>
+                <!--
+                ================================================
+                |   PrimeFaces HTML Text Editor UI Component   |
+                ================================================
+                -->
+                <p:textEditor id="description" secure='false' value="#{editorController.editorContent}" height="360"
+                              required="true" requiredMessage="Project Description is required!"
+                              placeholder="Enter your project description here"/>
+                <br/><br/>
+                <!--
+                *************************************
+                *   Select Project Administrators   *
+                *************************************
+                -->
+                <p:outputLabel value="Select at Least One or More Project Administrators" for="selectAdmins" styleClass="heading"/>
+                <br/><br/>
+                <p:selectManyMenu id="selectAdmins" value="#{projectController.selectedAdministrators}"
+                                  var="u" filter="true" filterMatchMode="contains" showCheckbox="true"
+                                  required="true" requiredMessage="Selection of at least one administrator is required!"
+                                  scrollHeight="300" style="width: 50%" styleClass="manymenu-advanced">
+                    <f:selectItems value="#{projectController.getAllUsersExceptSuperUser()}" var="user"
+                                   itemLabel="#{user.firstName} #{user.lastName}" itemValue="#{user}"/>
+                    <p:column>
+                        <p:graphicImage cache="false" styleClass="smallProfilePhoto"
+                                        value="#{userController.photoOfUser(u.id)}" />
+                    </p:column>
+                    <p:column>
+                        <h:outputText value="#{u.firstName} #{u.lastName}"/>
+                    </p:column>
+                </p:selectManyMenu>
+                <br/><br/>
+                <!--
+                *********************************
+                *   Select Project Evaluators   *
+                *********************************
+                -->
+                <p:outputLabel value="Select Subject Matter Experts as Project Evaluators" styleClass="heading"/>
+                <br/><br/>
+                <p:selectManyMenu value="#{projectController.selectedEvaluators}"
+                                  var="u" filter="true" filterMatchMode="contains" showCheckbox="true"
+                                  scrollHeight="300" style="width: 50%" styleClass="manymenu-advanced">
+                    <f:selectItems value="#{projectController.getAllUsersExceptSuperUser()}" var="user"
+                                   itemLabel="#{user.firstName} #{user.lastName}" itemValue="#{user}"/>
+                    <p:column>
+                        <p:graphicImage cache="false" styleClass="smallProfilePhoto"
+                                        value="#{userController.photoOfUser(u.id)}" />
+                    </p:column>
+                    <p:column>
+                        <h:outputText value="#{u.firstName} #{u.lastName}"/>
+                    </p:column>
+                </p:selectManyMenu>
+                <!-- ========================================================================== -->
+                <br/><br/>
+                <!--
+                ================================
+                |        SUBMIT Button         |
+                ================================
+                -->
+                <p:commandButton id="createProject" value="Submit" icon="fas fa-arrow-up" styleClass="rounded-button"
+                                 ajax="false" action="#{projectController.createProject()}"/>
+                &nbsp;&nbsp;
+                <!--
+                ================================
+                |        CANCEL Button         |
+                ================================
+                -->
+                <p:button outcome="/project/List" value="Cancel" icon="fas fa-ban" styleClass="ui-button-outlined"/>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

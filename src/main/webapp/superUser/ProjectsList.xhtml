@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Osman Balci on 2022.1.13
+  - Copyright © 2022 Osman Balci. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="My Projects"/>
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+        <!--
+        *** Prevent Security Breach ***
+        While the app is running, entering http://localhost:8080/Evaluator/superUser/ProjectsList.xhtml
+        accesses the projects list resulting in a security breach.
+        -->
+        <c:if test="#{userController.isSuperUser() == true}">
+            <!--
+            ********************************************
+            *   Let Only the SuperUser See this Page   *
+            ********************************************
+            -->
+
+            <!-- In case of JSF validation error, set 'selected' to null in projectController -->
+            <c:if test="#{facesContext.validationFailed}">
+                ${projectController.unselect()}
+            </c:if>
+
+            <!-- Set 'selected' to null in projectController when the user refreshes / reloads this JSF page -->
+            <f:metadata>
+                <f:viewAction action="#{projectController.unselect()}" rendered="#{facesContext.postback}"/>
+            </f:metadata>
+
+            <div align="center">
+                <h:form id="ProjectListForm">
+                    <p:panel header="List of Evaluation Projects">
+                        <p:dataTable id="datalist"
+                                     value="#{projectController.getListOfAllProjects()}"
+                                     var="aProject"
+                                     widgetVar="projectsDataTable"
+                                     selectionMode="single"
+                                     selection="#{projectController.selectedProject}"
+                                     reflow="true"
+                                     showGridlines="true"
+                                     paginator="true"
+                                     rowKey="#{aProject.id}"
+                                     rows="10"
+                                     rowsPerPageTemplate="5,10,20,30,50,70,90"
+                                     emptyMessage="No project found for the search query entered!">
+
+                            <p:ajax event="rowSelect" update="viewButton"/>
+                            <p:ajax event="rowUnselect" update="viewButton"/>
+
+                            <!--
+                            *************************
+                            *   Data Table Header   *
+                            *************************
+                            -->
+                            <f:facet name="header">
+                                <div align="center">
+                                    <p:inputText id="globalFilter" onkeyup="PF('projectsDataTable').filter()"
+                                                 filterMatchMode="contains"
+                                                 style="width: 250px"
+                                                 placeholder="Enter Global Search Query"/>
+                                    &nbsp;
+                                    <p:commandButton type="button" value="Clear All Filters"
+                                                     styleClass="ui-button-outlined"
+                                                     icon="fas fa-undo"
+                                                     onclick="PF('projectsDataTable').clearFilters()"/>
+                                </div>
+                            </f:facet>
+
+                            <!--
+                            **********************
+                            *    Project Title   *
+                            **********************
+                            -->
+                            <p:column headerText="Title" sortBy="#{aProject.title}" style="vertical-align: top"
+                                      filterBy="#{aProject.title}" filterMatchMode="contains">
+
+                                <h:outputText value="#{aProject.title}"/>
+                            </p:column>
+
+                            <!--
+                            ****************************
+                            *    Project Description   *
+                            ****************************
+                            -->
+                            <p:column headerText="Description" style="vertical-align: top"
+                                      filterBy="#{aProject.description}" filterMatchMode="contains">
+
+                                <h:outputText value="#{aProject.description}" escape="false"
+                                              styleClass="scrollableTextBox"/>
+                            </p:column>
+
+                            <!--
+                            *******************************
+                            *    Project Administrators   *
+                            *******************************
+                            -->
+                            <p:column headerText="Administrators" style="vertical-align: top"
+                                      filterBy="#{projectController.adminFirstLastNames(aProject)}"
+                                      filterMatchMode="contains">
+
+                                <h:outputText value="#{projectController.adminFirstLastNames(aProject)}"
+                                              escape="false" style="white-space:pre-line;"/>
+                            </p:column>
+
+                            <!--
+                            ***************************
+                            *    Project Evaluators   *
+                            ***************************
+                            -->
+                            <p:column headerText="Evaluators" style="vertical-align: top"
+                                      filterBy="#{projectController.evaluatorFirstLastNames(aProject)}"
+                                      filterMatchMode="contains">
+
+                                <h:outputText value="#{projectController.evaluatorFirstLastNames(aProject)}"
+                                              escape="false" style="white-space:pre-line;"/>
+                            </p:column>
+
+                            <!--
+                            *************************
+                            *   Data Table Footer   *
+                            *************************
+                            -->
+                            <f:facet name="footer">
+                                <div align="center">
+                                    <p:button id="viewButton" outcome="/project/View" value="View"
+                                              icon="fas fa-eye" styleClass="rounded-button"
+                                              disabled="#{empty projectController.selectedProject}"/>
+                                </div>
+                            </f:facet>
+                        </p:dataTable>
+                    </p:panel>
+                </h:form>
+            </div>
+        </c:if>
+        <c:if test="#{userController.isSuperUser() == false}">
+            <div align="center"><h1>Cybercriminal Activity is Detected and Rejected!</h1></div>
+        </c:if>
+    </ui:define>
+</ui:composition>
+</html>

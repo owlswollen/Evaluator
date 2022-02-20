@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'war'
+}
+
+group 'edu.vt'
+version '1.0'
+
+repositories {
+    // Default Maven Central repository
+    mavenCentral()
+
+    // flat filesystem directory containing the PrimeFaces JAR file
+    flatDir {
+        dirs '/Users/Balci/IdeaProjects/Evaluator/src/main/webapp/WEB-INF/lib'
+    }
+}
+
+dependencies {
+    // Java EE 8 dependency
+    compileOnly group: 'javax', name: 'javaee-api', version: '8.0.1'
+
+    // primefaces-11.0.0.jar is located in the flat filesystem directory defined above
+    // primefaces-11.0.0.jar provides UI components for JSF
+    compileOnly group: 'org.primefaces', name: 'primefaces', version: '11.0.0'
+
+    // imgscalr-lib-4.2.jar is a simple and efficient best practice image-scaling and manipulation library implemented in pure Java
+    // imgscalr-lib-4.2.jar is located in the flat filesystem directory defined above
+    compileOnly group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
+
+    // MySQL JDBC Connector to Java is configured in WildFly
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.26'
+}

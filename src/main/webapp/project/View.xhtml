@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Osman Balci on 2022.1.11
+  - Copyright © 2022 Osman Balci. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="View Project"/>
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+        <h:form id="ViewProjectForm" class="ui-datatable-data">
+
+            <h:panelGroup id="display">
+                <div align="center">
+                    <h:outputText value="Project Title" styleClass="heading"/>
+                    <br/><br/>
+                    <h:outputText value="#{projectController.selectedProject.title}"/>
+                    <br/><br/><br/>
+                    <h:outputText value="Project Description" styleClass="heading"/>
+                </div>
+                <br/>
+                <p:fieldset align="left" style="width:80%; margin:0 auto;">
+                    <h:outputText value="#{projectController.selectedProject.description}"
+                                  escape="false" style="white-space:pre-line;"/>
+                </p:fieldset>
+                <br/><br/>
+                <div align="center">
+                    <h:outputText value="Project Administrators" styleClass="heading"/>
+                    <br/><br/>
+                    <table cellpadding="5" cellspacing="0">
+                        <ui:repeat value="#{projectController.adminUserObjRefs(projectController.selectedProject)}" var="user">
+                            <tr>
+                                <td><p:graphicImage cache="false" styleClass="smallProfilePhoto"
+                                                    value="#{userController.photoOfUser(user.getId())}" /></td>
+                                <td><h:outputText value="#{user.getFirstName()} #{user.getLastName()}"
+                                                  escape="false" style="white-space:pre-line;"/></td>
+                            </tr>
+                        </ui:repeat>
+                    </table>
+                    <br/><br/><br/>
+                    <h:outputText value="Project Evaluators" styleClass="heading"/>
+                    <br/><br/>
+                    <table cellpadding="5" cellspacing="0">
+                        <ui:repeat value="#{projectController.evaluatorUserObjRefs(projectController.selectedProject)}" var="user">
+                            <tr>
+                                <td><p:graphicImage cache="false" styleClass="smallProfilePhoto"
+                                    value="#{userController.photoOfUser(user.getId())}" /></td>
+                                <td><h:outputText value="#{user.getFirstName()} #{user.getLastName()}"
+                                                  escape="false" style="white-space:pre-line;"/></td>
+                            </tr>
+                        </ui:repeat>
+                    </table>
+                </div>
+            </h:panelGroup>
+            <br/><br/><br/>
+            <h:panelGroup>
+                <div align="center">
+                    <!-- CLOSE button -->
+                    <c:if test="#{userController.isSuperUser() == true}">
+                        <p:button outcome="/superUser/ProjectsList" value="Back" icon="fas fa-arrow-left"
+                                  styleClass="ui-button-outlined"/>
+                    </c:if>
+                    <c:if test="#{userController.isSuperUser() == false}">
+                        <p:button outcome="/project/List" value="Back" icon="fas fa-arrow-left"
+                                  styleClass="ui-button-outlined"/>
+                    </c:if>
+                </div>
+            </h:panelGroup>
+
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

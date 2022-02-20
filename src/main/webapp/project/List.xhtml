@@ -167,7 +167,8 @@
                                 ******************************************** -->
                                 &nbsp;
                                 <!-- OPEN button: id is used since it is referenced to be activated or deactivated -->
-                                <p:button id="openButton" outcome="/project/Project" value="Open"
+                                <p:commandButton id="openButton" value="Open"
+                                          action="#{treeTableController.openProject(projectController.selectedProject)}"
                                           icon="fas fa-external-link-alt" styleClass="rounded-button"
                                           disabled="#{empty projectController.selectedProject}"/>
                             </div>

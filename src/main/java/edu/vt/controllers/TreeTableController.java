@@ -4,6 +4,9 @@
  */
 package edu.vt.controllers;
 
+import edu.vt.EntityBeans.Project;
+import edu.vt.FacadeBeans.ProjectFacade;
+import edu.vt.controllers.util.JsfUtil;
 import edu.vt.managers.BinarySerializationManager;
 import edu.vt.managers.DatabaseSerializationManager;
 import edu.vt.pojo.Ahp;
@@ -13,6 +16,8 @@ import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -24,6 +29,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Named("treeTableController")
 @SessionScoped
@@ -65,14 +72,19 @@ public class TreeTableController implements Serializable {
     // DB ID of the serialized object
     private Long serializedId;
 
+    @EJB
+    private ProjectFacade projectFacade;
+
     //=============
     // Constructors
     //=============
 
     @PostConstruct
     public void init() {
+        rootIndicator = new Indicator("Temporary Root");
+
         // Create the default acyclic graph and show it in the tree table
-        createDefaultGraphAndTree();
+//        createDefaultGraphAndTree();
     }
 
     //==========================
@@ -249,6 +261,41 @@ public class TreeTableController implements Serializable {
         ahp = null;
     }
 
+    // TODO: refactor save, open, retrieve, store, import, export, delete
+    public void saveGraph(Project selectedProject) {
+        selectedProject.setIndicatorsGraph(ahp);
+        try {
+            projectFacade.edit(selectedProject);
+            JsfUtil.addSuccessMessage("Indicators Graph was successfully saved!");
+        } catch (EJBException ex) {
+            String msg = "";
+            Throwable cause = ex.getCause();
+            if (cause != null) {
+                msg = cause.getLocalizedMessage();
+            }
+            if (msg.length() > 0) {
+                JsfUtil.addErrorMessage(msg);
+            } else {
+                JsfUtil.addErrorMessage(ex, "A persistence error occurred!");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+            JsfUtil.addErrorMessage(ex, "A persistence error occurred");
+        }
+    }
+
+    public String openProject(Project selectedProject) {
+        ahp = selectedProject.getIndicatorsGraph();
+
+        if (ahp != null) {
+            showRetrievedGraphOnTreeTable();
+            rootTreeNode.setExpanded(true);
+            actualRootTreeNode.setExpanded(true);
+        }
+
+        return "/project/Project?faces-redirect=true";
+    }
+
     //--------------------------------------------------------
     // Methods for storing to DB and retrieving from DB
     //--------------------------------------------------------
@@ -328,6 +375,7 @@ public class TreeTableController implements Serializable {
     //-----------------------------------
 
     // TODO: nodes without any children give error because of a bug in PrimeFaces TreeTable
+
     /**********************
      * ADD CHILD TO GRAPH *
      **********************/

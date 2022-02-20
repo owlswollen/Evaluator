@@ -4,7 +4,10 @@
  */
 package edu.vt.EntityBeans;
 
+import edu.vt.pojo.Ahp;
+
 import java.io.Serializable;
+import java.sql.Blob;
 import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -58,9 +61,9 @@ public class Project implements Serializable {
     @Column(name = "evaluator_usernames")
     private String evaluatorUsernames;
 
-    @Size(min = 1, max = 16777215)
+//    @Size(min = 1, max = 16777215)
     @Column(name = "indicators_graph")
-    private String indicatorsGraph;
+    private Ahp indicatorsGraph;
 
     /*
     =================
@@ -115,13 +118,14 @@ public class Project implements Serializable {
         this.evaluatorUsernames = evaluatorUsernames;
     }
 
-    public String getIndicatorsGraph() {
+    public Ahp getIndicatorsGraph() {
         return indicatorsGraph;
     }
 
-    public void setIndicatorsGraph(String indicatorsGraph) {
+    public void setIndicatorsGraph(Ahp indicatorsGraph) {
         this.indicatorsGraph = indicatorsGraph;
     }
+
     /*
     ================================
     Instance Methods Used Internally

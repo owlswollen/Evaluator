@@ -60,35 +60,42 @@
             -->
             <p:panel>
                 <h:outputStylesheet library="css" name="panelStyle.css"/>
-                <p:commandButton value="Store to DB"
-                                 id="storeButton"
-                                 action="#{treeTableController.storeToDb}"
-                                 update="growl"
+<!--                <p:commandButton value="Store to DB"-->
+<!--                                 id="storeButton"-->
+<!--                                 action="#{treeTableController.storeToDb}"-->
+<!--                                 update="growl"-->
+<!--                                 process="@this"-->
+<!--                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;-->
+<!--                <p:commandButton value="Retrieve from DB"-->
+<!--                                 id="retrieveButton"-->
+<!--                                 action="#{treeTableController.retrieveFromDb}"-->
+<!--                                 update="treeForm"-->
+<!--                                 process="@this"/>&nbsp;-->
+                <p:commandButton value="Save Graph"
+                                 id="saveButton"
+                                 action="#{treeTableController.saveGraph(projectController.selectedProject)}"
+                                 update="treeForm, tabForm, growl"
+                                 style="padding: 0 !important;"
                                  process="@this"
                                  disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;
-                <p:commandButton value="Retrieve from DB"
-                                 id="retrieveButton"
-                                 action="#{treeTableController.retrieveFromDb}"
-                                 update="treeForm"
-                                 process="@this"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <p:commandButton value="Delete Graph"
                                  id="deleteButton"
                                  action="#{treeTableController.deleteGraph}"
                                  update="treeForm, tabForm"
                                  style="padding: 0 !important;"
                                  process="@this"
-                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <p:commandButton value="Export Graph"
-                                 id="exportButton"
-                                 action="#{treeTableController.exportGraph}"
-                                 update="growl"
-                                 process="@this"
                                  disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;
-                <p:commandButton value="Import Graph"
-                                 id="importButton"
-                                 action="#{treeTableController.importGraph}"
-                                 update="treeForm"
-                                 process="@this"/>&nbsp;
+<!--                <p:commandButton value="Export Graph"-->
+<!--                                 id="exportButton"-->
+<!--                                 action="#{treeTableController.exportGraph}"-->
+<!--                                 update="growl"-->
+<!--                                 process="@this"-->
+<!--                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;-->
+<!--                <p:commandButton value="Import Graph"-->
+<!--                                 id="importButton"-->
+<!--                                 action="#{treeTableController.importGraph}"-->
+<!--                                 update="treeForm"-->
+<!--                                 process="@this"/>&nbsp;-->
             </p:panel>
             <!--
             ================

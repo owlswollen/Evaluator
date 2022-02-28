@@ -29,12 +29,12 @@
                         <div align="center">
                             <h:outputText value="Title" class="heading"/>
                             <br/><br/>
-                            <p:inputText id="title" value="#{scoreSetController.selected.title}" style="width: 90%"
+                            <p:inputText id="title" value="#{scoreSetController.selectedScoreSet.title}" style="width: 90%"
                                          required="true" requiredMessage="Score Set Title is Required!"/>
                             <br/><br/><br/>
                             <h:outputText value="Definition" class="heading"/>
                             <br/><br/>
-                            <p:inputTextarea id="definition" value="#{scoreSetController.selected.definition}"
+                            <p:inputTextarea id="definition" value="#{scoreSetController.selectedScoreSet.definition}"
                                              autoResize="true" style="width: 90%"
                                              required="true" requiredMessage="Score Set Definition is Required!"/>
                         </div>

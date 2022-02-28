@@ -36,7 +36,7 @@
                                      onclick="PF('CreateRootDialog').hide()"
                                      update=":treeForm, :tabForm"
                                      action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
-                                     actionListener="#{treeTableController.createRoot}" />
+                                     actionListener="#{treeTableController.createRoot(projectController.selectedProject)}" />
                 </h:panelGroup>
             </div>
         </h:form>

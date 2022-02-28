@@ -44,7 +44,7 @@
                 <br/>
                 <h:panelGroup>
                     <p:commandButton value="Add"
-                                     actionListener="#{treeTableController.addSiblingToGraph}"
+                                     actionListener="#{treeTableController.addSiblingToGraph(projectController.selectedProject)}"
                                      update=":treeForm"
                                      action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
                                      onclick="PF('AddSiblingDialog').hide()"/>

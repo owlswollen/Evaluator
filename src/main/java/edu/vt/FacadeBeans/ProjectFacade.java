@@ -48,5 +48,15 @@ public class ProjectFacade extends AbstractFacade<Project> {
                 .setParameter("username", username)
                 .getResultList();
     }
-    
+
+    // Searches EvaluatorDB for projects whose evaluator is the username given
+    public List<Project> findProjectsWhoseEvaluatorIsUsername(String username) {
+        // Place the % wildcard before and after the search string to search for it anywhere in the evaluator_usernames column
+        username = "%" + username + "%";
+        // Conduct the search in a case-insensitive manner and return the results in a list.
+        return getEntityManager().createQuery(
+                "SELECT p FROM Project p WHERE p.evaluatorUsernames LIKE :username")
+                .setParameter("username", username)
+                .getResultList();
+    }
 }

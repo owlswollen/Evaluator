@@ -36,6 +36,7 @@
         <c:if test="#{!tabViewController.selectedIndicator.leaf}">
             <h:outputText value="Children:" style="font-weight: bold"/>
         </c:if>
+        <br/>
         <c:forEach var="item"
                    items="#{tabViewController.selectedIndicator.childIndicators}">
             <h:outputText value="#{item.name}"/><br/>

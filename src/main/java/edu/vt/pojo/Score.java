@@ -6,6 +6,7 @@ package edu.vt.pojo;
 
 import java.io.Serializable;
 
+// TODO: replace with ScoreSetRow?
 public class Score implements Serializable {
     /*
     ===============================

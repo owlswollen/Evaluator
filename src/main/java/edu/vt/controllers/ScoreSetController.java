@@ -5,7 +5,6 @@
 package edu.vt.controllers;
 
 import edu.vt.EntityBeans.ScoreSet;
-import edu.vt.EntityBeans.User;
 import edu.vt.controllers.util.JsfUtil;
 import edu.vt.controllers.util.JsfUtil.PersistAction;
 import edu.vt.FacadeBeans.ScoreSetFacade;
@@ -32,7 +31,12 @@ public class ScoreSetController implements Serializable {
     ===============================
      */
     private List<ScoreSet> listOfScoreSets = null;
-    private ScoreSet selected;
+    private ScoreSet selectedScoreSet;
+    private Integer selectedScoreSetId;
+
+    private List<ScoreSetRow> listOfScoreSetRows = null;
+    private ScoreSetRow selectedScoreSetRow;
+    private String selectedScoreSetRowName;
 
     @EJB
     private ScoreSetFacade scoreSetFacade;
@@ -61,16 +65,55 @@ public class ScoreSetController implements Serializable {
         this.listOfScoreSets = listOfScoreSets;
     }
 
-    public ScoreSet getSelected() {
-        return selected;
+    public ScoreSet getSelectedScoreSet() {
+        return selectedScoreSet;
     }
 
-    public void setSelected(ScoreSet selected) {
-        this.selected = selected;
+    public void setSelectedScoreSet(ScoreSet selectedScoreSet) {
+        this.selectedScoreSet = selectedScoreSet;
     }
 
     public ScoreSetFacade getScoreSetFacade() {
         return scoreSetFacade;
+    }
+
+    public List<ScoreSetRow> getListOfScoreSetRows() {
+        if (listOfScoreSetRows == null) {
+            listOfScoreSetRows = getListOfScoreSetRows(selectedScoreSet);
+        }
+        return listOfScoreSetRows;
+    }
+
+    public void setListOfScoreSetRows(List<ScoreSetRow> listOfScoreSetRows) {
+        this.listOfScoreSetRows = listOfScoreSetRows;
+    }
+
+    public ScoreSetRow getSelectedScoreSetRow() {
+        return selectedScoreSetRow;
+    }
+
+    public void setSelectedScoreSetRow(ScoreSetRow selectedScoreSetRow) {
+        this.selectedScoreSetRow = selectedScoreSetRow;
+    }
+
+    public Integer getSelectedScoreSetId() {
+        return selectedScoreSetId;
+    }
+
+    public void setSelectedScoreSetId(Integer selectedScoreSetId) {
+        selectedScoreSet = listOfScoreSets.stream().filter(el -> el.getId().equals(selectedScoreSetId)).findAny().orElse(null);
+        assert selectedScoreSet != null;
+        listOfScoreSetRows = getListOfScoreSetRows(selectedScoreSet);
+        this.selectedScoreSetId = selectedScoreSetId;
+    }
+
+    public String getSelectedScoreSetRowName() {
+        return selectedScoreSetRowName;
+    }
+
+    public void setSelectedScoreSetRowName(String selectedScoreSetRowName) {
+        selectedScoreSetRow = listOfScoreSetRows.stream().filter(el -> el.getName().equals(selectedScoreSetRowName)).findAny().orElse(null);
+        this.selectedScoreSetRowName = selectedScoreSetRowName;
     }
 
     /*
@@ -85,7 +128,7 @@ public class ScoreSetController implements Serializable {
      ***************************
      */
     public void unselect() {
-        selected = null;
+        selectedScoreSet = null;
     }
 
     /*
@@ -128,7 +171,7 @@ public class ScoreSetController implements Serializable {
     **************************************************
      */
     public String prepareCreate() {
-        selected = new ScoreSet();
+        selectedScoreSet = new ScoreSet();
         return "/scoreSet/Create?faces-redirect=true";
     }
 
@@ -144,7 +187,7 @@ public class ScoreSetController implements Serializable {
          String.split() parameter is a regular expression (RegEx) and
          vertical bar is a special character that needs to be escaped.
          */
-        String[] arrayOfScoreSetRows = selected.getDefinition().split("\\|");
+        String[] arrayOfScoreSetRows = selectedScoreSet.getDefinition().split("\\|");
         if (arrayOfScoreSetRows.length < 2) {
             scoreSetDefinitionIsValid = false;
             Methods.showMessage("Fatal Error", "Invalid Definition!",
@@ -210,7 +253,7 @@ public class ScoreSetController implements Serializable {
 
         if (!JsfUtil.isValidationFailed()) {
             // No JSF validation error. The CREATE operation is successfully performed.
-            selected = null;            // Remove selection
+            selectedScoreSet = null;            // Remove selection
             listOfScoreSets = null;     // Invalidate listOfScoreSets to trigger re-query
         }
     }
@@ -227,7 +270,7 @@ public class ScoreSetController implements Serializable {
          String.split() parameter is a regular expression (RegEx) and
          vertical bar is a special character that needs to be escaped.
          */
-        String[] arrayOfScoreSetRows = selected.getDefinition().split("\\|");
+        String[] arrayOfScoreSetRows = selectedScoreSet.getDefinition().split("\\|");
         if (arrayOfScoreSetRows.length < 2) {
             scoreSetUpdateIsValid = false;
             listOfScoreSets = null;
@@ -299,7 +342,7 @@ public class ScoreSetController implements Serializable {
 
         if (!JsfUtil.isValidationFailed()) {
             // No JSF validation error. The UPDATE operation is successfully performed.
-            selected = null;            // Remove selection
+            selectedScoreSet = null;            // Remove selection
             listOfScoreSets = null;     // Invalidate listOfScoreSets to trigger re-query
         }
     }
@@ -315,7 +358,7 @@ public class ScoreSetController implements Serializable {
 
         if (!JsfUtil.isValidationFailed()) {
             // No JSF validation error. The DELETE operation is successfully performed.
-            selected = null;            // Remove selection
+            selectedScoreSet = null;            // Remove selection
             listOfScoreSets = null;     // Invalidate listOfScoreSets to trigger re-query
         }
     }
@@ -331,7 +374,7 @@ public class ScoreSetController implements Serializable {
      * @param successMessage displayed to inform the user about the result
      */
     private void persist(PersistAction persistAction, String successMessage) {
-        if (selected != null) {
+        if (selectedScoreSet != null) {
             try {
                 if (persistAction != PersistAction.DELETE) {
                     /*
@@ -344,7 +387,7 @@ public class ScoreSetController implements Serializable {
 
                      ScoreSetFacade inherits the edit(selected) method from the AbstractFacade class.
                      */
-                    scoreSetFacade.edit(selected);
+                    scoreSetFacade.edit(selectedScoreSet);
                 } else {
                     /*
                      ----------------------------------------
@@ -355,7 +398,7 @@ public class ScoreSetController implements Serializable {
 
                      ScoreSetFacade inherits the remove(selected) method from the AbstractFacade class.
                      */
-                    scoreSetFacade.remove(selected);
+                    scoreSetFacade.remove(selectedScoreSet);
                 }
                 JsfUtil.addSuccessMessage(successMessage);
             } catch (EJBException ex) {

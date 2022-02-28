@@ -40,8 +40,13 @@ public class Indicator implements Serializable {
     // Low and high scores given by experts - for leaf indicators only
     private Map<Indicator, Score> evaluatorScores = new HashMap<>();
 
+    // Does this indicator have default scores
+    // or is it evaluated by the actual evaluators - for leaf indicators only
+    private boolean hasDefaultScores = true;
+
     // Is this indicator an evaluator
     private boolean isEvaluator = false;
+
 
     // The integrated weight calculated recursively starting from the root indicator
     // Stored to be used in the calculation of further indicators
@@ -186,6 +191,14 @@ public class Indicator implements Serializable {
         this.parentIndicators = parentIndicators;
     }
 
+    public boolean getHasDefaultScores() {
+        return hasDefaultScores;
+    }
+
+    public void setHasDefaultScores(boolean hasDefaultScores) {
+        this.hasDefaultScores = hasDefaultScores;
+    }
+
     //=================
     // Instance Methods
     //=================
@@ -240,6 +253,21 @@ public class Indicator implements Serializable {
         comparisonMatrix.get(indicator2).put(indicator1, 1.0 / relativeWeighting);
     }
 
+    // Remove deleted child indicator from the pairwise comparisons matrix
+    public void deleteComparisons(Indicator deletedIndicator) {
+        // Remove indicator from the pairwise comparisons matrix
+        comparisonMatrix.remove(deletedIndicator);
+        for (Indicator child : childIndicators) {
+            if (comparisonMatrix.get(child) != null)
+            for (Indicator comparedIndicator : comparisonMatrix.get(child).keySet()) {
+                if (comparedIndicator.equals(deletedIndicator)) {
+                    comparisonMatrix.get(child).remove(comparedIndicator);
+                    break;
+                }
+            }
+        }
+    }
+
     public void addParentIndicators(List<Indicator> parentIndicators) {
         for (Indicator parent : parentIndicators) {
             addParentIndicator(parent);
@@ -247,7 +275,7 @@ public class Indicator implements Serializable {
     }
 
     // Add evaluator scores if this is a leaf indicator
-    public void addEvaluatorScores(Indicator evaluator, Score score) {
+    public void addEvaluatorScore(Indicator evaluator, Score score) {
         evaluatorScores.put(evaluator, score);
     }
 

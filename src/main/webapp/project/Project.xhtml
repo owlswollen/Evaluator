@@ -22,26 +22,28 @@
     <!-- Create the content for this page below -->
     <ui:define name="editableContent">
         <div align="center">
-            <table style="max-width: 2200px">
-                <tr>
-                    <!--
-                    =====================
-                    |  TREE TABLE VIEW  |
-                    =====================
-                    -->
-                    <td style="width: 40%; vertical-align: top; background-color: white">
-                        <ui:include src="/project/treeTableView/TreeTableView.xhtml"/>
-                    </td>
-                    <!--
-                    ==============
-                    |  TAB VIEW  |
-                    ==============
-                    -->
-                    <td style="width: 60%; vertical-align: top; background-color: white">
-                        <ui:include src="/project/tabView/TabView.xhtml"/>
-                    </td>
-                </tr>
-            </table>
+            <p:panel header="#{projectController.selectedProject.title}">
+                <table style="max-width: 2200px">
+                    <tr>
+                        <!--
+                        =====================
+                        |  TREE TABLE VIEW  |
+                        =====================
+                        -->
+                        <td style="width: 40%; vertical-align: top; background-color: white">
+                            <ui:include src="/project/treeTableView/TreeTableView.xhtml"/>
+                        </td>
+                        <!--
+                        ==============
+                        |  TAB VIEW  |
+                        ==============
+                        -->
+                        <td style="width: 60%; vertical-align: top; background-color: white">
+                            <ui:include src="/project/tabView/TabView.xhtml"/>
+                        </td>
+                    </tr>
+                </table>
+            </p:panel>
         </div>
     </ui:define>
 </ui:composition>

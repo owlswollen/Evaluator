@@ -47,7 +47,7 @@
                                      onclick="PF('AddChildDialog').hide()"
                                      update=":treeForm, :tabForm"
                                      action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
-                                     actionListener="#{treeTableController.addChildToGraph}" />
+                                     actionListener="#{treeTableController.addChildToGraph(projectController.selectedProject)}" />
                 </h:panelGroup>
             </div>
         </h:form>

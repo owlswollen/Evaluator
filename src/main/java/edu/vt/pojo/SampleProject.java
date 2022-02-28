@@ -354,97 +354,97 @@ public class SampleProject {
         complexity.compareIndicators(einstein, washington, 7.3);
         complexity.compareIndicators(einstein, lincoln, 0.38);
         complexity.compareIndicators(washington, lincoln, 6.6);
-        complexity.addEvaluatorScores(einstein, new Score(40.0, 75.0));
-        complexity.addEvaluatorScores(washington, new Score(78.0, 85.0));
-        complexity.addEvaluatorScores(lincoln, new Score(70.0, 75.0));
+        complexity.addEvaluatorScore(einstein, new Score(40.0, 75.0));
+        complexity.addEvaluatorScore(washington, new Score(78.0, 85.0));
+        complexity.addEvaluatorScore(lincoln, new Score(70.0, 75.0));
         
         easeOfChange.addChildIndicators(Arrays.asList(washington, reagan, lincoln));
         easeOfChange.compareIndicators(washington, reagan, 1.0);
         easeOfChange.compareIndicators(washington, lincoln, 1.0);
         easeOfChange.compareIndicators(reagan, lincoln, 1.0);
-        easeOfChange.addEvaluatorScores(washington, new Score(60.0, 75.0));
-        easeOfChange.addEvaluatorScores(reagan, new Score(88.0, 92.0));
-        easeOfChange.addEvaluatorScores(lincoln, new Score(68.0, 72.0));
+        easeOfChange.addEvaluatorScore(washington, new Score(60.0, 75.0));
+        easeOfChange.addEvaluatorScore(reagan, new Score(88.0, 92.0));
+        easeOfChange.addEvaluatorScore(lincoln, new Score(68.0, 72.0));
 
         readability.addChildIndicators(Arrays.asList(bonaparte, washington, lincoln));
         readability.compareIndicators(bonaparte, washington, 5.9);
         readability.compareIndicators(bonaparte, lincoln, 0.29);
         readability.compareIndicators(washington, lincoln, 6.2);
-        readability.addEvaluatorScores(bonaparte, new Score(90.0, 96.0));
-        readability.addEvaluatorScores(washington, new Score(67.0, 77.0));
-        readability.addEvaluatorScores(lincoln, new Score(80.0, 94.0));
+        readability.addEvaluatorScore(bonaparte, new Score(90.0, 96.0));
+        readability.addEvaluatorScore(washington, new Score(67.0, 77.0));
+        readability.addEvaluatorScore(lincoln, new Score(80.0, 94.0));
 
         traceability.addChildIndicators(Arrays.asList(einstein, washington, lincoln));
         traceability.compareIndicators(einstein, washington, 1.0);
         traceability.compareIndicators(einstein, lincoln, 1.0);
         traceability.compareIndicators(washington, lincoln, 1.0);
-        traceability.addEvaluatorScores(einstein, new Score(40.0, 60.0));
-        traceability.addEvaluatorScores(washington, new Score(78.0, 83.0));
-        traceability.addEvaluatorScores(lincoln, new Score(72.0, 78.0));
+        traceability.addEvaluatorScore(einstein, new Score(40.0, 60.0));
+        traceability.addEvaluatorScore(washington, new Score(78.0, 83.0));
+        traceability.addEvaluatorScore(lincoln, new Score(72.0, 78.0));
 
         cohesion.addChildIndicators(Arrays.asList(einstein, washington, reagan));
         cohesion.compareIndicators(einstein, washington, 5.3);
         cohesion.compareIndicators(einstein, reagan, 7.5);
         cohesion.compareIndicators(washington, reagan, 0.29);
-        cohesion.addEvaluatorScores(einstein, new Score(70.0, 90.0));
-        cohesion.addEvaluatorScores(washington, new Score(86.0, 93.0));
-        cohesion.addEvaluatorScores(reagan, new Score(67.0, 74.0));
+        cohesion.addEvaluatorScore(einstein, new Score(70.0, 90.0));
+        cohesion.addEvaluatorScore(washington, new Score(86.0, 93.0));
+        cohesion.addEvaluatorScore(reagan, new Score(67.0, 74.0));
 
         coupling.addChildIndicators(Arrays.asList(bonaparte, washington, reagan));
         coupling.compareIndicators(bonaparte, washington, 0.15);
         coupling.compareIndicators(bonaparte, reagan, 7.4);
         coupling.compareIndicators(washington, reagan, 5.4);
-        coupling.addEvaluatorScores(bonaparte, new Score(78.0, 90.0));
-        coupling.addEvaluatorScores(washington, new Score(67.0, 71.0));
-        coupling.addEvaluatorScores(reagan, new Score(82.0, 89.0));
+        coupling.addEvaluatorScore(bonaparte, new Score(78.0, 90.0));
+        coupling.addEvaluatorScore(washington, new Score(67.0, 71.0));
+        coupling.addEvaluatorScore(reagan, new Score(82.0, 89.0));
 
         wellDefinedInterfaces.addChildIndicators(Arrays.asList(einstein, bonaparte, lincoln));
         wellDefinedInterfaces.compareIndicators(einstein, bonaparte, 0.57);
         wellDefinedInterfaces.compareIndicators(einstein, lincoln, 0.78);
         wellDefinedInterfaces.compareIndicators(bonaparte, lincoln, 0.7);
-        wellDefinedInterfaces.addEvaluatorScores(einstein, new Score(55.0, 75.0));
-        wellDefinedInterfaces.addEvaluatorScores(bonaparte, new Score(61.0, 63.0));
-        wellDefinedInterfaces.addEvaluatorScores(lincoln, new Score(60.0, 70.0));
+        wellDefinedInterfaces.addEvaluatorScore(einstein, new Score(55.0, 75.0));
+        wellDefinedInterfaces.addEvaluatorScore(bonaparte, new Score(61.0, 63.0));
+        wellDefinedInterfaces.addEvaluatorScore(lincoln, new Score(60.0, 70.0));
 
         earlyErrorDetection.addChildIndicators(Arrays.asList(bonaparte, washington, reagan));
         earlyErrorDetection.compareIndicators(bonaparte, washington, 5.6);
         earlyErrorDetection.compareIndicators(bonaparte, reagan, 0.18);
         earlyErrorDetection.compareIndicators(washington, reagan, 4.1);
-        earlyErrorDetection.addEvaluatorScores(bonaparte, new Score(78.0, 85.0));
-        earlyErrorDetection.addEvaluatorScores(washington, new Score(80.0, 80.0));
-        earlyErrorDetection.addEvaluatorScores(reagan, new Score(89.0, 93.0));
+        earlyErrorDetection.addEvaluatorScore(bonaparte, new Score(78.0, 85.0));
+        earlyErrorDetection.addEvaluatorScore(washington, new Score(80.0, 80.0));
+        earlyErrorDetection.addEvaluatorScore(reagan, new Score(89.0, 93.0));
 
         visibilityOfBehavior.addChildIndicators(Arrays.asList(einstein, bonaparte, reagan));
         visibilityOfBehavior.compareIndicators(einstein, bonaparte, 7.7);
         visibilityOfBehavior.compareIndicators(einstein, reagan, 6.0);
         visibilityOfBehavior.compareIndicators(bonaparte, reagan, 6.3);
-        visibilityOfBehavior.addEvaluatorScores(einstein, new Score(30.0, 60.0));
-        visibilityOfBehavior.addEvaluatorScores(bonaparte, new Score(73.0, 73.0));
-        visibilityOfBehavior.addEvaluatorScores(reagan, new Score(61.0, 61.0));
+        visibilityOfBehavior.addEvaluatorScore(einstein, new Score(30.0, 60.0));
+        visibilityOfBehavior.addEvaluatorScore(bonaparte, new Score(73.0, 73.0));
+        visibilityOfBehavior.addEvaluatorScore(reagan, new Score(61.0, 61.0));
 
         diskStorageEfficiency.addChildIndicators(Arrays.asList(einstein, reagan, lincoln));
         diskStorageEfficiency.compareIndicators(einstein, reagan, 8.7);
         diskStorageEfficiency.compareIndicators(einstein, lincoln, 5.4);
         diskStorageEfficiency.compareIndicators(reagan, lincoln, 0.37);
-        diskStorageEfficiency.addEvaluatorScores(einstein, new Score(40.0, 80.0));
-        diskStorageEfficiency.addEvaluatorScores(reagan, new Score(87.0, 92.0));
-        diskStorageEfficiency.addEvaluatorScores(lincoln, new Score(68.0, 75.0));
+        diskStorageEfficiency.addEvaluatorScore(einstein, new Score(40.0, 80.0));
+        diskStorageEfficiency.addEvaluatorScore(reagan, new Score(87.0, 92.0));
+        diskStorageEfficiency.addEvaluatorScore(lincoln, new Score(68.0, 75.0));
 
         executionEfficiency.addChildIndicators(Arrays.asList(einstein, bonaparte, washington));
         executionEfficiency.compareIndicators(einstein, bonaparte, 6.0);
         executionEfficiency.compareIndicators(einstein, washington, 5.5);
         executionEfficiency.compareIndicators(bonaparte, washington, 5.3);
-        executionEfficiency.addEvaluatorScores(einstein, new Score(60.0, 90.0));
-        executionEfficiency.addEvaluatorScores(bonaparte, new Score(90.0, 93.0));
-        executionEfficiency.addEvaluatorScores(washington, new Score(80.0, 90.0));
+        executionEfficiency.addEvaluatorScore(einstein, new Score(60.0, 90.0));
+        executionEfficiency.addEvaluatorScore(bonaparte, new Score(90.0, 93.0));
+        executionEfficiency.addEvaluatorScore(washington, new Score(80.0, 90.0));
 
         memoryEfficiency.addChildIndicators(Arrays.asList(bonaparte, reagan, lincoln));
         memoryEfficiency.compareIndicators(bonaparte, reagan, 1.0);
         memoryEfficiency.compareIndicators(bonaparte, lincoln, 1.0);
         memoryEfficiency.compareIndicators(reagan, lincoln, 1.0);
-        memoryEfficiency.addEvaluatorScores(bonaparte, new Score(89.0, 94.0));
-        memoryEfficiency.addEvaluatorScores(reagan, new Score(90.0, 90.0));
-        memoryEfficiency.addEvaluatorScores(lincoln, new Score(75.0, 82.0));
+        memoryEfficiency.addEvaluatorScore(bonaparte, new Score(89.0, 94.0));
+        memoryEfficiency.addEvaluatorScore(reagan, new Score(90.0, 90.0));
+        memoryEfficiency.addEvaluatorScore(lincoln, new Score(75.0, 82.0));
 
         //-------------
         // AHP Solution

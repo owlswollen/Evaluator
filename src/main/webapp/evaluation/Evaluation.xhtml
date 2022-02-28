@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Gokce Onen on 2022.2.27
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="Evaluator Scores"/>
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+        <div align="center">
+            <table style="max-width: 2200px">
+                <tr>
+                    <!--
+                    ================
+                    |  DATA TABLE  |
+                    ================
+                    -->
+                    <td style="width: 50%; vertical-align: top">
+                        <h:form id="EvalutaionForm">
+                            <p:panel header="List of Leaf Indicators" style="text-align: center">
+                                <p:dataTable id="datalist"
+                                             value="#{evaluationController.listOfLeafIndicators}"
+                                             var="anIndicator"
+                                             widgetVar="indicatorsDataTable"
+                                             selectionMode="single"
+                                             selection="#{evaluationController.selectedLeafIndicator}"
+                                             reflow="true"
+                                             showGridlines="true"
+                                             paginator="true"
+                                             rowKey="#{anIndicator.name}"
+                                             rows="10"
+                                             rowsPerPageTemplate="5,10,20,30,50,70,90"
+                                             emptyMessage="No indicator found for the search query entered!">
+                                    <p:ajax event="rowSelect" update="ScoreForm"/>
+                                    <!--
+                                    *************************
+                                    *   Data Table Header   *
+                                    *************************
+                                    -->
+                                    <f:facet name="header">
+                                        <div align="center">
+                                            <p:inputText id="globalFilter" onkeyup="PF('projectsDataTable').filter()"
+                                                         filterMatchMode="contains"
+                                                         style="width: 250px"
+                                                         placeholder="Enter Global Search Query"/>
+                                            &nbsp;
+                                            <p:commandButton type="button" value="Clear All Filters"
+                                                             styleClass="ui-button-outlined"
+                                                             icon="fas fa-undo"
+                                                             onclick="PF('projectsDataTable').clearFilters()"/>
+                                        </div>
+                                    </f:facet>
+
+                                    <!--
+                                    ******************
+                                    *    Indicator   *
+                                    ******************
+                                    -->
+                                    <p:column headerText="Indicator" sortBy="#{anIndicator.name}"
+                                              style="vertical-align: top"
+                                              filterBy="#{anIndicator.name}" filterMatchMode="contains">
+
+                                        <h:outputText value="#{anIndicator.name}"/>
+                                    </p:column>
+
+                                    <!--
+                                    ****************
+                                    *    Project   *
+                                    ****************
+                                    -->
+                                    <p:column headerText="Project" style="vertical-align: top"
+                                              sortBy="#{evaluationController.indicatorProjectMap.get(anIndicator).title}"
+                                              filterBy="#{evaluationController.indicatorProjectMap.get(anIndicator).title}"
+                                              filterMatchMode="contains">
+
+                                        <h:outputText
+                                                value="#{evaluationController.indicatorProjectMap.get(anIndicator).title}"/>
+                                    </p:column>
+
+                                </p:dataTable>
+                            </p:panel>
+                        </h:form>
+                    </td>
+                    <!--
+                    ===========
+                    |  SCORE  |
+                    ===========
+                    -->
+                    <td style="width: 50%; vertical-align: top">
+                        <h:form id="ScoreForm">
+                            <div align="center" style="background-color: white">
+                                <p:panel header="#{evaluationController.selectedLeafIndicator.name}">
+                                    <c:if test="#{evaluationController.selectedLeafIndicator != null}">
+                                        <p:panelGrid id="panelScoreSet" columns="2"
+                                                     columnClasses="panelGridColumn1, panelGridColumn2">
+                                            <h:outputText value="Select Score Set:" style="font-weight: bold"/>
+                                            <p:selectOneMenu id="scoreSetSelect"
+                                                             value="#{scoreSetController.selectedScoreSetId}">
+                                                <p:ajax event="itemSelect" process="@this" update="ScoreForm"/>
+                                                <!-- TODO: remove select one -->
+                                                <f:selectItem itemLabel="Select One" itemValue=""/>
+                                                <f:selectItems value="#{scoreSetController.listOfScoreSets}"
+                                                               var="scoreSet"
+                                                               itemLabel="#{scoreSet.title}"
+                                                               itemValue="#{scoreSet.id}"/>
+                                            </p:selectOneMenu>
+                                        </p:panelGrid><br/>
+                                        <br/>
+                                        <c:if test="#{scoreSetController.selectedScoreSet != null}">
+                                            <p:panelGrid id="panelScore" columns="2"
+                                                         columnClasses="panelGridColumn1, panelGridColumn2">
+
+                                                <h:outputText value="Score:" style="font-weight: bold"/>
+                                                <p:selectOneMenu id="scoreSelect"
+                                                                 value="#{scoreSetController.selectedScoreSetRowName}">
+                                                    <p:ajax event="itemSelect" process="@this" update="ScoreForm"/>
+                                                    <!-- TODO: remove select one -->
+                                                    <f:selectItem itemLabel="Select One" itemValue=""/>
+                                                    <f:selectItems value="#{scoreSetController.listOfScoreSetRows}"
+                                                                   var="scoreSetRow"
+                                                                   itemLabel="#{scoreSetRow.name}"
+                                                                   itemValue="#{scoreSetRow.name}"/>
+                                                </p:selectOneMenu>
+
+                                                <h:outputText value="Low Score:" style="font-weight: bold"/>
+                                                <h:outputText
+                                                        value="#{scoreSetController.selectedScoreSetRow.lowScore}"/>
+
+                                                <h:outputText value="High Score:" style="font-weight: bold"/>
+                                                <h:outputText
+                                                        value="#{scoreSetController.selectedScoreSetRow.highScore}"/>
+                                            </p:panelGrid><br/>
+                                            <br/>
+                                            <p:commandButton value="Save Score"
+                                                             id="saveButton"
+                                                             action="#{evaluationController.saveScore(scoreSetController.selectedScoreSetRow)}"
+                                                             update="ScoreForm, :growlInfoMessage"
+                                                             style="margin-bottom: 100px"
+                                                             process="@this"
+                                                             disabled="#{empty scoreSetController.selectedScoreSetRow}"/>&nbsp;
+                                        </c:if>
+                                    </c:if>
+                                </p:panel>
+                            </div>
+                        </h:form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

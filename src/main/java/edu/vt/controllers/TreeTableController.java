@@ -12,6 +12,7 @@ import edu.vt.managers.DatabaseSerializationManager;
 import edu.vt.pojo.Ahp;
 import edu.vt.pojo.Indicator;
 import edu.vt.pojo.SampleProject;
+import edu.vt.pojo.Score;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -374,13 +375,17 @@ public class TreeTableController implements Serializable {
     // Create Root, Add Child, Add Sibling, Add Parent
     //-----------------------------------
 
-    // TODO: nodes without any children give error because of a bug in PrimeFaces TreeTable
-
-    /**********************
-     * ADD CHILD TO GRAPH *
-     **********************/
-    public void createRoot() {
+    /***************
+     * CREATE ROOT *
+     ***************/
+    public void createRoot(Project selectedProject) {
         rootIndicator = new Indicator(newNodeName);
+
+        // Default values are set to newly created indicators until the user determines the actual values
+        // Root indicator is also a leaf indicator until a child is added to it
+        // By default all evaluators have equal weights on a leaf indicator
+        // By default the scores of all evaluators for all leaf indicators  are [50.0 .. 50.0]
+        addEvaluators(selectedProject, rootIndicator);
 
         // Run the AHP algorithm for the updated graph
         ahp = new Ahp(rootIndicator);
@@ -392,12 +397,10 @@ public class TreeTableController implements Serializable {
         newNodeName = null;
     }
 
-    // TODO: add evaluators to newly added child
-
     /**********************
      * ADD CHILD TO GRAPH *
      **********************/
-    public void addChildToGraph(ActionEvent event) {
+    public void addChildToGraph(Project selectedProject) {
         // Check if the new node is already in the graph
         Indicator childIndicatorToAdd = null;
         childIndicatorToAdd = findIndicatorByName(rootIndicator, childIndicatorToAdd);
@@ -415,14 +418,30 @@ public class TreeTableController implements Serializable {
         Indicator parentIndicator = null;
         parentIndicator = findIndicatorBySelectedNode(rootIndicator, parentIndicator);
 
+        // Remove the evaluators of the parent indicator added by default when the parent indicator used to be a leaf indicator
+        if (parentIndicator.isLeaf()) {
+            for (Indicator evaluator : parentIndicator.getChildIndicators()) {
+                parentIndicator.deleteComparisons(evaluator);
+            }
+            parentIndicator.getChildIndicators().clear();
+            parentIndicator.getEvaluatorScores().clear();
+        }
+
         // Add the new indicator to the children of the found indicator
         parentIndicator.addChildIndicator(childIndicatorToAdd);
 
-        // Add a row and a column for the new indicator to the pairwise comparison matrix of the parent indicator
+        // TODO: move this into Indicator
+        // Add a row and a column for the new child indicator to the pairwise comparison matrix of the parent indicator
         // Set 1 to the newly added cells as the default comparison value
-        for (Indicator nodeToCompare : parentIndicator.getChildIndicators()) {
-            parentIndicator.compareIndicators(nodeToCompare, childIndicatorToAdd, 1);
+        for (Indicator siblingIndicator : parentIndicator.getChildIndicators()) {
+            parentIndicator.compareIndicators(childIndicatorToAdd, siblingIndicator, 1.0);
         }
+
+        // Default values are set to newly created indicators until the user determines the actual values
+        // New indicator is a leaf indicator until a child is added to it
+        // By default all evaluators have equal weights on a leaf indicator
+        // By default the scores of all evaluators for all leaf indicators  are [50.0 .. 50.0]
+        addEvaluators(selectedProject, childIndicatorToAdd);
 
         // Add the new node to the tree table
         addChildToTreeTable(rootTreeNode, childIndicatorToAdd, existingIndicator);
@@ -466,7 +485,7 @@ public class TreeTableController implements Serializable {
     /************************
      * ADD SIBLING TO GRAPH *
      ************************/
-    public void addSiblingToGraph(ActionEvent event) {
+    public void addSiblingToGraph(Project selectedProject) {
         // Check if the new node is already in the graph
         Indicator siblingIndicatorToAdd = null;
         siblingIndicatorToAdd = findIndicatorByName(rootIndicator, siblingIndicatorToAdd);
@@ -491,6 +510,13 @@ public class TreeTableController implements Serializable {
                 // Thus selected indicator and new indicator will be siblings
                 parentIndicator.addChildIndicator(siblingIndicatorToAdd);
 
+                // Default values are set to newly created indicators until the user determines the actual values
+                // New indicator is a leaf indicator until a child is added to it
+                // By default all evaluators have equal weights on a leaf indicator
+                // By default the scores of all evaluators for all leaf indicators  are [50.0 .. 50.0]
+                addEvaluators(selectedProject, siblingIndicatorToAdd);
+
+                // TODO: move this into Indicator
                 // Add a row and a column for the new indicator to the pairwise comparison matrix of the parent indicator
                 // Set 1 to the newly added cells as the default comparison value
                 for (Indicator nodeToCompare : parentIndicator.getChildIndicators()) {
@@ -558,6 +584,7 @@ public class TreeTableController implements Serializable {
         // Add the selected indicator to the children of the found indicator
         parentIndicator.addChildIndicator(selectedNode.getData());
 
+        // TODO: move this into indicator
         // Add a row and a column for the new child indicator to the pairwise comparison matrix of the parent indicator
         // Set 1 to the newly added cells as the default comparison value
         for (Indicator nodeToCompare : parentIndicator.getChildIndicators()) {
@@ -677,5 +704,27 @@ public class TreeTableController implements Serializable {
             treeNodeToAdd = findNodeByNameInTreeTable(treeNode, treeNodeToAdd);
         }
         return treeNodeToAdd;
+    }
+
+    /*
+     * Add evaluators to newly created leaf indicator
+     */
+    private void addEvaluators(Project selectedProject, Indicator newIndicator) {
+        // Default values are set to newly created indicators until the user determines the actual values
+        // New indicator is a leaf indicator until a child is added to it
+        // By default all evaluators have equal weights on a leaf indicator
+        // By default the scores of all evaluators for all leaf indicators  are [50.0 .. 50.0]
+        String[] evaluatorUsernames = selectedProject.getEvaluatorUsernames().split(",");
+        for (String evaluatorUsername : evaluatorUsernames) {
+            Indicator evaluator = new Indicator(evaluatorUsername);
+            evaluator.setEvaluator(true);
+            newIndicator.addChildIndicator(evaluator);
+            newIndicator.addEvaluatorScore(evaluator, new Score(50.0, 50.0));
+
+            for (Indicator siblingEvaluator : newIndicator.getChildIndicators()) {
+                newIndicator.compareIndicators(evaluator, siblingEvaluator, 1.0);
+            }
+            newIndicator.setHasDefaultScores(true);
+        }
     }
 }

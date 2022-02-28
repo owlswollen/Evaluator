@@ -24,7 +24,7 @@
                 <div align="center">
                     <h1>Nominal Score Set</h1>
                     <br/>
-                    <h:outputText value="#{scoreSetController.selected.title}" class="heading"/>
+                    <h:outputText value="#{scoreSetController.selectedScoreSet.title}" class="heading"/>
                     <br/><br/>
                     <table border="1" cellpadding="5" cellspacing="0">
                         <tr bgcolor="LemonChiffon">
@@ -32,7 +32,7 @@
                             <td>Low Score</td>
                             <td>High Score</td>
                         </tr>
-                        <ui:repeat value="#{scoreSetController.getListOfScoreSetRows(scoreSetController.selected)}" var="row">
+                        <ui:repeat value="#{scoreSetController.getListOfScoreSetRows(scoreSetController.selectedScoreSet)}" var="row">
                             <tr>
                                 <td style="white-space:nowrap;"><h:outputText value="#{row.getName()}"/></td>
                                 <td><h:outputText value="#{row.getLowScore()}"/></td>

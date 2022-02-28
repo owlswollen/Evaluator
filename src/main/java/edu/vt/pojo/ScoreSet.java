@@ -6,6 +6,7 @@ package edu.vt.pojo;
 
 import java.util.Map;
 
+// TODO: remove
 public class ScoreSet {
     /*
     ===============================

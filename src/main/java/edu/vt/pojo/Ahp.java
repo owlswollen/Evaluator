@@ -9,6 +9,7 @@ import java.util.*;
 
 
 public class Ahp implements Serializable {
+    // TODO: rename as indicators graph
 
     //===================
     // Instance Variables

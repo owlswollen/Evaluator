@@ -128,12 +128,15 @@ public class EvaluationController implements Serializable {
     }
 
     public String getScoreText(Indicator leafIndicator) {
-        Indicator signedInEvaluator = selectedProject.getIndicatorsGraph().getIndicatorList().stream().filter(ind -> ind.getName().equals(signedInEvaluatorUsername)).findAny().orElse(null);
+        Ahp indicatorsGraph  = selectedProject.getIndicatorsGraph();
+        if (indicatorsGraph != null) {
+            Indicator signedInEvaluator = indicatorsGraph.getIndicatorList().stream().filter(ind -> ind.getName().equals(signedInEvaluatorUsername)).findAny().orElse(null);
 
-        if (leafIndicator.getEvaluatorScores().containsKey(signedInEvaluator) && !leafIndicator.getHasDefaultScores()) {
-            scoreText = "[" + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getLow()) + " .. " + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getHigh()) + "]";
-        } else {
-            scoreText = "Not evaluated";
+            if (leafIndicator.getEvaluatorScores().containsKey(signedInEvaluator) && !leafIndicator.getHasDefaultScores()) {
+                scoreText = "[" + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getLow()) + " .. " + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getHigh()) + "]";
+            } else {
+                scoreText = "Not evaluated";
+            }
         }
         return scoreText;
     }
@@ -149,7 +152,7 @@ public class EvaluationController implements Serializable {
      */
 
     // Get list of leaf indicators in the selected project whose evaluator is the signed-in user
-    private void getLeafIndicatorsOfEvaluator() {
+    public void getLeafIndicatorsOfEvaluator() {
         listOfLeafIndicators = new ArrayList<>();
         getListOfProjects();
         Ahp indicatorsGraph = selectedProject.getIndicatorsGraph();

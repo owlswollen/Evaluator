@@ -38,10 +38,11 @@ public class EvaluationController implements Serializable {
     private List<Project> listOfProjects = null;
     private List<Indicator> listOfLeafIndicators = null;
     private Indicator selectedLeafIndicator;
-    private Map<Indicator, Project> indicatorProjectMap = null;
+    private Project selectedProject;
     private List<ScoreSet> listOfScoreSets = null;
     private ScoreSet selectedScoreSet;
-    private String signedInUsername;
+    private String signedInEvaluatorUsername;
+    private String scoreText = "";
 
     @EJB
     private ProjectFacade projectFacade;
@@ -57,8 +58,8 @@ public class EvaluationController implements Serializable {
     public List<Project> getListOfProjects() {
         if (listOfProjects == null) {
             Map<String, Object> sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
-            signedInUsername = (String) sessionMap.get("username");
-            listOfProjects = projectFacade.findProjectsWhoseEvaluatorIsUsername(signedInUsername);
+            signedInEvaluatorUsername = (String) sessionMap.get("username");
+            listOfProjects = projectFacade.findProjectsWhoseEvaluatorIsUsername(signedInEvaluatorUsername);
         }
         return listOfProjects;
     }
@@ -84,17 +85,6 @@ public class EvaluationController implements Serializable {
 
     public void setSelectedLeafIndicator(Indicator selectedLeafIndicator) {
         this.selectedLeafIndicator = selectedLeafIndicator;
-    }
-
-    public Map<Indicator, Project> getIndicatorProjectMap() {
-        if (indicatorProjectMap == null) {
-            getListOfLeafIndicators();
-        }
-        return indicatorProjectMap;
-    }
-
-    public void setIndicatorProjectMap(Map<Indicator, Project> indicatorProjectMap) {
-        this.indicatorProjectMap = indicatorProjectMap;
     }
 
     public List<ScoreSet> getListOfScoreSets() {
@@ -129,36 +119,54 @@ public class EvaluationController implements Serializable {
         this.userFacade = userFacade;
     }
 
+    public Project getSelectedProject() {
+        return selectedProject;
+    }
+
+    public void setSelectedProject(Project selectedProject) {
+        this.selectedProject = selectedProject;
+    }
+
+    public String getScoreText(Indicator leafIndicator) {
+        Indicator signedInEvaluator = selectedProject.getIndicatorsGraph().getIndicatorList().stream().filter(ind -> ind.getName().equals(signedInEvaluatorUsername)).findAny().orElse(null);
+
+        if (leafIndicator.getEvaluatorScores().containsKey(signedInEvaluator) && !leafIndicator.getHasDefaultScores()) {
+            scoreText = "[" + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getLow()) + " .. " + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getHigh()) + "]";
+        } else {
+            scoreText = "Not evaluated";
+        }
+        return scoreText;
+    }
+
+    public void setScoreText(String scoreText) {
+        this.scoreText = scoreText;
+    }
+
     /*
     ================
     Instance Methods
     ================
      */
 
-    // Get list of leaf indicators in the projects whose evaluator is the signed-in user
+    // Get list of leaf indicators in the selected project whose evaluator is the signed-in user
     private void getLeafIndicatorsOfEvaluator() {
         listOfLeafIndicators = new ArrayList<>();
-        indicatorProjectMap = new HashMap<>();
         getListOfProjects();
-        for (Project project : listOfProjects) {
-            Ahp indicatorsGraph = project.getIndicatorsGraph();
-            if (indicatorsGraph != null) {
-                for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
-                    if (indicator.isLeaf()) {
-                        listOfLeafIndicators.add(indicator);
-                        indicatorProjectMap.put(indicator, project);
-                    }
+        Ahp indicatorsGraph = selectedProject.getIndicatorsGraph();
+        if (indicatorsGraph != null) {
+            for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
+                if (indicator.isLeaf()) {
+                    listOfLeafIndicators.add(indicator);
                 }
             }
         }
     }
 
     public void saveScore(ScoreSetRow scoreSetRow) {
-        Project selectedProject = indicatorProjectMap.get(selectedLeafIndicator);
         List<Indicator> indicatorsOfSelectedProject = selectedProject.getIndicatorsGraph().getIndicatorList();
         for (Indicator leafIndicator : indicatorsOfSelectedProject) {
             if (leafIndicator.equals(selectedLeafIndicator)) {
-                Indicator signedInEvaluator = indicatorsOfSelectedProject.stream().filter(ind -> ind.getName().equals(signedInUsername)).findAny().orElse(null);
+                Indicator signedInEvaluator = indicatorsOfSelectedProject.stream().filter(ind -> ind.getName().equals(signedInEvaluatorUsername)).findAny().orElse(null);
                 if (leafIndicator.getHasDefaultScores()) {
                     leafIndicator.setHasDefaultScores(false);
                     // Remove the evaluators of the leafIndicator added by default
@@ -168,11 +176,18 @@ public class EvaluationController implements Serializable {
                     leafIndicator.getChildIndicators().clear();
                     leafIndicator.getEvaluatorScores().clear();
                 }
-                leafIndicator.addChildIndicator(signedInEvaluator);
-                // Add a row and a column for the newly added evaluator to the pairwise comparison matrix of the leaf leafIndicator
-                // Set 1 to the newly added cells as the default comparison value
-                for (Indicator siblingEvaluator : leafIndicator.getChildIndicators()) {
-                    leafIndicator.compareIndicators(signedInEvaluator, siblingEvaluator, 1.0);
+
+                if (!leafIndicator.getChildIndicators().contains(signedInEvaluator)) {
+                    if (signedInEvaluator == null) {
+                        signedInEvaluator = new Indicator(signedInEvaluatorUsername);
+                        signedInEvaluator.setEvaluator(true);
+                    }
+                    leafIndicator.addChildIndicator(signedInEvaluator);
+                    // Add a row and a column for the newly added evaluator to the pairwise comparison matrix of the leaf leafIndicator
+                    // Set 1 to the newly added cells as the default comparison value
+                    for (Indicator siblingEvaluator : leafIndicator.getChildIndicators()) {
+                        leafIndicator.compareIndicators(signedInEvaluator, siblingEvaluator, 1.0);
+                    }
                 }
                 leafIndicator.getEvaluatorScores().put(signedInEvaluator, new Score(scoreSetRow.getLowScore(), scoreSetRow.getHighScore()));
                 selectedProject.getIndicatorsGraph().solve();

@@ -258,11 +258,12 @@ public class Indicator implements Serializable {
         // Remove indicator from the pairwise comparisons matrix
         comparisonMatrix.remove(deletedIndicator);
         for (Indicator child : childIndicators) {
-            if (comparisonMatrix.get(child) != null)
-            for (Indicator comparedIndicator : comparisonMatrix.get(child).keySet()) {
-                if (comparedIndicator.equals(deletedIndicator)) {
-                    comparisonMatrix.get(child).remove(comparedIndicator);
-                    break;
+            if (comparisonMatrix.get(child) != null) {
+                for (Indicator comparedIndicator : comparisonMatrix.get(child).keySet()) {
+                    if (comparedIndicator.equals(deletedIndicator)) {
+                        comparisonMatrix.get(child).remove(comparedIndicator);
+                        break;
+                    }
                 }
             }
         }

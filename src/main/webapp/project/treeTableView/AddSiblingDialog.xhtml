@@ -24,7 +24,7 @@
 
         <h:form id="AddSiblingForm" class="ui-datatable-data">
             <div align="center">
-                <p:selectOneRadio id="console" value="#{treeTableController.existingNode}">
+                <p:selectOneRadio id="console" value="#{treeTableController.existingNode}" rendered="#{treeTableController.siblingOptionNames.size() gt 0}">
                     <p:ajax update="panelGrid" />
                     <f:selectItem itemLabel="New Node" itemValue="#{false}"/>
                     <f:selectItem itemLabel="Existing Node" itemValue="#{true}"/>

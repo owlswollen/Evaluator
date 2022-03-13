@@ -50,7 +50,7 @@
                                  id="parentButton"
                                  process="@this"
                                  update=":AddParentDlg"
-                                 disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root}"
+                                 disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root or treeTableController.parentOptionNames.size() == 0}"
                                  oncomplete="PF('AddParentDialog').show()"/>
             </p:panel>
             <!--

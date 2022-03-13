@@ -57,15 +57,17 @@ public class TreeTableController implements Serializable {
     // Selected node to which the new node will be added as a child, sibling, or parent
     private TreeNode<Indicator> selectedNode;
 
-    // Parent or child options to show in select one menu while adding a new parent or a new child
-    // Same list is used for both parent options and child options because both have the same conditions
-    private List<String> parentAndChildOptionNames = new ArrayList<>();
+    // Parent options to show in select one menu while adding a new parent
+    private List<String> parentOptionNames = new ArrayList<>();
+
+    // Child options to show in select one menu while adding a new child
+    private List<String> childOptionNames = new ArrayList<>();
 
     // Sibling options to show in select one menu while adding a new sibling
     private List<String> siblingOptionNames = new ArrayList<>();
 
     // Is the node to be added already in graph
-    private boolean existingNode;
+    private boolean existingNode = false;
 
     // AHP object holding the indicator hierarchy and alternatives
     private Ahp ahp;
@@ -124,14 +126,24 @@ public class TreeTableController implements Serializable {
         this.rootIndicator = rootIndicator;
     }
 
-    public List<String> getParentAndChildOptionNames() {
-        parentAndChildOptionNames = new ArrayList<>();
-        getParentAndChildOptions(rootIndicator);
-        return parentAndChildOptionNames;
+    public List<String> getParentOptionNames() {
+        parentOptionNames = new ArrayList<>();
+        getParentOptions(rootIndicator);
+        return parentOptionNames;
     }
 
-    public void setParentAndChildOptionNames(List<String> parentAndChildOptionNames) {
-        this.parentAndChildOptionNames = parentAndChildOptionNames;
+    public void setParentOptionNames(List<String> parentOptionNames) {
+        this.parentOptionNames = parentOptionNames;
+    }
+
+    public List<String> getChildOptionNames() {
+        childOptionNames = new ArrayList<>();
+        getChildOptions(rootIndicator);
+        return childOptionNames;
+    }
+
+    public void setChildOptionNames(List<String> childOptionNames) {
+        this.childOptionNames = childOptionNames;
     }
 
     public List<String> getSiblingOptionNames() {
@@ -172,10 +184,69 @@ public class TreeTableController implements Serializable {
     }
 
     /*
-     * The same method is used to get the parent options
-     * and child options because both have the same conditions
+     * Get options for the child to be added to the selected node among the existing nodes
      */
-    private void getParentAndChildOptions(Indicator graphRoot) {
+    private void getChildOptions(Indicator graphRoot) {
+        // Using BFS to show the parent or child option names in a meaningful order in the select one menu
+        Queue<Indicator> queue = new ArrayDeque<>();
+        Indicator node;
+        Set<Indicator> visited = new HashSet<>();
+
+        visited.add(graphRoot);
+        // Root node is added to the top of the queue
+        queue.add(graphRoot);
+
+        while (queue.size() != 0) {
+            // Remove the top element of the queue
+            node = queue.poll();
+
+            if (selectedNode != null) {
+                // If the current node is not the root node
+                // and if the current node is not the same node with the selected node
+                // and if the current node is not one of the ancestors of the selected node
+                // and if the current node is not one of the children of the selected node
+                // and if the current node is not an evaluator
+                // then add its name to the parent and child options list
+                Indicator finalNode = node;
+                if (!node.isRoot()
+                        && !node.equals(selectedNode.getData())
+                        && !causesCycleWhileAddingChild(selectedNode.getData(), node)
+                        && selectedNode.getData().getChildIndicators().stream().noneMatch(object -> object.equals(finalNode))
+                        && !node.isEvaluator()) {
+
+                    childOptionNames.add(node.getName());
+                }
+            }
+
+            for (Indicator child : node.getChildIndicators()) {
+                // Only insert nodes into queue if they have not been explored already
+                if (!visited.contains(child)) {
+                    visited.add(child);
+                    queue.add(child);
+                }
+            }
+        }
+    }
+
+    /*
+     * Check if the child selected to be added among the existing nodes causes a cycle in the graph
+     */
+    private boolean causesCycleWhileAddingChild(Indicator selectedNode, Indicator currentNode) {
+        for (Indicator parent : selectedNode.getParentIndicators()) {
+            if (parent.equals(currentNode)) {
+                return true;
+            }
+            if (causesCycleWhileAddingChild(parent, currentNode)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+     * Get options for the parent to be added to the selected node among the existing nodes
+     */
+    private void getParentOptions(Indicator graphRoot) {
         // Using BFS to show the parent or child option names in a meaningful order in the select one menu
         Queue<Indicator> queue = new ArrayDeque<>();
         Indicator node;
@@ -193,15 +264,16 @@ public class TreeTableController implements Serializable {
                 // If the current node is not the root node
                 // and if the current node is not the same node with the selected node
                 // and if the current node is not one of the parents of the selected node
-                // and if the current node is not one of the children of the selected node
+                // and if the current node is not one of the descendents of the selected node
+                // and if the current node is not an evaluator
                 // then add its name to the parent and child options list
-                // TODO: Do not allow options that will cause a cycle in the graph
-                // TODO: Do not show evaluators in the list
-                if (!node.isRoot() && !node.getName().equals(selectedNode.getData().getName())
-                        && node.getParentIndicators().stream().noneMatch(object -> object.getName().equals(selectedNode.getData().getName()))
-                        && node.getChildIndicators().stream().noneMatch(object -> object.getName().equals(selectedNode.getData().getName()))) {
+                if (!node.isRoot()
+                        && !node.equals(selectedNode.getData())
+                        && node.getParentIndicators().stream().noneMatch(object -> object.equals(selectedNode.getData()))
+                        && !causesCycleWhileAddingParent(selectedNode.getData(), node)
+                        && !node.isEvaluator()) {
 
-                    parentAndChildOptionNames.add(node.getName());
+                    parentOptionNames.add(node.getName());
                 }
             }
 
@@ -215,6 +287,24 @@ public class TreeTableController implements Serializable {
         }
     }
 
+    /*
+     * Check if the parent selected to be added among the existing nodes causes a cycle in the graph
+     */
+    private boolean causesCycleWhileAddingParent(Indicator selectedNode, Indicator currentNode) {
+        for (Indicator child : selectedNode.getChildIndicators()) {
+            if (child.equals(currentNode)) {
+                return true;
+            }
+            if (causesCycleWhileAddingParent(child, currentNode)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+     * Get options for the sibling to be added to the selected node among the existing nodes
+     */
     private void getSiblingOptions(Indicator graphRoot) {
         // Using BFS to show the sibling option names in a meaningful order in the select one menu
         Queue<Indicator> queue = new ArrayDeque<>();
@@ -231,16 +321,15 @@ public class TreeTableController implements Serializable {
 
             if (selectedNode != null) {
                 // If the current node is not the root node
-                // and if the current node is not the same node with the selected node
                 // and if the current node is not one of the siblings of the selected node
-                // and if the current node is not one of the children of the selected node
+                // and if the current node is not one of the descendents of the selected node
+                // and if the current node is not an evaluator
                 // then add its name to the sibling options list
-                // TODO: Do not allow options that will cause a cycle in the graph
-                // TODO: Do not show evaluators in the list
                 Indicator finalNode = node;
-                if (!node.isRoot() && !node.getName().equals(selectedNode.getData().getName())
-                        && selectedNode.getParent().getChildren().stream().noneMatch(object -> object.getData().getName().equals(finalNode.getName()))
-                        && node.getChildIndicators().stream().noneMatch(object -> object.getName().equals(selectedNode.getData().getName()))) {
+                if (!node.isRoot()
+                        && selectedNode.getParent().getChildren().stream().noneMatch(object -> object.getData().equals(finalNode))
+                        && !causesCycleWhileAddingChild(selectedNode.getData(), node)
+                        && !node.isEvaluator()) {
                     siblingOptionNames.add(node.getName());
                 }
             }
@@ -255,6 +344,7 @@ public class TreeTableController implements Serializable {
         }
     }
 
+    // TODO: refactor save, open, retrieve, store, import, export, delete
     public void deleteGraph() {
         rootIndicator = null;
         rootTreeNode = null;
@@ -262,7 +352,6 @@ public class TreeTableController implements Serializable {
         ahp = null;
     }
 
-    // TODO: refactor save, open, retrieve, store, import, export, delete
     public void saveGraph(Project selectedProject) {
         selectedProject.setIndicatorsGraph(ahp);
         try {
@@ -289,7 +378,7 @@ public class TreeTableController implements Serializable {
         ahp = selectedProject.getIndicatorsGraph();
 
         if (ahp != null) {
-            showRetrievedGraphOnTreeTable();
+            showGraphOnTreeTable();
             rootTreeNode.setExpanded(true);
             actualRootTreeNode.setExpanded(true);
         }
@@ -318,7 +407,7 @@ public class TreeTableController implements Serializable {
         ahp = (Ahp) DatabaseSerializationManager.deSerializeJavaObjectFromDB(connection, serializedId);
         connection.close();
 
-        showRetrievedGraphOnTreeTable();
+        showGraphOnTreeTable();
     }
 
     private Connection createConnection() throws ClassNotFoundException, SQLException {
@@ -348,14 +437,14 @@ public class TreeTableController implements Serializable {
 
     public void importGraph() {
         ahp = BinarySerializationManager.retrieveGraph();
-        showRetrievedGraphOnTreeTable();
+        showGraphOnTreeTable();
     }
 
     //----------------------------------------------------------------
-    // Methods for displaying retrieved or imported graph on TreeTable
+    // Methods for displaying the graph on TreeTable
     //----------------------------------------------------------------
 
-    private void showRetrievedGraphOnTreeTable() {
+    private void showGraphOnTreeTable() {
         rootIndicator = ahp.getRoot();
         rootTreeNode = new DefaultTreeNode(null, null);
         actualRootTreeNode = new DefaultTreeNode(rootIndicator, rootTreeNode);
@@ -421,6 +510,7 @@ public class TreeTableController implements Serializable {
         // Remove the evaluators of the parent indicator added by default when the parent indicator used to be a leaf indicator
         if (parentIndicator.isLeaf()) {
             for (Indicator evaluator : parentIndicator.getChildIndicators()) {
+                evaluator.getParentIndicators().remove(parentIndicator);
                 parentIndicator.deleteComparisons(evaluator);
             }
             parentIndicator.getChildIndicators().clear();
@@ -465,7 +555,7 @@ public class TreeTableController implements Serializable {
                 if (existingIndicator) {
                     // Find the existing node
                     TreeNode<Indicator> originalNode = null;
-                    originalNode = findNodeByNameInTreeTable(rootTreeNode, originalNode);
+                    originalNode = findNewNodeNameInTreeTable(rootTreeNode, originalNode);
 
                     // When an Indicator object is present in multiple places in the acyclic graph,
                     // it is displayed as two different tree nodes with identical attributes in the tree table.
@@ -546,19 +636,27 @@ public class TreeTableController implements Serializable {
                 if (existingIndicator) {
                     // Find the existing node
                     TreeNode<Indicator> originalNode = null;
-                    originalNode = findNodeByNameInTreeTable(rootTreeNode, originalNode);
+                    originalNode = findNewNodeNameInTreeTable(rootTreeNode, originalNode);
 
                     // When an Indicator object is present in multiple places in the acyclic graph,
                     // it is displayed as two different tree nodes with identical attributes in the tree table.
                     TreeNode<Indicator> copyNode = new DefaultTreeNode(nodeToAdd);
                     createCopy(originalNode, copyNode);
 
-                    // Add the new node to the children of the selected node's parent
+                    // Add the new node to the children of the selected node's parents
                     // Thus selected node and new node will be siblings
-                    treeNode.getParent().getChildren().add(copyNode);
+                    List<TreeNode<Indicator>> parentNodes = new ArrayList<>();
+                    parentNodes = findNodesByName(rootTreeNode, treeNode.getParent().getData().getName(), parentNodes);
+                    for (TreeNode<Indicator> parentNode : parentNodes) {
+                        parentNode.getChildren().add(new DefaultTreeNode(copyNode));
+                    }
                 } else {
-                    // Add the new node to the children of the selected node's parent
-                    treeNode.getParent().getChildren().add(new DefaultTreeNode(nodeToAdd));
+                    // Add the new node to the children of the selected node's parents
+                    List<TreeNode<Indicator>> parentNodes = new ArrayList<>();
+                    parentNodes = findNodesByName(rootTreeNode, treeNode.getParent().getData().getName(), parentNodes);
+                    for (TreeNode<Indicator> parentNode : parentNodes) {
+                        parentNode.getChildren().add(new DefaultTreeNode(nodeToAdd));
+                    }
                 }
                 break;
             }
@@ -694,16 +792,30 @@ public class TreeTableController implements Serializable {
     /*
      * Find the tree node by the entered name "newNodeName"
      */
-    private TreeNode<Indicator> findNodeByNameInTreeTable(TreeNode<Indicator> treeRoot, TreeNode<Indicator> treeNodeToAdd) {
+    private TreeNode<Indicator> findNewNodeNameInTreeTable(TreeNode<Indicator> treeRoot, TreeNode<Indicator> foundNode) {
         List<TreeNode<Indicator>> subChildren = treeRoot.getChildren();
         for (TreeNode<Indicator> treeNode : subChildren) {
             // Find the node with the entered name as the new node name
             if (treeNode.getData().getName().equals(newNodeName)) {
                 return treeNode;
             }
-            treeNodeToAdd = findNodeByNameInTreeTable(treeNode, treeNodeToAdd);
+            foundNode = findNewNodeNameInTreeTable(treeNode, foundNode);
         }
-        return treeNodeToAdd;
+        return foundNode;
+    }
+
+    /*
+     * Find tree nodes by the name
+     */
+    private List<TreeNode<Indicator>> findNodesByName(TreeNode<Indicator> treeRoot, String name, List<TreeNode<Indicator>> foundNodes) {
+        List<TreeNode<Indicator>> subChildren = treeRoot.getChildren();
+        for (TreeNode<Indicator> treeNode : subChildren) {
+            if (treeNode.getData().getName().equals(name)) {
+                foundNodes.add(treeNode);
+            }
+            findNodesByName(treeNode, name, foundNodes);
+        }
+        return foundNodes;
     }
 
     /*

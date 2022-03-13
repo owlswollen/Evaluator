@@ -24,7 +24,7 @@
 
         <h:form id="AddChildForm" class="ui-datatable-data">
             <div align="center">
-                <p:selectOneRadio id="console" value="#{treeTableController.existingNode}">
+                <p:selectOneRadio id="console" value="#{treeTableController.existingNode}" rendered="#{treeTableController.childOptionNames.size() gt 0}">
                     <p:ajax update="panelGrid" />
                     <f:selectItem itemLabel="New Node" itemValue="#{false}"/>
                     <f:selectItem itemLabel="Existing Node" itemValue="#{true}"/>
@@ -38,7 +38,7 @@
                     <p:selectOneMenu id="parentSelect"
                                      rendered="#{treeTableController.existingNode}"
                                      value="#{treeTableController.newNodeName}">
-                        <f:selectItems value="#{treeTableController.parentAndChildOptionNames}"/>
+                        <f:selectItems value="#{treeTableController.childOptionNames}"/>
                     </p:selectOneMenu>
                 </p:panelGrid>
                 <br/>

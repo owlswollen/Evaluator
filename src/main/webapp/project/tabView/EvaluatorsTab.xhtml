@@ -58,7 +58,25 @@
                             </tr>
                         </p:repeat>
                     </table>
-                    <br/><br/>
+                    <br/>
+                    <!--
+                    =============
+                    |  Legends  |
+                    =============
+                    -->
+                    <div style="margin-left: 30px">
+                        <p:selectBooleanCheckbox value="#{tabViewController.showLegends}" itemLabel="Show legends"
+                                                 rendered="#{treeTableController.selectedNode != null}">
+                            <p:ajax update=":tabForm"/>
+                        </p:selectBooleanCheckbox><br/>
+                        <br/>
+                        <p:repeat value="#{tabViewController.selectedIndicator.childIndicators}" var="item"
+                                  varStatus="status" rendered="#{tabViewController.showLegends}">
+                            <h:outputText value="#{status.index}: " style="font-weight: bold; margin-left: 12px"/>&nbsp;
+                            <h:outputText value="#{item.name}"/>&nbsp;<br/>
+                        </p:repeat>
+                        <br/>
+                    </div>
                 </td>
                 <td style="width: 60%">
                     <!--
@@ -104,7 +122,8 @@
                                                               border-top: none;
                                                               border-left: none;
                                                               font-weight: bold;">
-                    <h:outputText value="#{row.get(0).indicator1.name}"/>
+                    <h:outputText value="#{tabViewController.showLegends ? rowIndex : row.get(0).indicator1.name}"
+                                  style="text-align: center"/>
                 </p:column>
                 <!--
                 ===================
@@ -113,7 +132,8 @@
                 -->
                 <c:forEach items="#{tabViewController.comparisons.get(rowIndex)}"
                            var="cell" varStatus="columnStatus">
-                    <p:column headerText="#{cell.indicator2.name}">
+                    <p:column headerText="#{tabViewController.showLegends ? columnStatus.index : cell.indicator2.name}"
+                              style="text-align: center">
                         <!--
                         ===================================
                         |  Diagonal cells (not editable)  |

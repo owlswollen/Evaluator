@@ -28,7 +28,7 @@
                 <h:panelGroup>
                     <p:commandButton value="Add"
                                      actionListener="#{treeTableController.addParentToGraph}"
-                                     update=":treeForm"
+                                     update=":treeForm, growl"
                                      action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
                                      onclick="PF('AddParentDialog').hide()"/>
                 </h:panelGroup>

@@ -174,6 +174,7 @@ public class EvaluationController implements Serializable {
                     leafIndicator.setHasDefaultScores(false);
                     // Remove the evaluators of the leafIndicator added by default
                     for (Indicator evaluator : leafIndicator.getChildIndicators()) {
+                        evaluator.getParentIndicators().remove(leafIndicator);
                         leafIndicator.deleteComparisons(evaluator);
                     }
                     leafIndicator.getChildIndicators().clear();

@@ -67,7 +67,7 @@ public class TreeTableController implements Serializable {
     private List<String> siblingOptionNames = new ArrayList<>();
 
     // Is the node to be added already in graph
-    private boolean existingNode = false;
+    private boolean existingIndicator = false;
 
     // AHP object holding the indicator hierarchy and alternatives
     private Ahp ahp;
@@ -156,12 +156,12 @@ public class TreeTableController implements Serializable {
         this.siblingOptionNames = siblingOptionNames;
     }
 
-    public boolean isExistingNode() {
-        return existingNode;
+    public boolean isExistingIndicator() {
+        return existingIndicator;
     }
 
-    public void setExistingNode(boolean existingNode) {
-        this.existingNode = existingNode;
+    public void setExistingIndicator(boolean existingIndicator) {
+        this.existingIndicator = existingIndicator;
     }
 
     //=================
@@ -490,9 +490,18 @@ public class TreeTableController implements Serializable {
      * ADD CHILD TO GRAPH *
      **********************/
     public void addChildToGraph(Project selectedProject) {
+        // Show a warning if the new node is already in the graph and existing node option was not used while adding
+        Indicator foundIndicator = null;
+        foundIndicator = findNewNodeNameInGraph(rootIndicator, foundIndicator);
+        if (foundIndicator != null && !existingIndicator) {
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, newNodeName + " is already in the graph.", "");
+            FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
+            return;
+        }
+
         // Check if the new node is already in the graph
         Indicator childIndicatorToAdd = null;
-        childIndicatorToAdd = findIndicatorByName(rootIndicator, childIndicatorToAdd);
+        childIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, childIndicatorToAdd);
         boolean existingIndicator = true;
 
         // If it is not found in the graph create a new node with the given name and default attributes
@@ -576,9 +585,18 @@ public class TreeTableController implements Serializable {
      * ADD SIBLING TO GRAPH *
      ************************/
     public void addSiblingToGraph(Project selectedProject) {
+        // Show a warning if the new node is already in the graph and existing node option was not used while adding
+        Indicator foundIndicator = null;
+        foundIndicator = findNewNodeNameInGraph(rootIndicator, foundIndicator);
+        if (foundIndicator != null && !existingIndicator) {
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, newNodeName + " is already in the graph.", "");
+            FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
+            return;
+        }
+
         // Check if the new node is already in the graph
         Indicator siblingIndicatorToAdd = null;
-        siblingIndicatorToAdd = findIndicatorByName(rootIndicator, siblingIndicatorToAdd);
+        siblingIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, siblingIndicatorToAdd);
         boolean existingIndicator = true;
 
         // If it is not found in the graph create a new node with the given name and default attributes
@@ -670,13 +688,23 @@ public class TreeTableController implements Serializable {
     public void addParentToGraph(ActionEvent event) {
         // Find the parent node in the graph
         Indicator parentIndicator = null;
-        parentIndicator = findIndicatorByName(rootIndicator, parentIndicator);
+        parentIndicator = findNewNodeNameInGraph(rootIndicator, parentIndicator);
 
         // Show a warning if it is not found
         if (parentIndicator == null) {
-            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, "", "");
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Parent not found", "");
             FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
             return;
+        }
+
+        // Remove the evaluators of the parent indicator added by default when the parent indicator used to be a leaf indicator
+        if (parentIndicator.isLeaf()) {
+            for (Indicator evaluator : parentIndicator.getChildIndicators()) {
+                evaluator.getParentIndicators().remove(parentIndicator);
+                parentIndicator.deleteComparisons(evaluator);
+            }
+            parentIndicator.getChildIndicators().clear();
+            parentIndicator.getEvaluatorScores().clear();
         }
 
         // Add the selected indicator to the children of the found indicator
@@ -745,14 +773,14 @@ public class TreeTableController implements Serializable {
     /*
      * Find indicator by its name in the acyclic graph
      */
-    private Indicator findIndicatorByName(Indicator graphRoot, Indicator indicatorFound) {
+    private Indicator findNewNodeNameInGraph(Indicator graphRoot, Indicator indicatorFound) {
         List<Indicator> subChildren = graphRoot.getChildIndicators();
         for (Indicator childNode : subChildren) {
             // Find the node whose name is entered as the new node in the acyclic graph
             if (childNode.getName().equals(newNodeName)) {
                 return childNode;
             }
-            indicatorFound = findIndicatorByName(childNode, indicatorFound);
+            indicatorFound = findNewNodeNameInGraph(childNode, indicatorFound);
         }
         return indicatorFound;
     }

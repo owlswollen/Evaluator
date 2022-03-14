@@ -339,11 +339,11 @@ public class SampleProject {
         lifeCycleVerification.compareIndicators(earlyErrorDetection, visibilityOfBehavior, 1.0);
 
         // Add evaluators to leaf indicators
-        Indicator einstein = new Indicator("Albert Einstein");
-        Indicator bonaparte = new Indicator("Napoleon Bonaparte");
-        Indicator washington = new Indicator("George Washington");
-        Indicator reagan = new Indicator("Ronald Reagan");
-        Indicator lincoln = new Indicator("Abraham Lincoln");
+        Indicator einstein = new Indicator("AlbertEinstein");
+        Indicator bonaparte = new Indicator("NapoleonBonaparte");
+        Indicator washington = new Indicator("GeorgeWashington");
+        Indicator reagan = new Indicator("RonaldReagan");
+        Indicator lincoln = new Indicator("AbrahamLincoln");
         einstein.setEvaluator(true);
         bonaparte.setEvaluator(true);
         washington.setEvaluator(true);
@@ -357,7 +357,8 @@ public class SampleProject {
         complexity.addEvaluatorScore(einstein, new Score(40.0, 75.0));
         complexity.addEvaluatorScore(washington, new Score(78.0, 85.0));
         complexity.addEvaluatorScore(lincoln, new Score(70.0, 75.0));
-        
+        complexity.setHasDefaultScores(false);
+
         easeOfChange.addChildIndicators(Arrays.asList(washington, reagan, lincoln));
         easeOfChange.compareIndicators(washington, reagan, 1.0);
         easeOfChange.compareIndicators(washington, lincoln, 1.0);
@@ -365,6 +366,7 @@ public class SampleProject {
         easeOfChange.addEvaluatorScore(washington, new Score(60.0, 75.0));
         easeOfChange.addEvaluatorScore(reagan, new Score(88.0, 92.0));
         easeOfChange.addEvaluatorScore(lincoln, new Score(68.0, 72.0));
+        easeOfChange.setHasDefaultScores(false);
 
         readability.addChildIndicators(Arrays.asList(bonaparte, washington, lincoln));
         readability.compareIndicators(bonaparte, washington, 5.9);
@@ -373,6 +375,7 @@ public class SampleProject {
         readability.addEvaluatorScore(bonaparte, new Score(90.0, 96.0));
         readability.addEvaluatorScore(washington, new Score(67.0, 77.0));
         readability.addEvaluatorScore(lincoln, new Score(80.0, 94.0));
+        readability.setHasDefaultScores(false);
 
         traceability.addChildIndicators(Arrays.asList(einstein, washington, lincoln));
         traceability.compareIndicators(einstein, washington, 1.0);
@@ -381,6 +384,7 @@ public class SampleProject {
         traceability.addEvaluatorScore(einstein, new Score(40.0, 60.0));
         traceability.addEvaluatorScore(washington, new Score(78.0, 83.0));
         traceability.addEvaluatorScore(lincoln, new Score(72.0, 78.0));
+        traceability.setHasDefaultScores(false);
 
         cohesion.addChildIndicators(Arrays.asList(einstein, washington, reagan));
         cohesion.compareIndicators(einstein, washington, 5.3);
@@ -389,6 +393,7 @@ public class SampleProject {
         cohesion.addEvaluatorScore(einstein, new Score(70.0, 90.0));
         cohesion.addEvaluatorScore(washington, new Score(86.0, 93.0));
         cohesion.addEvaluatorScore(reagan, new Score(67.0, 74.0));
+        cohesion.setHasDefaultScores(false);
 
         coupling.addChildIndicators(Arrays.asList(bonaparte, washington, reagan));
         coupling.compareIndicators(bonaparte, washington, 0.15);
@@ -397,6 +402,7 @@ public class SampleProject {
         coupling.addEvaluatorScore(bonaparte, new Score(78.0, 90.0));
         coupling.addEvaluatorScore(washington, new Score(67.0, 71.0));
         coupling.addEvaluatorScore(reagan, new Score(82.0, 89.0));
+        coupling.setHasDefaultScores(false);
 
         wellDefinedInterfaces.addChildIndicators(Arrays.asList(einstein, bonaparte, lincoln));
         wellDefinedInterfaces.compareIndicators(einstein, bonaparte, 0.57);
@@ -405,6 +411,7 @@ public class SampleProject {
         wellDefinedInterfaces.addEvaluatorScore(einstein, new Score(55.0, 75.0));
         wellDefinedInterfaces.addEvaluatorScore(bonaparte, new Score(61.0, 63.0));
         wellDefinedInterfaces.addEvaluatorScore(lincoln, new Score(60.0, 70.0));
+        wellDefinedInterfaces.setHasDefaultScores(false);
 
         earlyErrorDetection.addChildIndicators(Arrays.asList(bonaparte, washington, reagan));
         earlyErrorDetection.compareIndicators(bonaparte, washington, 5.6);
@@ -413,6 +420,7 @@ public class SampleProject {
         earlyErrorDetection.addEvaluatorScore(bonaparte, new Score(78.0, 85.0));
         earlyErrorDetection.addEvaluatorScore(washington, new Score(80.0, 80.0));
         earlyErrorDetection.addEvaluatorScore(reagan, new Score(89.0, 93.0));
+        earlyErrorDetection.setHasDefaultScores(false);
 
         visibilityOfBehavior.addChildIndicators(Arrays.asList(einstein, bonaparte, reagan));
         visibilityOfBehavior.compareIndicators(einstein, bonaparte, 7.7);
@@ -421,6 +429,7 @@ public class SampleProject {
         visibilityOfBehavior.addEvaluatorScore(einstein, new Score(30.0, 60.0));
         visibilityOfBehavior.addEvaluatorScore(bonaparte, new Score(73.0, 73.0));
         visibilityOfBehavior.addEvaluatorScore(reagan, new Score(61.0, 61.0));
+        visibilityOfBehavior.setHasDefaultScores(false);
 
         diskStorageEfficiency.addChildIndicators(Arrays.asList(einstein, reagan, lincoln));
         diskStorageEfficiency.compareIndicators(einstein, reagan, 8.7);
@@ -429,6 +438,7 @@ public class SampleProject {
         diskStorageEfficiency.addEvaluatorScore(einstein, new Score(40.0, 80.0));
         diskStorageEfficiency.addEvaluatorScore(reagan, new Score(87.0, 92.0));
         diskStorageEfficiency.addEvaluatorScore(lincoln, new Score(68.0, 75.0));
+        diskStorageEfficiency.setHasDefaultScores(false);
 
         executionEfficiency.addChildIndicators(Arrays.asList(einstein, bonaparte, washington));
         executionEfficiency.compareIndicators(einstein, bonaparte, 6.0);
@@ -437,6 +447,7 @@ public class SampleProject {
         executionEfficiency.addEvaluatorScore(einstein, new Score(60.0, 90.0));
         executionEfficiency.addEvaluatorScore(bonaparte, new Score(90.0, 93.0));
         executionEfficiency.addEvaluatorScore(washington, new Score(80.0, 90.0));
+        executionEfficiency.setHasDefaultScores(false);
 
         memoryEfficiency.addChildIndicators(Arrays.asList(bonaparte, reagan, lincoln));
         memoryEfficiency.compareIndicators(bonaparte, reagan, 1.0);
@@ -445,6 +456,7 @@ public class SampleProject {
         memoryEfficiency.addEvaluatorScore(bonaparte, new Score(89.0, 94.0));
         memoryEfficiency.addEvaluatorScore(reagan, new Score(90.0, 90.0));
         memoryEfficiency.addEvaluatorScore(lincoln, new Score(75.0, 82.0));
+        memoryEfficiency.setHasDefaultScores(false);
 
         //-------------
         // AHP Solution

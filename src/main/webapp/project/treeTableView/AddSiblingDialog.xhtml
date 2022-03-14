@@ -24,19 +24,18 @@
 
         <h:form id="AddSiblingForm" class="ui-datatable-data">
             <div align="center">
-                <p:selectOneRadio id="console" value="#{treeTableController.existingNode}" rendered="#{treeTableController.siblingOptionNames.size() gt 0}">
+                <p:selectOneRadio id="console" value="#{treeTableController.existingIndicator}" rendered="#{treeTableController.siblingOptionNames.size() gt 0}">
                     <p:ajax update="panelGrid" />
-                    <f:selectItem itemLabel="New Node" itemValue="#{false}"/>
-                    <f:selectItem itemLabel="Existing Node" itemValue="#{true}"/>
-                    <!--    TODO: Warn user if an existing node's name is entered after selecting New Node    -->
+                    <f:selectItem itemLabel="New Indicator" itemValue="#{false}"/>
+                    <f:selectItem itemLabel="Existing Indicator" itemValue="#{true}"/>
                 </p:selectOneRadio>
                 <p:panelGrid id="panelGrid" columns="2" columnClasses="panelGridColumn1, panelGridColumn2">
                     <h:outputText value="Sibling Indicator Name:" style="font-weight: bold"/>
                     <h:inputText value="#{treeTableController.newNodeName}"
-                                 rendered="#{!treeTableController.existingNode}"
+                                 rendered="#{!treeTableController.existingIndicator}"
                                  style="font-size: medium; padding: 6px" />
                     <p:selectOneMenu id="parentSelect"
-                                     rendered="#{treeTableController.existingNode}"
+                                     rendered="#{treeTableController.existingIndicator}"
                                      value="#{treeTableController.newNodeName}">
                         <f:selectItems value="#{treeTableController.siblingOptionNames}"/>
                     </p:selectOneMenu>
@@ -45,7 +44,7 @@
                 <h:panelGroup>
                     <p:commandButton value="Add"
                                      actionListener="#{treeTableController.addSiblingToGraph(projectController.selectedProject)}"
-                                     update=":treeForm"
+                                     update=":treeForm, growl"
                                      action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
                                      onclick="PF('AddSiblingDialog').hide()"/>
                 </h:panelGroup>

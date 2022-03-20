@@ -470,12 +470,6 @@ public class TreeTableController implements Serializable {
     public void createRoot(Project selectedProject) {
         rootIndicator = new Indicator(newNodeName);
 
-        // Default values are set to newly created indicators until the user determines the actual values
-        // Root indicator is also a leaf indicator until a child is added to it
-        // By default all evaluators have equal weights on a leaf indicator
-        // By default the scores of all evaluators for all leaf indicators  are [50.0 .. 50.0]
-        addEvaluators(selectedProject, rootIndicator);
-
         // Run the AHP algorithm for the updated graph
         ahp = new Ahp(rootIndicator);
         ahp.solve();
@@ -535,12 +529,6 @@ public class TreeTableController implements Serializable {
         for (Indicator siblingIndicator : parentIndicator.getChildIndicators()) {
             parentIndicator.compareIndicators(childIndicatorToAdd, siblingIndicator, 1.0);
         }
-
-        // Default values are set to newly created indicators until the user determines the actual values
-        // New indicator is a leaf indicator until a child is added to it
-        // By default all evaluators have equal weights on a leaf indicator
-        // By default the scores of all evaluators for all leaf indicators  are [50.0 .. 50.0]
-        addEvaluators(selectedProject, childIndicatorToAdd);
 
         // Add the new node to the tree table
         addChildToTreeTable(rootTreeNode, childIndicatorToAdd, existingIndicator);
@@ -617,12 +605,6 @@ public class TreeTableController implements Serializable {
                 // Add the new indicator to the children of the selected indicator's parent
                 // Thus selected indicator and new indicator will be siblings
                 parentIndicator.addChildIndicator(siblingIndicatorToAdd);
-
-                // Default values are set to newly created indicators until the user determines the actual values
-                // New indicator is a leaf indicator until a child is added to it
-                // By default all evaluators have equal weights on a leaf indicator
-                // By default the scores of all evaluators for all leaf indicators  are [50.0 .. 50.0]
-                addEvaluators(selectedProject, siblingIndicatorToAdd);
 
                 // TODO: move this into Indicator
                 // Add a row and a column for the new indicator to the pairwise comparison matrix of the parent indicator
@@ -844,27 +826,5 @@ public class TreeTableController implements Serializable {
             findNodesByName(treeNode, name, foundNodes);
         }
         return foundNodes;
-    }
-
-    /*
-     * Add evaluators to newly created leaf indicator
-     */
-    private void addEvaluators(Project selectedProject, Indicator newIndicator) {
-        // Default values are set to newly created indicators until the user determines the actual values
-        // New indicator is a leaf indicator until a child is added to it
-        // By default all evaluators have equal weights on a leaf indicator
-        // By default the scores of all evaluators for all leaf indicators  are [50.0 .. 50.0]
-        String[] evaluatorUsernames = selectedProject.getEvaluatorUsernames().split(",");
-        for (String evaluatorUsername : evaluatorUsernames) {
-            Indicator evaluator = new Indicator(evaluatorUsername);
-            evaluator.setEvaluator(true);
-            newIndicator.addChildIndicator(evaluator);
-            newIndicator.addEvaluatorScore(evaluator, new Score(50.0, 50.0));
-
-            for (Indicator siblingEvaluator : newIndicator.getChildIndicators()) {
-                newIndicator.compareIndicators(evaluator, siblingEvaluator, 1.0);
-            }
-            newIndicator.setHasDefaultScores(true);
-        }
     }
 }

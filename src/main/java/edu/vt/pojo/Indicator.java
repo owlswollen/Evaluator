@@ -4,6 +4,10 @@
  */
 package edu.vt.pojo;
 
+import edu.vt.EntityBeans.ScoreSet;
+import edu.vt.controllers.EditorController;
+
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +22,9 @@ public class Indicator implements Serializable {
 
     // Name of the indicator
     private String name;
+
+    // Description of the indicator
+    private String description;
 
     // Score of the indicator
     private Score score;
@@ -40,18 +47,17 @@ public class Indicator implements Serializable {
     // Low and high scores given by experts - for leaf indicators only
     private Map<Indicator, Score> evaluatorScores = new HashMap<>();
 
-    // Does this indicator have default scores
-    // or is it evaluated by the actual evaluators - for leaf indicators only
-    private boolean hasDefaultScores = true;
-
     // Is this indicator an evaluator
     private boolean isEvaluator = false;
 
+    // Leaf indicator's score set
+    private ScoreSet scoreSet;
+
+    /* Calculated values */
 
     // The integrated weight calculated recursively starting from the root indicator
     // Stored to be used in the calculation of further indicators
     double recursiveWeight = 1;
-
     private double consistencyRatio;
     double consistencyIndex = 0;
     private Double absoluteWeight;
@@ -62,6 +68,10 @@ public class Indicator implements Serializable {
     //=============
     // Constructors
     //=============
+
+
+    public Indicator() {
+    }
 
     public Indicator(String name) {
         this.name = name;
@@ -191,12 +201,20 @@ public class Indicator implements Serializable {
         this.parentIndicators = parentIndicators;
     }
 
-    public boolean getHasDefaultScores() {
-        return hasDefaultScores;
+    public String getDescription() {
+        return description;
     }
 
-    public void setHasDefaultScores(boolean hasDefaultScores) {
-        this.hasDefaultScores = hasDefaultScores;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public ScoreSet getScoreSet() {
+        return scoreSet;
+    }
+
+    public void setScoreSet(ScoreSet scoreSet) {
+        this.scoreSet = scoreSet;
     }
 
     //=================
@@ -365,7 +383,7 @@ public class Indicator implements Serializable {
     }
 
     public boolean isLeaf() {
-        return childIndicators.size() > 0 && (childIndicators.get(0)).isEvaluator;
+        return childIndicators.size() == 0 || (childIndicators.get(0)).isEvaluator;
     }
 
     void calculateConsistencyIndex() {

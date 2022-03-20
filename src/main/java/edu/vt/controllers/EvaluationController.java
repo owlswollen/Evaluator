@@ -128,11 +128,11 @@ public class EvaluationController implements Serializable {
     }
 
     public String getScoreText(Indicator leafIndicator) {
-        Ahp indicatorsGraph  = selectedProject.getIndicatorsGraph();
+        Ahp indicatorsGraph = selectedProject.getIndicatorsGraph();
         if (indicatorsGraph != null) {
             Indicator signedInEvaluator = indicatorsGraph.getIndicatorList().stream().filter(ind -> ind.getName().equals(signedInEvaluatorUsername)).findAny().orElse(null);
 
-            if (leafIndicator.getEvaluatorScores().containsKey(signedInEvaluator) && !leafIndicator.getHasDefaultScores()) {
+            if (leafIndicator.getEvaluatorScores().containsKey(signedInEvaluator)) {
                 scoreText = "[" + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getLow()) + " .. " + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getHigh()) + "]";
             } else {
                 scoreText = "Not evaluated";
@@ -170,16 +170,14 @@ public class EvaluationController implements Serializable {
         for (Indicator leafIndicator : indicatorsOfSelectedProject) {
             if (leafIndicator.equals(selectedLeafIndicator)) {
                 Indicator signedInEvaluator = indicatorsOfSelectedProject.stream().filter(ind -> ind.getName().equals(signedInEvaluatorUsername)).findAny().orElse(null);
-                if (leafIndicator.getHasDefaultScores()) {
-                    leafIndicator.setHasDefaultScores(false);
-                    // Remove the evaluators of the leafIndicator added by default
-                    for (Indicator evaluator : leafIndicator.getChildIndicators()) {
-                        evaluator.getParentIndicators().remove(leafIndicator);
-                        leafIndicator.deleteComparisons(evaluator);
-                    }
-                    leafIndicator.getChildIndicators().clear();
-                    leafIndicator.getEvaluatorScores().clear();
+                // Remove the evaluators of the leafIndicator added by default
+                for (Indicator evaluator : leafIndicator.getChildIndicators()) {
+                    evaluator.getParentIndicators().remove(leafIndicator);
+                    leafIndicator.deleteComparisons(evaluator);
                 }
+                leafIndicator.getChildIndicators().clear();
+                leafIndicator.getEvaluatorScores().clear();
+
 
                 if (!leafIndicator.getChildIndicators().contains(signedInEvaluator)) {
                     if (signedInEvaluator == null) {
@@ -192,30 +190,31 @@ public class EvaluationController implements Serializable {
                     for (Indicator siblingEvaluator : leafIndicator.getChildIndicators()) {
                         leafIndicator.compareIndicators(signedInEvaluator, siblingEvaluator, 1.0);
                     }
-                }
-                leafIndicator.getEvaluatorScores().put(signedInEvaluator, new Score(scoreSetRow.getLowScore(), scoreSetRow.getHighScore()));
-                selectedProject.getIndicatorsGraph().solve();
-                break;
-            }
-        }
 
-        try {
-            projectFacade.edit(selectedProject);
-            JsfUtil.addSuccessMessage("Score was successfully saved!");
-        } catch (EJBException ex) {
-            String msg = "";
-            Throwable cause = ex.getCause();
-            if (cause != null) {
-                msg = cause.getLocalizedMessage();
+                    leafIndicator.getEvaluatorScores().put(signedInEvaluator, new Score(scoreSetRow.getLowScore(), scoreSetRow.getHighScore()));
+                    selectedProject.getIndicatorsGraph().solve();
+                    break;
+                }
             }
-            if (msg.length() > 0) {
-                JsfUtil.addErrorMessage(msg);
-            } else {
-                JsfUtil.addErrorMessage(ex, "A persistence error occurred!");
+
+            try {
+                projectFacade.edit(selectedProject);
+                JsfUtil.addSuccessMessage("Score was successfully saved!");
+            } catch (EJBException ex) {
+                String msg = "";
+                Throwable cause = ex.getCause();
+                if (cause != null) {
+                    msg = cause.getLocalizedMessage();
+                }
+                if (msg.length() > 0) {
+                    JsfUtil.addErrorMessage(msg);
+                } else {
+                    JsfUtil.addErrorMessage(ex, "A persistence error occurred!");
+                }
+            } catch (Exception ex) {
+                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+                JsfUtil.addErrorMessage(ex, "A persistence error occurred");
             }
-        } catch (Exception ex) {
-            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-            JsfUtil.addErrorMessage(ex, "A persistence error occurred");
         }
     }
 }

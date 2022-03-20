@@ -4,10 +4,13 @@
  */
 package edu.vt.controllers;
 
+import edu.vt.EntityBeans.ScoreSet;
+import edu.vt.controllers.util.JsfUtil;
 import edu.vt.pojo.Ahp;
 import edu.vt.pojo.Comparison;
 import edu.vt.pojo.Indicator;
-import org.primefaces.event.SlideEndEvent;
+import edu.vt.pojo.Score;
+import org.primefaces.event.*;
 import org.primefaces.model.charts.ChartData;
 import org.primefaces.model.charts.axes.radial.RadialScales;
 import org.primefaces.model.charts.axes.radial.linear.RadialLinearTicks;
@@ -18,12 +21,14 @@ import org.primefaces.model.charts.radar.RadarChartModel;
 import org.primefaces.model.charts.radar.RadarChartOptions;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.EJBException;
 import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Named("tabViewController")
 @SessionScoped
@@ -33,8 +38,9 @@ public class TabViewController implements Serializable {
     // Instance Variables
     //===================
 
-    private List<String> tabNames;
     private Indicator selectedIndicator;
+    private String previousActiveTabTitle;
+    private String activeTabIndex;
     private Indicator rootIndicator;
     private List<List<Comparison>> comparisons;
     private boolean sliderVisible;
@@ -47,6 +53,17 @@ public class TabViewController implements Serializable {
     private List<String> childScores;
     private List<String> evaluatorScores;
     private boolean showLegends;
+    private List<String> leafIndicatorTabs;
+    private List<String> branchIndicatorTabs;
+    private String selectedEvaluatorName;
+    private Indicator selectedEvaluator;
+    private boolean scoreSetSelected;
+
+    @Inject
+    private EditorController editorController;
+
+    @Inject
+    private ScoreSetController scoreSetController;
 
     //=============
     // Constructors
@@ -54,21 +71,16 @@ public class TabViewController implements Serializable {
 
     @PostConstruct
     public void init() {
-        tabNames = Arrays.asList("Weights", "Scores", "Attributes");
         sliderVisible = false;
+        leafIndicatorTabs = Arrays.asList("Overview", "Evaluators", "Nominal Scores", "Weights", "Scores", "Notes");
+        branchIndicatorTabs = Arrays.asList("Overview", "Nominal Scores", "Weights", "Scores");
+        activeTabIndex = "-1";
+        previousActiveTabTitle = "Overview";
     }
 
     //==========================
     // Getter and Setter Methods
     //==========================
-
-    public List<String> getTabNames() {
-        return tabNames;
-    }
-
-    public void setTabNames(List<String> tabNames) {
-        this.tabNames = tabNames;
-    }
 
     public Indicator getSelectedIndicator() {
         return selectedIndicator;
@@ -189,9 +201,65 @@ public class TabViewController implements Serializable {
         this.showLegends = showLegends;
     }
 
+    public String getActiveTabIndex() {
+        return activeTabIndex;
+    }
+
+    public void setActiveTabIndex(String activeTabIndex) {
+        this.activeTabIndex = activeTabIndex;
+    }
+
+    public String getSelectedEvaluatorName() {
+        return selectedEvaluatorName;
+    }
+
+    public void setSelectedEvaluatorName(String selectedEvaluatorName) {
+        selectedEvaluator = selectedIndicator.getChildIndicators().stream().filter(evaluator -> evaluator.getName().equals(selectedEvaluatorName)).findAny().orElse(null);
+        if (selectedEvaluator == null) {
+            selectedEvaluator = new Indicator(selectedEvaluatorName);
+            selectedEvaluator.setEvaluator(true);
+        }
+        this.selectedEvaluatorName = selectedEvaluatorName;
+    }
+
+    public Indicator getSelectedEvaluator() {
+        return selectedEvaluator;
+    }
+
+    public void setSelectedEvaluator(Indicator selectedEvaluator) {
+        this.selectedEvaluator = selectedEvaluator;
+    }
+
+    public boolean isScoreSetSelected() {
+        return scoreSetSelected;
+    }
+
+    public void setScoreSetSelected(boolean scoreSetSelected) {
+        this.scoreSetSelected = scoreSetSelected;
+    }
+
     //=================
     // Instance Methods
     //=================
+
+    public void onNodeSelect(NodeSelectEvent event) {
+        // Leaf and branch indicators have different tabs in the tab view
+        // The active tab will remain the same if the newly selected indicator has the previous active tab
+        // Otherwise the active tab will be "Overview" by default
+        Indicator newSelectedIndicator = (Indicator) event.getComponent().getAttributes().get("selectedIndicator");
+        if (selectedIndicator != null) {
+            activeTabIndex = String.valueOf(newSelectedIndicator.isLeaf() ? leafIndicatorTabs.indexOf(previousActiveTabTitle) : branchIndicatorTabs.indexOf(previousActiveTabTitle));
+        }
+        if (activeTabIndex.equals("-1")) {
+            activeTabIndex = "0"; // Overview tab
+        }
+        getTabContent(newSelectedIndicator, (Indicator) event.getComponent().getAttributes().get("rootIndicator"));
+    }
+
+    public void onTabChange(TabChangeEvent event) {
+        previousActiveTabTitle = event.getTab().getTitle();
+        getTabContent((Indicator) event.getComponent().getAttributes().get("selectedIndicator"), (Indicator) event.getComponent().getAttributes().get("rootIndicator"));
+    }
 
     // Get data to show in the tab view from the selected node in the tree table
     public void getTabContent(Indicator selectedIndicator, Indicator rootIndicator) {
@@ -200,11 +268,65 @@ public class TabViewController implements Serializable {
         this.selectedIndicator = selectedIndicator;
         this.rootIndicator = rootIndicator;
         getCriticalityWeightings();
+        if (selectedIndicator != null) {
+            editorController.setEditorContent(selectedIndicator.getDescription());
+        }
     }
 
-    //-----------------
-    // Weights Tab Data
-    //-----------------
+    //-------------
+    // OverView Tab
+    //-------------
+
+    public void updateDescription() {
+        selectedIndicator.setDescription(editorController.getEditorContent());
+        JsfUtil.addSuccessMessage("Indicator description was saved.");
+    }
+
+    //---------------
+    // Evaluators Tab
+    //---------------
+
+    public void assignEvaluator(Indicator evaluator) {
+        selectedIndicator.addChildIndicator(evaluator);
+        // Add a row and a column for the newly added evaluator to the pairwise comparison matrix of the leaf leafIndicator
+        // Set 1 to the newly added cells as the default comparison value
+        for (Indicator siblingEvaluator : selectedIndicator.getChildIndicators()) {
+            selectedIndicator.compareIndicators(evaluator, siblingEvaluator, 1.0);
+        }
+        rootIndicator.solve();
+        selectedEvaluatorName = null;
+        selectedEvaluator = null;
+    }
+
+    public void removeEvaluator(Indicator evaluator) {
+        // Remove the evaluators from the selected leaf indicator
+        evaluator.getParentIndicators().remove(selectedIndicator);
+        selectedIndicator.deleteComparisons(evaluator);
+        selectedIndicator.getChildIndicators().remove(evaluator);
+        selectedIndicator.getEvaluatorScores().remove(evaluator);
+        rootIndicator.solve();
+        selectedEvaluatorName = null;
+        selectedEvaluator = null;
+    }
+
+    public boolean isEvaluatorAlreadyAssigned(Indicator evaluator) {
+        return selectedIndicator.getChildIndicators().stream().anyMatch(eval -> eval.getName().equals(evaluator.getName()));
+    }
+
+    //-------------------
+    // Nominal Scores Tab
+    //-------------------
+
+    public void selectScoreSet(ScoreSet scoreSet) {
+        selectedIndicator.setScoreSet(scoreSet);
+        scoreSetSelected = true;
+        scoreSetController.setSelectedScoreSetId(null);
+        scoreSetController.setSelectedScoreSet(null);
+    }
+
+    //------------
+    // Weights Tab
+    //------------
 
     // Get pairwise comparison matrix data for the weights tab
     public void getCriticalityWeightings() {

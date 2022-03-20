@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Gokce Onen on 2022.3.18
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<ui:composition>
+    <div align="center">
+        <h:form id="scoreSetForm">
+            <div align="center" style="background-color: white">
+                <h:outputText value="Current Nominal Score Set:" style="font-weight: bold"/><br/>
+                <h:outputText value="#{tabViewController.selectedIndicator.scoreSet.title}"/><br/>
+                <c:if test="#{empty tabViewController.selectedIndicator.scoreSet}">
+                    <h:outputText value="Not selected"/><br/>
+                </c:if>
+                <br/>
+                <p:panelGrid id="panelNominalScores" columns="2">
+                    <h:outputText value="Select Nominal Score Set:" style="font-weight: bold"/>
+                    <p:selectOneMenu id="selectNominalScores"
+                                     value="#{scoreSetController.selectedScoreSetId}"
+                                     hideNoSelectionOption="#{not empty scoreSetController.selectedScoreSetId}">
+                        <p:ajax event="itemSelect" process="@this" update="scoreSetForm" listener="#{tabViewController.onScoreSetSelect}"/>
+                        <f:selectItem itemLabel="Select Nominal Score Set" itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{scoreSetController.listOfScoreSets}"
+                                       var="scoreSet"
+                                       itemLabel="#{scoreSet.title}"
+                                       itemValue="#{scoreSet.id}"/>
+                    </p:selectOneMenu>
+                </p:panelGrid><br/>
+                <br/>
+                <c:if test="#{scoreSetController.selectedScoreSet != null}">
+                    <div align="center">
+                        <table border="1" cellpadding="5" cellspacing="0">
+                            <tr bgcolor="LemonChiffon">
+                                <td>Nominal Score</td>
+                                <td style="width: 120px;">Low Score</td>
+                                <td style="width: 120px;">High Score</td>
+                            </tr>
+                            <ui:repeat
+                                    value="#{scoreSetController.getListOfScoreSetRows(scoreSetController.selectedScoreSet)}"
+                                    var="row">
+                                <tr>
+                                    <td><h:outputText value="#{row.getName()}"/></td>
+                                    <td style="width: 120px;"><h:outputText value="#{row.getLowScore()}"/></td>
+                                    <td style="width: 120px;"><h:outputText value="#{row.getHighScore()}"/></td>
+                                </tr>
+                            </ui:repeat>
+                        </table>
+                        <br/>
+                    </div>
+
+                    <p:commandButton value="Save"
+                                     id="saveScoreSet"
+                                     action="#{tabViewController.selectScoreSet(scoreSetController.selectedScoreSet)}"
+                                     update="scoreSetForm, :growlInfoMessage"
+                                     style="margin-bottom: 96px"
+                                     process="@this"/>&nbsp;
+                </c:if>
+            </div>
+        </h:form>
+    </div>
+</ui:composition>
+
+</html>

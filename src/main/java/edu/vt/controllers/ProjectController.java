@@ -158,6 +158,15 @@ public class ProjectController implements Serializable {
     }
 
     /*
+     ************************************
+     Return project's evaluator usernames
+     ************************************
+     */
+    public String[] evaluatorUsernames(Project project) {
+        return project.getEvaluatorUsernames().split(",");
+    }
+
+    /*
      **************
      Utility Method
      **************

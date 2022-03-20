@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Gokce Onen on 2022.2.20
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition>
+    <div style="margin-left: 20px">
+        <h:outputText value="Indicator Name: " style="font-weight: bold"/><br/>
+        <h:outputText value="#{tabViewController.selectedIndicator.name}"/><br/>
+        <br/>
+
+        <c:if test="#{tabViewController.selectedEvaluator.score.evaluated}">
+        <h:outputText value="Score Range: " style="font-weight: bold"/><br/>
+        <h:outputText value="#{tabViewController.score}"/><br/>
+        <br/>
+        </c:if>
+
+        <h:outputText value="Description: " style="font-weight: bold"/><br/>
+        <p:textEditor id="description" secure='false' value="#{editorController.editorContent}" height="360"
+                      style="margin: 6px 0"
+                      placeholder="Enter indicator description here"/>
+        <p:commandButton value="Save" icon="fas fa-save" styleClass="rounded-button"
+                         ajax="false" actionListener="#{tabViewController.updateDescription()}"
+                         update=":tabForm,:treeForm,:growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"/><br/>
+        <br/>
+
+        <c:if test="#{!tabViewController.selectedIndicator.root}">
+            <h:outputText value="Parents:" style="font-weight: bold"/><br/>
+            <c:forEach var="item"
+                       items="#{tabViewController.selectedIndicator.parentIndicators}">
+                <h:outputText value="#{item.name}"/><br/>
+            </c:forEach>
+            <br/>
+        </c:if>
+
+        <c:if test="#{not empty tabViewController.selectedIndicator.childIndicators}">
+            <c:choose>
+                <c:when test="#{tabViewController.selectedIndicator.leaf}">
+                    <h:outputText value="Evalutors:" style="font-weight: bold"/>
+                </c:when>
+                <c:otherwise>
+                    <h:outputText value="Children:" style="font-weight: bold"/>
+                </c:otherwise>
+            </c:choose>
+            <br/>
+        </c:if>
+        <c:forEach var="item"
+                   items="#{tabViewController.selectedIndicator.childIndicators}">
+            <h:outputText value="#{item.name}"/><br/>
+        </c:forEach>
+        <br/>
+    </div>
+
+</ui:composition>
+
+</html>

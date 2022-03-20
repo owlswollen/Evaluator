@@ -9,47 +9,77 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
       xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 <ui:composition>
     <div class="card">
         <h:form id="tabForm">
-            <p:tabView dynamic="true">
+            <p:tabView activeIndex="#{tabViewController.activeTabIndex}" dynamic="true">
+                <f:attribute name="selectedIndicator" value="#{treeTableController.selectedNode.data}" />
+                <f:attribute name="rootIndicator" value="#{treeTableController.rootIndicator}" />
                 <p:ajax event="tabChange"
                         update=":sliderForm"
-                        listener="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"/>
-                <p:ajax event="tabClose"/>
+                        listener="#{tabViewController.onTabChange}"/>
+                <!--
+                ==================
+                |  OVERVIEW TAB  |
+                ==================
+                -->
+                <p:tab title="Overview">
+                    <c:if test="#{not empty tabViewController.selectedIndicator}">
+                        <ui:include src="/project/tabView/Overview.xhtml"/>
+                    </c:if>
+                </p:tab>
                 <!--
                 ====================
                 |  EVALUATORS TAB  |
                 ====================
                 -->
                 <p:tab title="Evaluators" rendered="#{tabViewController.selectedIndicator.isLeaf()}">
-                    <ui:include src="/project/tabView/EvaluatorsTab.xhtml"/>
+                    <c:if test="#{not empty tabViewController.selectedIndicator}">
+                        <ui:include src="/project/tabView/Evaluators.xhtml"/>
+                    </c:if>
+                </p:tab>
+                <!--
+                ========================
+                |  NOMINAL SCORES TAB  |
+                ========================
+                -->
+                <p:tab title="Nominal Scores" rendered="#{tabViewController.selectedIndicator.isLeaf()}">
+                    <c:if test="#{not empty tabViewController.selectedIndicator}">
+                        <ui:include src="/project/tabView/NominalScores.xhtml"/>
+                    </c:if>
                 </p:tab>
                 <!--
                 =================
                 |  WEIGHTS TAB  |
                 =================
                 -->
-                <p:tab title="Weights" rendered="#{!tabViewController.selectedIndicator.isLeaf()}">
-                    <ui:include src="/project/tabView/WeightsTab.xhtml"/>
+                <p:tab title="Weights">
+                    <c:if test="#{not empty tabViewController.selectedIndicator and not empty tabViewController.selectedIndicator.childIndicators}">
+                        <ui:include src="/project/tabView/Weights.xhtml"/>
+                    </c:if>
                 </p:tab>
                 <!--
                 ================
                 |  SCORES TAB  |
                 ================
                 -->
-                <p:tab title="Scores" rendered="#{!tabViewController.selectedIndicator.isLeaf()}">
-                    <ui:include src="/project/tabView/ScoresTab.xhtml"/>
+                <p:tab title="Scores">
+                    <c:if test="#{not empty tabViewController.selectedIndicator and tabViewController.selectedEvaluator.score.evaluated}">
+                        <ui:include src="/project/tabView/Scores.xhtml"/>
+                    </c:if>
                 </p:tab>
                 <!--
-                =====================
-                |  DESCRIPTION TAB  |
-                =====================
+                ================
+                |  NOTES TAB  |
+                ================
                 -->
-                <p:tab title="Description">
-                    <ui:include src="/project/tabView/DescriptionTab.xhtml"/>
+                <p:tab title="Notes" rendered="#{tabViewController.selectedIndicator.isLeaf()}">
+                    <c:if test="#{not empty tabViewController.selectedIndicator and not empty tabViewController.selectedIndicator.childIndicators}">
+                        <ui:include src="/project/tabView/Notes.xhtml"/>
+                    </c:if>
                 </p:tab>
             </p:tabView>
         </h:form>

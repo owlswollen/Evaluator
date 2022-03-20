@@ -771,4 +771,12 @@ public class UserController implements Serializable {
         }
     }
 
+    /*
+    ********************
+    Get user by username
+    ********************
+     */
+    public User getUserByUsername(String username) {
+        return userFacade.findByUsername(username);
+    }
 }

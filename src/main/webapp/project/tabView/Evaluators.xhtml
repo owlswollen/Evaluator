@@ -55,16 +55,14 @@
                     <p:commandButton value="Assign"
                                      id="assignEvaluator"
                                      action="#{tabViewController.assignEvaluator(tabViewController.selectedEvaluator)}"
-                                     update="evaluatorForm, :tabForm, :growlInfoMessage"
-                                     style="margin-bottom: 96px"
+                                     update="evaluatorForm, :tabForm:tabView:weightsTab, :growlInfoMessage"
                                      process="@this"
                                      rendered="#{!tabViewController.isEvaluatorAlreadyAssigned(tabViewController.selectedEvaluator)}"/>&nbsp;
 
                     <p:commandButton value="Remove"
                                      id="removeEvaluator"
                                      action="#{tabViewController.removeEvaluator(tabViewController.selectedEvaluator)}"
-                                     update="evaluatorForm, :tabForm, :growlInfoMessage"
-                                     style="margin-bottom: 96px"
+                                     update="evaluatorForm, :tabForm:tabView:weightsTab, :growlInfoMessage"
                                      process="@this"
                                      rendered="#{tabViewController.isEvaluatorAlreadyAssigned(tabViewController.selectedEvaluator)}"/>&nbsp;
                 </c:if>

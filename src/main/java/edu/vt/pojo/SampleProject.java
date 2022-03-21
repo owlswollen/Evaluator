@@ -26,7 +26,7 @@ public class SampleProject {
     private TreeNode<Indicator> actualRootTreeNode;
 
     // AHP object holding the indicator hierarchy and alternatives
-    private Ahp ahp;
+    private IndicatorsGraph indicatorsGraph;
 
     //==========================
     // Getter and Setter Methods
@@ -56,12 +56,12 @@ public class SampleProject {
         this.actualRootTreeNode = actualRootTreeNode;
     }
 
-    public Ahp getAhp() {
-        return ahp;
+    public IndicatorsGraph getAhp() {
+        return indicatorsGraph;
     }
 
-    public void setAhp(Ahp ahp) {
-        this.ahp = ahp;
+    public void setAhp(IndicatorsGraph indicatorsGraph) {
+        this.indicatorsGraph = indicatorsGraph;
     }
 
     //=================
@@ -72,7 +72,7 @@ public class SampleProject {
      * Create the default acyclic graph
      * and show it in the tree table
      */
-    public SampleProject createDefaultGraphAndTree(Indicator rootIndicator, Ahp ahp, TreeNode rootTreeNode, TreeNode actualRootTreeNode) {
+    public SampleProject createDefaultGraphAndTree(Indicator rootIndicator, IndicatorsGraph indicatorsGraph, TreeNode rootTreeNode, TreeNode actualRootTreeNode) {
         //-----------
         // Indicators
         //-----------
@@ -450,8 +450,8 @@ public class SampleProject {
         // AHP Solution
         //-------------
         // Run the AHP algorithm for the default graph
-        ahp = new Ahp(rootIndicator);
-        ahp.solve();
+        indicatorsGraph = new IndicatorsGraph(rootIndicator);
+        indicatorsGraph.solve();
 
         //------------------
         // Default TreeTable
@@ -638,7 +638,7 @@ public class SampleProject {
         this.rootIndicator = rootIndicator;
         this.rootTreeNode = rootTreeNode;
         this.actualRootTreeNode = actualRootTreeNode;
-        this.ahp = ahp;
+        this.indicatorsGraph = indicatorsGraph;
         return this;
     }
 }

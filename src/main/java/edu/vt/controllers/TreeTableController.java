@@ -9,10 +9,9 @@ import edu.vt.FacadeBeans.ProjectFacade;
 import edu.vt.controllers.util.JsfUtil;
 import edu.vt.managers.BinarySerializationManager;
 import edu.vt.managers.DatabaseSerializationManager;
-import edu.vt.pojo.Ahp;
+import edu.vt.pojo.IndicatorsGraph;
 import edu.vt.pojo.Indicator;
 import edu.vt.pojo.SampleProject;
-import edu.vt.pojo.Score;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
@@ -66,11 +65,11 @@ public class TreeTableController implements Serializable {
     // Sibling options to show in select one menu while adding a new sibling
     private List<String> siblingOptionNames = new ArrayList<>();
 
-    // Is the node to be added already in graph
-    private boolean existingIndicator = false;
+    // Is the node to be added selected from the graph
+    private boolean addExistingIndicator = false;
 
     // AHP object holding the indicator hierarchy and alternatives
-    private Ahp ahp;
+    private IndicatorsGraph indicatorsGraph;
 
     // DB ID of the serialized object
     private Long serializedId;
@@ -156,12 +155,12 @@ public class TreeTableController implements Serializable {
         this.siblingOptionNames = siblingOptionNames;
     }
 
-    public boolean isExistingIndicator() {
-        return existingIndicator;
+    public boolean isAddExistingIndicator() {
+        return addExistingIndicator;
     }
 
-    public void setExistingIndicator(boolean existingIndicator) {
-        this.existingIndicator = existingIndicator;
+    public void setAddExistingIndicator(boolean addExistingIndicator) {
+        this.addExistingIndicator = addExistingIndicator;
     }
 
     //=================
@@ -174,9 +173,9 @@ public class TreeTableController implements Serializable {
      */
     private void createDefaultGraphAndTree() {
         SampleProject sampleGraph = new SampleProject();
-        sampleGraph = sampleGraph.createDefaultGraphAndTree(rootIndicator, ahp, rootTreeNode, actualRootTreeNode);
+        sampleGraph = sampleGraph.createDefaultGraphAndTree(rootIndicator, indicatorsGraph, rootTreeNode, actualRootTreeNode);
         rootIndicator = sampleGraph.getRootIndicator();
-        ahp = sampleGraph.getAhp();
+        indicatorsGraph = sampleGraph.getAhp();
         rootTreeNode = sampleGraph.getRootTreeNode();
         actualRootTreeNode = sampleGraph.getActualRootTreeNode();
         rootTreeNode.setExpanded(true);
@@ -349,11 +348,11 @@ public class TreeTableController implements Serializable {
         rootIndicator = null;
         rootTreeNode = null;
         selectedNode = null;
-        ahp = null;
+        indicatorsGraph = null;
     }
 
     public void saveGraph(Project selectedProject) {
-        selectedProject.setIndicatorsGraph(ahp);
+        selectedProject.setIndicatorsGraph(indicatorsGraph);
         try {
             projectFacade.edit(selectedProject);
             JsfUtil.addSuccessMessage("Indicators Graph was successfully saved!");
@@ -375,10 +374,10 @@ public class TreeTableController implements Serializable {
     }
 
     public String openProject(Project selectedProject) {
-        ahp = selectedProject.getIndicatorsGraph();
+        indicatorsGraph = selectedProject.getIndicatorsGraph();
 
-        if (ahp != null) {
-            showGraphOnTreeTable();
+        if (indicatorsGraph != null) {
+            showGraphOnTreeTable(indicatorsGraph);
             rootTreeNode.setExpanded(true);
             actualRootTreeNode.setExpanded(true);
         }
@@ -394,7 +393,7 @@ public class TreeTableController implements Serializable {
         Connection connection = createConnection();
 
         // serializing java object to mysql database
-        serializedId = DatabaseSerializationManager.serializeJavaObjectToDB(connection, ahp);
+        serializedId = DatabaseSerializationManager.serializeJavaObjectToDB(connection, indicatorsGraph);
 
         FacesMessage message = new FacesMessage("Stored to DB", "Graph is serialized to database");
         FacesContext.getCurrentInstance().addMessage(null, message);
@@ -404,10 +403,10 @@ public class TreeTableController implements Serializable {
         Connection connection = createConnection();
 
         // de-serializing java object from mysql database
-        ahp = (Ahp) DatabaseSerializationManager.deSerializeJavaObjectFromDB(connection, serializedId);
+        indicatorsGraph = (IndicatorsGraph) DatabaseSerializationManager.deSerializeJavaObjectFromDB(connection, serializedId);
         connection.close();
 
-        showGraphOnTreeTable();
+        showGraphOnTreeTable(indicatorsGraph);
     }
 
     private Connection createConnection() throws ClassNotFoundException, SQLException {
@@ -429,26 +428,34 @@ public class TreeTableController implements Serializable {
     //-------------------------------------------------------------
 
     public void exportGraph() {
-        BinarySerializationManager.storeGraph(ahp);
+        BinarySerializationManager.storeGraph(indicatorsGraph);
         FacesMessage message = new FacesMessage("Graph Exported", "Serialized graph is saved in GraphData.bin");
         System.out.println(System.getProperty("user.dir"));
         FacesContext.getCurrentInstance().addMessage(null, message);
     }
 
     public void importGraph() {
-        ahp = BinarySerializationManager.retrieveGraph();
-        showGraphOnTreeTable();
+        indicatorsGraph = BinarySerializationManager.retrieveGraph();
+        showGraphOnTreeTable(indicatorsGraph);
     }
 
     //----------------------------------------------------------------
     // Methods for displaying the graph on TreeTable
     //----------------------------------------------------------------
 
-    private void showGraphOnTreeTable() {
-        rootIndicator = ahp.getRoot();
+    public void showGraphOnTreeTable(IndicatorsGraph newGraph) {
+        indicatorsGraph = newGraph;
+        rootIndicator = indicatorsGraph.getRoot();
         rootTreeNode = new DefaultTreeNode(null, null);
         actualRootTreeNode = new DefaultTreeNode(rootIndicator, rootTreeNode);
         addChildrenToTreeTableNodes(actualRootTreeNode, rootIndicator);
+    }
+
+    public void expandAllNodes(final TreeNode<Indicator> node) {
+        for (final TreeNode<Indicator> child : node.getChildren()) {
+            expandAllNodes(child);
+        }
+        node.setExpanded(true);
     }
 
     private void addChildrenToTreeTableNodes(TreeNode<Indicator> treeTableNode, Indicator graphNode) {
@@ -471,8 +478,8 @@ public class TreeTableController implements Serializable {
         rootIndicator = new Indicator(newNodeName);
 
         // Run the AHP algorithm for the updated graph
-        ahp = new Ahp(rootIndicator);
-        ahp.solve();
+        indicatorsGraph = new IndicatorsGraph(rootIndicator);
+        indicatorsGraph.solve();
 
         rootTreeNode = new DefaultTreeNode(null, null);
         actualRootTreeNode = new DefaultTreeNode(rootIndicator, rootTreeNode);
@@ -484,19 +491,17 @@ public class TreeTableController implements Serializable {
      * ADD CHILD TO GRAPH *
      **********************/
     public void addChildToGraph(Project selectedProject) {
-        // Show a warning if the new node is already in the graph and existing node option was not used while adding
-        Indicator foundIndicator = null;
-        foundIndicator = findNewNodeNameInGraph(rootIndicator, foundIndicator);
-        if (foundIndicator != null && !existingIndicator) {
+
+        // Check if the new node is already in the graph
+        boolean existingIndicator = true;
+        Indicator childIndicatorToAdd = null;
+        childIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, childIndicatorToAdd);
+        // Show a warning if the new node is already in the graph and existing indicator option was not used while adding
+        if (childIndicatorToAdd != null && !addExistingIndicator) {
             FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, newNodeName + " is already in the graph.", "");
             FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
             return;
         }
-
-        // Check if the new node is already in the graph
-        Indicator childIndicatorToAdd = null;
-        childIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, childIndicatorToAdd);
-        boolean existingIndicator = true;
 
         // If it is not found in the graph create a new node with the given name and default attributes
         if (childIndicatorToAdd == null) {
@@ -510,7 +515,7 @@ public class TreeTableController implements Serializable {
         Indicator parentIndicator = null;
         parentIndicator = findIndicatorBySelectedNode(rootIndicator, parentIndicator);
 
-        // Remove the evaluators of the parent indicator added by default when the parent indicator used to be a leaf indicator
+        // Remove the evaluators of the parent indicator if the parent indicator used to be a leaf indicator
         if (parentIndicator.isLeaf()) {
             for (Indicator evaluator : parentIndicator.getChildIndicators()) {
                 evaluator.getParentIndicators().remove(parentIndicator);
@@ -534,8 +539,8 @@ public class TreeTableController implements Serializable {
         addChildToTreeTable(rootTreeNode, childIndicatorToAdd, existingIndicator);
 
         // Run the AHP algorithm again for the updated graph
-        ahp = new Ahp(rootIndicator);
-        ahp.solve();
+        indicatorsGraph = new IndicatorsGraph(rootIndicator);
+        indicatorsGraph.solve();
 
         newNodeName = null;
     }
@@ -573,19 +578,17 @@ public class TreeTableController implements Serializable {
      * ADD SIBLING TO GRAPH *
      ************************/
     public void addSiblingToGraph(Project selectedProject) {
-        // Show a warning if the new node is already in the graph and existing node option was not used while adding
-        Indicator foundIndicator = null;
-        foundIndicator = findNewNodeNameInGraph(rootIndicator, foundIndicator);
-        if (foundIndicator != null && !existingIndicator) {
+
+        // Check if the new node is already in the graph
+        boolean existingIndicator = true;
+        Indicator siblingIndicatorToAdd = null;
+        siblingIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, siblingIndicatorToAdd);
+        // Show a warning if the new node is already in the graph and existing indicator option was not used while adding
+        if (siblingIndicatorToAdd != null && !addExistingIndicator) {
             FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, newNodeName + " is already in the graph.", "");
             FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
             return;
         }
-
-        // Check if the new node is already in the graph
-        Indicator siblingIndicatorToAdd = null;
-        siblingIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, siblingIndicatorToAdd);
-        boolean existingIndicator = true;
 
         // If it is not found in the graph create a new node with the given name and default attributes
         if (siblingIndicatorToAdd == null) {
@@ -619,8 +622,8 @@ public class TreeTableController implements Serializable {
         addSiblingToTreeTable(rootTreeNode, siblingIndicatorToAdd, existingIndicator);
 
         // Run the AHP algorithm again for the updated graph
-        ahp = new Ahp(rootIndicator);
-        ahp.solve();
+        indicatorsGraph = new IndicatorsGraph(rootIndicator);
+        indicatorsGraph.solve();
 
         newNodeName = null;
     }
@@ -703,8 +706,8 @@ public class TreeTableController implements Serializable {
         addParentToTreeTable(rootTreeNode);
 
         // Run the AHP algorithm again for the updated graph
-        ahp = new Ahp(rootIndicator);
-        ahp.solve();
+        indicatorsGraph = new IndicatorsGraph(rootIndicator);
+        indicatorsGraph.solve();
 
         newNodeName = null;
     }

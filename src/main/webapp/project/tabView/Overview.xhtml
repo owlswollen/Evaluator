@@ -29,7 +29,7 @@
                       placeholder="Enter indicator description here"/>
         <p:commandButton value="Save" icon="fas fa-save" styleClass="rounded-button"
                          ajax="false" actionListener="#{tabViewController.updateDescription()}"
-                         update=":tabForm,:treeForm,:growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"/><br/>
+                         update=":growlInfoMessage"/><br/>
         <br/>
 
         <c:if test="#{!tabViewController.selectedIndicator.root}">

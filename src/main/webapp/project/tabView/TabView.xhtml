@@ -15,9 +15,9 @@
 <ui:composition>
     <div class="card">
         <h:form id="tabForm">
-            <p:tabView activeIndex="#{tabViewController.activeTabIndex}" dynamic="true">
-                <f:attribute name="selectedIndicator" value="#{treeTableController.selectedNode.data}" />
-                <f:attribute name="rootIndicator" value="#{treeTableController.rootIndicator}" />
+            <p:tabView id="tabView" activeIndex="#{tabViewController.activeTabIndex}" dynamic="true">
+                <f:attribute name="selectedIndicator" value="#{treeTableController.selectedNode.data}"/>
+                <f:attribute name="rootIndicator" value="#{treeTableController.rootIndicator}"/>
                 <p:ajax event="tabChange"
                         update=":sliderForm"
                         listener="#{tabViewController.onTabChange}"/>
@@ -27,9 +27,11 @@
                 ==================
                 -->
                 <p:tab title="Overview">
-                    <c:if test="#{not empty tabViewController.selectedIndicator}">
-                        <ui:include src="/project/tabView/Overview.xhtml"/>
-                    </c:if>
+                    <h:panelGroup id="overviewTab">
+                        <c:if test="#{not empty tabViewController.selectedIndicator}">
+                            <ui:include src="/project/tabView/Overview.xhtml"/>
+                        </c:if>
+                    </h:panelGroup>
                 </p:tab>
                 <!--
                 ====================
@@ -37,9 +39,11 @@
                 ====================
                 -->
                 <p:tab title="Evaluators" rendered="#{tabViewController.selectedIndicator.isLeaf()}">
-                    <c:if test="#{not empty tabViewController.selectedIndicator}">
-                        <ui:include src="/project/tabView/Evaluators.xhtml"/>
-                    </c:if>
+                    <h:panelGroup id="evaluatorsTab">
+                        <c:if test="#{not empty tabViewController.selectedIndicator}">
+                            <ui:include src="/project/tabView/Evaluators.xhtml"/>
+                        </c:if>
+                    </h:panelGroup>
                 </p:tab>
                 <!--
                 ========================
@@ -47,9 +51,11 @@
                 ========================
                 -->
                 <p:tab title="Nominal Scores" rendered="#{tabViewController.selectedIndicator.isLeaf()}">
-                    <c:if test="#{not empty tabViewController.selectedIndicator}">
-                        <ui:include src="/project/tabView/NominalScores.xhtml"/>
-                    </c:if>
+                    <h:panelGroup id="nominalScoresTab">
+                        <c:if test="#{not empty tabViewController.selectedIndicator}">
+                            <ui:include src="/project/tabView/NominalScores.xhtml"/>
+                        </c:if>
+                    </h:panelGroup>
                 </p:tab>
                 <!--
                 =================
@@ -57,9 +63,11 @@
                 =================
                 -->
                 <p:tab title="Weights">
-                    <c:if test="#{not empty tabViewController.selectedIndicator and not empty tabViewController.selectedIndicator.childIndicators}">
-                        <ui:include src="/project/tabView/Weights.xhtml"/>
-                    </c:if>
+                    <h:panelGroup id="weightsTab">
+                        <c:if test="#{not empty tabViewController.selectedIndicator and not empty tabViewController.selectedIndicator.childIndicators}">
+                            <ui:include src="/project/tabView/Weights.xhtml"/>
+                        </c:if>
+                    </h:panelGroup>
                 </p:tab>
                 <!--
                 ================
@@ -67,9 +75,18 @@
                 ================
                 -->
                 <p:tab title="Scores">
-                    <c:if test="#{not empty tabViewController.selectedIndicator and tabViewController.selectedEvaluator.score.evaluated}">
-                        <ui:include src="/project/tabView/Scores.xhtml"/>
-                    </c:if>
+                    <h:panelGroup id="scoresTab">
+                        <c:if test="#{not empty tabViewController.selectedIndicator}">
+                            <c:choose>
+                                <c:when test="#{!tabViewController.selectedIndicator.leaf and !tabViewController.allEvaluatorScoresGiven(tabViewController.rootIndicator)}">
+                                    <h:outputText value="Leaf indicators have not been scored by all the assigned evaluators yet."/><br/>
+                                </c:when>
+                                <c:otherwise>
+                                    <ui:include src="/project/tabView/Scores.xhtml"/>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:if>
+                    </h:panelGroup>
                 </p:tab>
                 <!--
                 ================
@@ -77,9 +94,11 @@
                 ================
                 -->
                 <p:tab title="Notes" rendered="#{tabViewController.selectedIndicator.isLeaf()}">
-                    <c:if test="#{not empty tabViewController.selectedIndicator and not empty tabViewController.selectedIndicator.childIndicators}">
-                        <ui:include src="/project/tabView/Notes.xhtml"/>
-                    </c:if>
+                    <h:panelGroup id="notesTab">
+                        <c:if test="#{not empty tabViewController.selectedIndicator and not empty tabViewController.selectedIndicator.childIndicators}">
+                            <ui:include src="/project/tabView/Notes.xhtml"/>
+                        </c:if>
+                    </h:panelGroup>
                 </p:tab>
             </p:tabView>
         </h:form>

@@ -14,7 +14,7 @@ public class Score implements Serializable {
      */
     private Double low;
     private Double high;
-    private boolean isEvaluated;
+    private boolean isEvaluated; // TODO: remove
 
     /*
     ===================

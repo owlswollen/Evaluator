@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  - Created by Gokce Onen on 2022.2.27
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+<!-- This page is constructed based on the siteTemplate -->
+<ui:composition template="/template/siteTemplate.xhtml">
+    <ui:define name="title">
+        <!-- Set the page title -->
+        <h:outputText value="Evaluate"/>
+    </ui:define>
+
+    <!-- Create the content for this page below -->
+    <ui:define name="editableContent">
+        <table style="max-width: 2200px">
+            <tr>
+                <!--
+                ================
+                |  TREE TABLE  |
+                ================
+                -->
+                <td style="width: 50%; vertical-align: top">
+                    <h:form id="indicatorsForm">
+                        <p:panel header="Indicators">
+                            <p:treeTable value="#{treeTableController.rootTreeNode}"
+                                         rendered="#{treeTableController.rootTreeNode != null}"
+                                         style="padding-top: 20px"
+                                         id="tree"
+                                         var="node"
+                                         selectionMode="single"
+                                         selection="#{treeTableController.selectedNode}"
+                                         dynamic="true">
+                                <f:attribute name="selectedIndicator"
+                                             value="#{treeTableController.selectedNode.data}"/>
+                                <f:attribute name="rootIndicator" value="#{treeTableController.rootIndicator}"/>
+                                <p:ajax event="select" update="scoreForm"
+                                        listener="#{evaluationController.onIndicatorSelect}"/>
+                                <p:column>
+                                    <h:outputText value="#{node.name}"
+                                                  style="#{evaluationController.getStyleForEvaluableIndicators(node)}"/>
+                                </p:column>
+                            </p:treeTable>
+                            <br/>
+                        </p:panel>
+                    </h:form>
+                </td>
+                <!--
+                ===========
+                |  SCORE  |
+                ===========
+                -->
+                <td style="width: 50%; vertical-align: top">
+                    <h:form id="scoreForm">
+                        <p:panel header="#{evaluationController.selectedIndicator.name}"
+                                 rendered="#{evaluationController.selectedIndicator != null}">
+                            <c:choose>
+                                <c:when test="#{evaluationController.selectedIndicator.leaf}">
+                                    <c:choose>
+                                        <c:when test="#{evaluationController.isIndicatorEvaluable(evaluationController.selectedIndicator)}">
+                                            <div align="center">
+                                                <h:outputText value="Nominal Score Set:"
+                                                              style="font-weight: bold"/><br/>
+                                                <c:choose>
+                                                    <c:when test="#{empty treeTableController.selectedNode.data.scoreSet}">
+                                                        <h:outputText value="Not selected"/><br/>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <h:outputText
+                                                                value="#{treeTableController.selectedNode.data.scoreSet.title}"/><br/>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                                <br/>
+
+                                                <c:if test="#{treeTableController.selectedNode.data.scoreSet != null}">
+                                                    <h:outputText value="Current Score:"
+                                                                  style="font-weight: bold"/><br/>
+                                                    <c:choose>
+                                                        <c:when test="#{empty treeTableController.selectedNode.data.score}">
+                                                            <h:outputText value="Not evaluated"/><br/>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <h:outputText
+                                                                    value="#{evaluationController.getScoreText(treeTableController.selectedNode.data)}"/><br/>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                    <br/>
+
+                                                    <p:panelGrid id="scorePanel" columns="2"
+                                                                 columnClasses="panelGridColumn1, panelGridColumn2">
+
+                                                        <h:outputText value="Score:" style="font-weight: bold"/>
+                                                        <p:selectOneMenu id="selectScore"
+                                                                         value="#{scoreSetController.selectedScoreSetRowName}"
+                                                                         hideNoSelectionOption="#{not empty scoreSetController.selectedScoreSetRowName}">
+                                                            <p:ajax event="itemSelect" process="@this"
+                                                                    update="scoreForm"/>
+                                                            <f:selectItem itemLabel="Select One" itemValue=""
+                                                                          noSelectionOption="true"/>
+                                                            <f:selectItems
+                                                                    value="#{scoreSetController.getListOfScoreSetRows(treeTableController.selectedNode.data.scoreSet)}"
+                                                                    var="scoreSetRow"
+                                                                    itemLabel="#{scoreSetRow.name}"
+                                                                    itemValue="#{scoreSetRow.name}"/>
+                                                        </p:selectOneMenu>
+
+                                                        <h:outputText value="Low Score:" style="font-weight: bold"/>
+                                                        <h:outputText
+                                                                value="#{scoreSetController.selectedScoreSetRow.lowScore}"/>
+
+                                                        <h:outputText value="High Score:" style="font-weight: bold"/>
+                                                        <h:outputText
+                                                                value="#{scoreSetController.selectedScoreSetRow.highScore}"/>
+                                                    </p:panelGrid><br/>
+
+                                                    <h:outputText value="Notes:" style="font-weight: bold"/><br/>
+                                                    <p:textEditor id="notesTextEditor" secure='false'
+                                                                  styleClass="noupdate"
+                                                                  value="#{editorController.editorContent}" height="360"
+                                                                  style="margin: 6px 0"
+                                                                  placeholder="Enter notes here"/>
+                                                    <br/>
+
+                                                    <p:commandButton value="Save" icon="fas fa-save" styleClass="rounded-button"
+                                                                     ajax="false" actionListener="#{evaluationController.saveScore(scoreSetController.selectedScoreSetRow)}"
+                                                                     disabled="#{empty scoreSetController.selectedScoreSetRow}"
+                                                                     style="margin-bottom: 10px"
+                                                                     update=":growlInfoMessage"/><br/>
+                                                </c:if>
+                                            </div>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <h:outputText
+                                                    value="#{evaluationController.selectedIndicator.name} is not assigned to #{evaluationController.signedInEvaluatorUsername}."/><br/>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:when>
+                                <c:otherwise>
+                                    <h:outputText
+                                            value="#{evaluationController.selectedIndicator.name} is not a leaf indicator."/><br/>
+                                </c:otherwise>
+                            </c:choose>
+                        </p:panel>
+                    </h:form>
+                </td>
+            </tr>
+        </table>
+    </ui:define>
+</ui:composition>
+</html>

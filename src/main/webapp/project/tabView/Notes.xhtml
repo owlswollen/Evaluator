@@ -1,12 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+<!--
+  - Created by Gokce Onen on 2022.2.20
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-    <title>Title</title>
-</head>
-<body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-</body>
+<ui:composition>
+    <div align="center">
+        <h:form id="notesForm">
+            <div align="center" style="background-color: white">
+
+                <p:panelGrid id="panelEvaluator" columns="2">
+                    <h:outputText value="Select Evaluator:" style="font-weight: bold"/>
+                    <p:selectOneMenu id="selectEvaluator"
+                                     value="#{tabViewController.selectedEvaluatorName}"
+                                     hideNoSelectionOption="#{not empty tabViewController.selectedEvaluatorName}">
+                        <p:ajax event="itemSelect" process="@this" update="notesForm"/>
+                        <f:selectItem itemLabel="Select Evaluator" itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{tabViewController.selectedIndicator.childIndicators}"
+                                       var="evaluator"
+                                       itemLabel="#{evaluator.name}"
+                                       itemValue="#{evaluator.name}"/>
+                    </p:selectOneMenu>
+                </p:panelGrid><br/>
+                <br/>
+                <c:if test="#{tabViewController.selectedEvaluator != null}">
+                    <div align="center">
+                        <h:outputText value="Username:" style="font-weight: bold"/><br/>
+                        <h:outputText value="#{tabViewController.selectedEvaluator.name}"/><br/>
+                        <br/>
+                        <h:outputText value="Notes:" style="font-weight: bold"/><br/>
+                        <c:choose>
+                            <c:when test="#{empty tabViewController.getNotes(tabViewController.selectedEvaluator.name)}">
+                                <h:outputText value="No notes" />
+                            </c:when>
+                            <c:otherwise>
+                                <p:fieldset align="left" style="width:80%; margin:0 auto; background-color: white !important;">
+                                    <h:outputText value="#{tabViewController.getNotes(tabViewController.selectedEvaluator.name)}"
+                                                  escape="false" style="white-space:pre-line;"/>
+                                </p:fieldset>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                    <br/>
+                </c:if>
+            </div>
+        </h:form>
+    </div>
+</ui:composition>
+
 </html>

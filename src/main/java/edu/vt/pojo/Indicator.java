@@ -44,6 +44,7 @@ public class Indicator implements Serializable {
     // Child indicators of this indicator
     private List<Indicator> childIndicators = new ArrayList<>();
 
+    // TODO: <string, string>
     // Low and high scores given by experts - for leaf indicators only
     private Map<Indicator, Score> evaluatorScores = new HashMap<>();
 
@@ -52,6 +53,9 @@ public class Indicator implements Serializable {
 
     // Leaf indicator's score set
     private ScoreSet scoreSet;
+
+    // Leaf indicator's evaluator notes
+    private Map<String, String> evaluatorNotes = new HashMap<>();
 
     /* Calculated values */
 
@@ -217,6 +221,14 @@ public class Indicator implements Serializable {
         this.scoreSet = scoreSet;
     }
 
+    public Map<String, String> getEvaluatorNotes() {
+        return evaluatorNotes;
+    }
+
+    public void setEvaluatorNotes(Map<String, String> evaluatorNotes) {
+        this.evaluatorNotes = evaluatorNotes;
+    }
+
     //=================
     // Instance Methods
     //=================
@@ -296,6 +308,7 @@ public class Indicator implements Serializable {
     // Add evaluator scores if this is a leaf indicator
     public void addEvaluatorScore(Indicator evaluator, Score score) {
         evaluatorScores.put(evaluator, score);
+        evaluatorNotes.put(evaluator.name, "");
     }
 
     protected double getChildWeight(Indicator indicator) {
@@ -383,7 +396,7 @@ public class Indicator implements Serializable {
     }
 
     public boolean isLeaf() {
-        return childIndicators.size() == 0 || (childIndicators.get(0)).isEvaluator;
+        return (childIndicators.size() == 0 || (childIndicators.get(0)).isEvaluator) && !isEvaluator;
     }
 
     void calculateConsistencyIndex() {

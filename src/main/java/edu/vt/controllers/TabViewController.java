@@ -6,10 +6,9 @@ package edu.vt.controllers;
 
 import edu.vt.EntityBeans.ScoreSet;
 import edu.vt.controllers.util.JsfUtil;
-import edu.vt.pojo.Ahp;
+import edu.vt.pojo.IndicatorsGraph;
 import edu.vt.pojo.Comparison;
 import edu.vt.pojo.Indicator;
-import edu.vt.pojo.Score;
 import org.primefaces.event.*;
 import org.primefaces.model.charts.ChartData;
 import org.primefaces.model.charts.axes.radial.RadialScales;
@@ -21,14 +20,12 @@ import org.primefaces.model.charts.radar.RadarChartModel;
 import org.primefaces.model.charts.radar.RadarChartOptions;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJBException;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.Serializable;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Named("tabViewController")
 @SessionScoped
@@ -183,7 +180,14 @@ public class TabViewController implements Serializable {
     public List<String> getEvaluatorScores() {
         evaluatorScores = new ArrayList<>();
         for (Indicator childNode : selectedIndicator.getChildIndicators()) {
-            String score = "[" + String.format("%.2f", selectedIndicator.getEvaluatorScores().get(childNode).getLow()) + " .. " + String.format("%.2f", selectedIndicator.getEvaluatorScores().get(childNode).getHigh()) + "]";
+            String score;
+            // TODO: !!! key Indicator degil string olmali (baska nerelerde bu boyle olacak, arastir - stream() kullanilan yerlere bak)
+            if (selectedIndicator.getEvaluatorScores().entrySet().stream().anyMatch(eval -> eval.getKey().getName().equals(childNode.getName()))) {
+                Indicator evaluator = Objects.requireNonNull(selectedIndicator.getEvaluatorScores().entrySet().stream().filter(eval -> eval.getKey().getName().equals(childNode.getName())).findAny().orElse(null)).getKey();
+                score = "[" + String.format("%.2f", selectedIndicator.getEvaluatorScores().get(evaluator).getLow()) + " .. " + String.format("%.2f", selectedIndicator.getEvaluatorScores().get(evaluator).getHigh()) + "]";
+            } else {
+                score = "Not evaluated";
+            }
             evaluatorScores.add(score);
         }
         return evaluatorScores;
@@ -246,13 +250,15 @@ public class TabViewController implements Serializable {
         // Leaf and branch indicators have different tabs in the tab view
         // The active tab will remain the same if the newly selected indicator has the previous active tab
         // Otherwise the active tab will be "Overview" by default
+        activeTabIndex = "0";
         Indicator newSelectedIndicator = (Indicator) event.getComponent().getAttributes().get("selectedIndicator");
-        if (selectedIndicator != null) {
-            activeTabIndex = String.valueOf(newSelectedIndicator.isLeaf() ? leafIndicatorTabs.indexOf(previousActiveTabTitle) : branchIndicatorTabs.indexOf(previousActiveTabTitle));
-        }
-        if (activeTabIndex.equals("-1")) {
-            activeTabIndex = "0"; // Overview tab
-        }
+//        if (selectedIndicator != null) {
+//            activeTabIndex = String.valueOf(newSelectedIndicator.isLeaf() ? leafIndicatorTabs.indexOf(previousActiveTabTitle) : branchIndicatorTabs.indexOf(previousActiveTabTitle));
+//        }
+//        if (activeTabIndex.equals("-1")) {
+//            activeTabIndex = "0"; // Overview tab
+//        }
+
         getTabContent(newSelectedIndicator, (Indicator) event.getComponent().getAttributes().get("rootIndicator"));
     }
 
@@ -271,6 +277,8 @@ public class TabViewController implements Serializable {
         if (selectedIndicator != null) {
             editorController.setEditorContent(selectedIndicator.getDescription());
         }
+        selectedEvaluatorName = null;
+        selectedEvaluator = null;
     }
 
     //-------------
@@ -293,7 +301,8 @@ public class TabViewController implements Serializable {
         for (Indicator siblingEvaluator : selectedIndicator.getChildIndicators()) {
             selectedIndicator.compareIndicators(evaluator, siblingEvaluator, 1.0);
         }
-        rootIndicator.solve();
+        IndicatorsGraph indicatorsGraph = new IndicatorsGraph(rootIndicator);
+        indicatorsGraph.solve();
         selectedEvaluatorName = null;
         selectedEvaluator = null;
     }
@@ -304,7 +313,8 @@ public class TabViewController implements Serializable {
         selectedIndicator.deleteComparisons(evaluator);
         selectedIndicator.getChildIndicators().remove(evaluator);
         selectedIndicator.getEvaluatorScores().remove(evaluator);
-        rootIndicator.solve();
+        IndicatorsGraph indicatorsGraph = new IndicatorsGraph(rootIndicator);
+        indicatorsGraph.solve();
         selectedEvaluatorName = null;
         selectedEvaluator = null;
     }
@@ -357,8 +367,8 @@ public class TabViewController implements Serializable {
             }
         }
 
-        Ahp ahp = new Ahp(rootIndicator);
-        ahp.solve();
+        IndicatorsGraph indicatorsGraph = new IndicatorsGraph(rootIndicator);
+        indicatorsGraph.solve();
     }
 
     // Create radar chart model to show in the Weights tab
@@ -461,6 +471,42 @@ public class TabViewController implements Serializable {
     public void onSlideEnd(SlideEndEvent event) {
         sliderValue = event.getValue();
         setCriticalityWeightings();
+    }
+
+    //-----------
+    // Scores Tab
+    //-----------
+
+    public boolean allEvaluatorScoresGiven(Indicator indicator) {
+        for (Indicator childIndicator : indicator.getChildIndicators()) {
+            if (childIndicator.isLeaf() && !evaluatorScoresGiven(childIndicator)) {
+                return false;
+            }
+            else if (!allEvaluatorScoresGiven(childIndicator)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean evaluatorScoresGiven(Indicator indicator) {
+        if (indicator.getChildIndicators().isEmpty()) {
+            return false;
+        }
+        for (Indicator evaluator : indicator.getChildIndicators()) {
+            if (!indicator.getEvaluatorScores().containsKey(evaluator)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    //-----------
+    // Scores Tab
+    //-----------
+
+    public String getNotes(String evaluatorUsername) {
+        return selectedIndicator.getEvaluatorNotes().get(evaluatorUsername);
     }
 
 }

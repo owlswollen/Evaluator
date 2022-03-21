@@ -4,21 +4,17 @@
  */
 package edu.vt.EntityBeans;
 
-import edu.vt.pojo.Ahp;
+import edu.vt.pojo.IndicatorsGraph;
 
 import java.io.Serializable;
-import java.sql.Blob;
-import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -63,7 +59,7 @@ public class Project implements Serializable {
 
 //    @Size(min = 1, max = 16777215)
     @Column(name = "indicators_graph")
-    private Ahp indicatorsGraph;
+    private IndicatorsGraph indicatorsGraph;
 
     /*
     =================
@@ -118,11 +114,11 @@ public class Project implements Serializable {
         this.evaluatorUsernames = evaluatorUsernames;
     }
 
-    public Ahp getIndicatorsGraph() {
+    public IndicatorsGraph getIndicatorsGraph() {
         return indicatorsGraph;
     }
 
-    public void setIndicatorsGraph(Ahp indicatorsGraph) {
+    public void setIndicatorsGraph(IndicatorsGraph indicatorsGraph) {
         this.indicatorsGraph = indicatorsGraph;
     }
 

@@ -34,7 +34,7 @@ public class ScoreSetController implements Serializable {
     private ScoreSet selectedScoreSet;
     private Integer selectedScoreSetId;
 
-    private List<ScoreSetRow> listOfScoreSetRows = null;
+    private List<ScoreSetRow> scoreSetRows = null;
     private ScoreSetRow selectedScoreSetRow;
     private String selectedScoreSetRowName;
 
@@ -77,17 +77,6 @@ public class ScoreSetController implements Serializable {
         return scoreSetFacade;
     }
 
-    public List<ScoreSetRow> getListOfScoreSetRows() {
-        if (listOfScoreSetRows == null) {
-            listOfScoreSetRows = getListOfScoreSetRows(selectedScoreSet);
-        }
-        return listOfScoreSetRows;
-    }
-
-    public void setListOfScoreSetRows(List<ScoreSetRow> listOfScoreSetRows) {
-        this.listOfScoreSetRows = listOfScoreSetRows;
-    }
-
     public ScoreSetRow getSelectedScoreSetRow() {
         return selectedScoreSetRow;
     }
@@ -101,9 +90,11 @@ public class ScoreSetController implements Serializable {
     }
 
     public void setSelectedScoreSetId(Integer selectedScoreSetId) {
-        selectedScoreSet = listOfScoreSets.stream().filter(el -> el.getId().equals(selectedScoreSetId)).findAny().orElse(null);
-        assert selectedScoreSet != null;
-        listOfScoreSetRows = getListOfScoreSetRows(selectedScoreSet);
+        if (selectedScoreSetId != null) {
+            selectedScoreSet = listOfScoreSets.stream().filter(set -> set.getId().equals(selectedScoreSetId)).findAny().orElse(null);
+            assert selectedScoreSet != null;
+            scoreSetRows = getListOfScoreSetRows(selectedScoreSet);
+        }
         this.selectedScoreSetId = selectedScoreSetId;
     }
 
@@ -112,7 +103,7 @@ public class ScoreSetController implements Serializable {
     }
 
     public void setSelectedScoreSetRowName(String selectedScoreSetRowName) {
-        selectedScoreSetRow = listOfScoreSetRows.stream().filter(el -> el.getName().equals(selectedScoreSetRowName)).findAny().orElse(null);
+        selectedScoreSetRow = scoreSetRows.stream().filter(el -> el.getName().equals(selectedScoreSetRowName)).findAny().orElse(null);
         this.selectedScoreSetRowName = selectedScoreSetRowName;
     }
 
@@ -162,6 +153,7 @@ public class ScoreSetController implements Serializable {
             ScoreSetRow rowObject = new ScoreSetRow(name, lowScore, highScore);
             listOfScoreSetRows.add(rowObject);
         }
+        scoreSetRows = listOfScoreSetRows;
         return listOfScoreSetRows;
     }
 
@@ -249,7 +241,7 @@ public class ScoreSetController implements Serializable {
      */
     public void create() {
         Methods.preserveMessages();
-        persist(PersistAction.CREATE,"Score Set was Successfully Created!");
+        persist(PersistAction.CREATE, "Score Set was Successfully Created!");
 
         if (!JsfUtil.isValidationFailed()) {
             // No JSF validation error. The CREATE operation is successfully performed.

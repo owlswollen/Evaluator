@@ -24,7 +24,7 @@
 
         <h:form id="AddSiblingForm" class="ui-datatable-data">
             <div align="center">
-                <p:selectOneRadio id="console" value="#{treeTableController.existingIndicator}" rendered="#{treeTableController.siblingOptionNames.size() gt 0}">
+                <p:selectOneRadio id="console" value="#{treeTableController.addExistingIndicator}" rendered="#{treeTableController.siblingOptionNames.size() gt 0}">
                     <p:ajax update="panelGrid" />
                     <f:selectItem itemLabel="New Indicator" itemValue="#{false}"/>
                     <f:selectItem itemLabel="Existing Indicator" itemValue="#{true}"/>
@@ -32,10 +32,10 @@
                 <p:panelGrid id="panelGrid" columns="2" columnClasses="panelGridColumn1, panelGridColumn2">
                     <h:outputText value="Sibling Indicator Name:" style="font-weight: bold"/>
                     <h:inputText value="#{treeTableController.newNodeName}"
-                                 rendered="#{!treeTableController.existingIndicator}"
+                                 rendered="#{!treeTableController.addExistingIndicator}"
                                  style="font-size: medium; padding: 6px" />
                     <p:selectOneMenu id="parentSelect"
-                                     rendered="#{treeTableController.existingIndicator}"
+                                     rendered="#{treeTableController.addExistingIndicator}"
                                      value="#{treeTableController.newNodeName}">
                         <f:selectItems value="#{treeTableController.siblingOptionNames}"/>
                     </p:selectOneMenu>

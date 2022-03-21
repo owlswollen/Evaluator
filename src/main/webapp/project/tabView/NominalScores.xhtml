@@ -17,17 +17,21 @@
         <h:form id="scoreSetForm">
             <div align="center" style="background-color: white">
                 <h:outputText value="Current Nominal Score Set:" style="font-weight: bold"/><br/>
-                <h:outputText value="#{tabViewController.selectedIndicator.scoreSet.title}"/><br/>
-                <c:if test="#{empty tabViewController.selectedIndicator.scoreSet}">
-                    <h:outputText value="Not selected"/><br/>
-                </c:if>
+                <c:choose>
+                    <c:when test="#{empty tabViewController.selectedIndicator.scoreSet}">
+                        <h:outputText value="Not selected"/><br/>
+                    </c:when>
+                    <c:otherwise>
+                        <h:outputText value="#{tabViewController.selectedIndicator.scoreSet.title}"/><br/>
+                    </c:otherwise>
+                </c:choose>
                 <br/>
                 <p:panelGrid id="panelNominalScores" columns="2">
                     <h:outputText value="Select Nominal Score Set:" style="font-weight: bold"/>
                     <p:selectOneMenu id="selectNominalScores"
                                      value="#{scoreSetController.selectedScoreSetId}"
                                      hideNoSelectionOption="#{not empty scoreSetController.selectedScoreSetId}">
-                        <p:ajax event="itemSelect" process="@this" update="scoreSetForm" listener="#{tabViewController.onScoreSetSelect}"/>
+                        <p:ajax event="itemSelect" process="@this" update="scoreSetForm"/>
                         <f:selectItem itemLabel="Select Nominal Score Set" itemValue="" noSelectionOption="true"/>
                         <f:selectItems value="#{scoreSetController.listOfScoreSets}"
                                        var="scoreSet"

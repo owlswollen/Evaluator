@@ -163,6 +163,14 @@ public class TreeTableController implements Serializable {
         this.addExistingIndicator = addExistingIndicator;
     }
 
+    public IndicatorsGraph getIndicatorsGraph() {
+        return indicatorsGraph;
+    }
+
+    public void setIndicatorsGraph(IndicatorsGraph indicatorsGraph) {
+        this.indicatorsGraph = indicatorsGraph;
+    }
+
     //=================
     // Instance Methods
     //=================
@@ -351,7 +359,10 @@ public class TreeTableController implements Serializable {
         indicatorsGraph = null;
     }
 
-    public void saveGraph(Project selectedProject) {
+    public void saveGraph(Project selectedProject, IndicatorsGraph changedGraph) {
+        if (changedGraph != null) {
+            indicatorsGraph = changedGraph;
+        }
         selectedProject.setIndicatorsGraph(indicatorsGraph);
         try {
             projectFacade.edit(selectedProject);

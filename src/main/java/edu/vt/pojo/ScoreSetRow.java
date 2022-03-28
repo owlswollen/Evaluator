@@ -20,6 +20,7 @@ public class ScoreSetRow {
     Constructor Method
     ==================
      */
+
     public ScoreSetRow(String name, Double lowScore, Double highScore) {
         this.name = name;
         this.lowScore = lowScore;

@@ -13,13 +13,7 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
 <ui:composition>
-    <!--
-    ===========================================================
-    |  Clicking the VIEW button in UsersList.xhtml displays   |
-    |  this Dialog window showing the selected user's data.   |
-    ===========================================================
-    -->
-    <p:dialog id="CreateRootDlg" widgetVar="CreateRootDialog" modal="true"
+    <p:dialog id="CreateRootDlg" widgetVar="CreateRootDialog" modal="true" header="Create Root"
               resizable="false" appendTo="@(body)">
 
         <h:form id="CreateRootForm" class="ui-datatable-data">
@@ -34,7 +28,7 @@
                     <p:commandButton value="Add"
                                      onclick="PF('CreateRootDialog').hide()"
                                      update=":treeForm, :tabForm"
-                                     action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
+                                     action="#{tabViewController.getTabContent(treeTableController.selectedNode.data)}"
                                      actionListener="#{treeTableController.createRoot(projectController.selectedProject)}" />
                 </h:panelGroup>
             </div>

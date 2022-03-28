@@ -13,13 +13,7 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
 <ui:composition>
-    <!--
-    ===========================================================
-    |  Clicking the VIEW button in UsersList.xhtml displays   |
-    |  this Dialog window showing the selected user's data.   |
-    ===========================================================
-    -->
-    <p:dialog id="AddChildDlg" widgetVar="AddChildDialog" modal="true"
+    <p:dialog id="AddChildDlg" widgetVar="AddChildDialog" modal="true" header="Add Child"
               resizable="false" appendTo="@(body)">
 
         <h:form id="AddChildForm" class="ui-datatable-data">
@@ -45,7 +39,7 @@
                     <p:commandButton value="Add"
                                      onclick="PF('AddChildDialog').hide()"
                                      update=":treeForm, :tabForm, growl"
-                                     action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
+                                     action="#{tabViewController.getTabContent(treeTableController.selectedNode.data)}"
                                      actionListener="#{treeTableController.addChildToGraph(projectController.selectedProject)}" />
                 </h:panelGroup>
             </div>

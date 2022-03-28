@@ -6,6 +6,7 @@ package edu.vt.pojo;
 
 import java.io.Serializable;
 
+// TODO: replace with ScoreSetRow?
 public class Score implements Serializable {
     /*
     ===============================
@@ -14,7 +15,6 @@ public class Score implements Serializable {
      */
     private Double low;
     private Double high;
-    private boolean isEvaluated; // TODO: remove
 
     /*
     ===================
@@ -24,13 +24,11 @@ public class Score implements Serializable {
     public Score() {
         this.low = 0.0;
         this.high = 0.0;
-        isEvaluated = false;
     }
 
     public Score(Double low, Double high) {
         this.low = low;
         this.high = high;
-        isEvaluated = true;
     }
 
     /*
@@ -44,7 +42,6 @@ public class Score implements Serializable {
 
     public void setLow(Double low) {
         this.low = low;
-        isEvaluated = true;
     }
 
     public Double getHigh() {
@@ -53,15 +50,6 @@ public class Score implements Serializable {
 
     public void setHigh(Double high) {
         this.high = high;
-        isEvaluated = true;
-    }
-
-    public boolean isEvaluated() {
-        return isEvaluated;
-    }
-
-    public void setEvaluated(boolean evaluated) {
-        isEvaluated = evaluated;
     }
 
     /*

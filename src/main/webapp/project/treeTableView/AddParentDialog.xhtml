@@ -13,7 +13,7 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
 <ui:composition>
-    <p:dialog id="AddParentDlg" widgetVar="AddParentDialog" modal="true"
+    <p:dialog id="AddParentDlg" widgetVar="AddParentDialog" modal="true" header="Add Parent"
               resizable="false" appendTo="@(body)">
 
         <h:form id="AddParentForm" class="ui-datatable-data">
@@ -29,7 +29,7 @@
                     <p:commandButton value="Add"
                                      actionListener="#{treeTableController.addParentToGraph}"
                                      update=":treeForm, growl"
-                                     action="#{tabViewController.getTabContent(treeTableController.selectedNode.data, treeTableController.rootIndicator)}"
+                                     action="#{tabViewController.getTabContent(treeTableController.selectedNode.data)}"
                                      onclick="PF('AddParentDialog').hide()"/>
                 </h:panelGroup>
             </div>

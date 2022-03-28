@@ -1,6 +1,6 @@
 /*
- * Created by Osman Balci on 2022.1.14
- * Copyright © 2022 Osman Balci. All rights reserved.
+ * Created by Gokce Onen on 2022.02.22
+ * Copyright © 2022 Gokce Onen. All rights reserved.
  */
 package edu.vt.controllers;
 
@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 
-@Named("evaluationController")
+@Named("evaluatorController")
 @SessionScoped
 public class EvaluatorController implements Serializable {
     /*
@@ -151,9 +151,8 @@ public class EvaluatorController implements Serializable {
     public String getScoreText(Indicator leafIndicator) {
         IndicatorsGraph indicatorsGraph = selectedProject.getIndicatorsGraph();
         if (indicatorsGraph != null) {
-            Indicator signedInEvaluator = getSignedInEvaluator();
-            if (leafIndicator.getEvaluatorScores().containsKey(signedInEvaluator)) {
-                scoreText = "[" + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getLow()) + " .. " + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluator).getHigh()) + "]";
+            if (leafIndicator.getEvaluatorScores().containsKey(signedInEvaluatorUsername)) {
+                scoreText = "[" + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluatorUsername).getLow()) + " .. " + String.format("%.2f", leafIndicator.getEvaluatorScores().get(signedInEvaluatorUsername).getHigh()) + "]";
             } else {
                 scoreText = "Not evaluated";
             }
@@ -197,8 +196,7 @@ public class EvaluatorController implements Serializable {
         List<Indicator> indicatorsOfSelectedProject = selectedProject.getIndicatorsGraph().getIndicatorList();
         for (Indicator leafIndicator : indicatorsOfSelectedProject) {
             if (leafIndicator.equals(selectedIndicator)) {
-                Indicator signedInEvaluator = getSignedInEvaluator();
-                leafIndicator.getEvaluatorScores().put(signedInEvaluator, new Score(scoreSetRow.getLowScore(), scoreSetRow.getHighScore()));
+                leafIndicator.getEvaluatorScores().put(signedInEvaluatorUsername, new Score(scoreSetRow.getLowScore(), scoreSetRow.getHighScore()));
                 leafIndicator.getEvaluatorNotes().put(signedInEvaluatorUsername, editorController.getEditorContent());
                 selectedProject.getIndicatorsGraph().solve();
                 break;
@@ -229,10 +227,19 @@ public class EvaluatorController implements Serializable {
         return indicator.isLeaf() && indicator.getChildIndicators().stream().anyMatch(eval -> eval.getName().equals(signedInEvaluatorUsername));
     }
 
+    public boolean isIndicatorEvaluated(Indicator indicator) {
+        // If the indicator is evaluated by the signed-in evaluator
+        return indicator.getEvaluatorScores().keySet().stream().anyMatch(eval -> eval.equals(signedInEvaluatorUsername));
+    }
+
     public String getStyleForEvaluableIndicators(Indicator indicator) {
         String style = "";
         if (isIndicatorEvaluable(indicator)) {
-            style = "color: maroon; font-weight: bold";
+            if (isIndicatorEvaluated(indicator)) {
+                style = "color: darkgreen; font-weight: bold";
+            } else {
+                style = "color: maroon; font-weight: bold";
+            }
         }
         return style;
     }
@@ -250,10 +257,5 @@ public class EvaluatorController implements Serializable {
         }
 
         return "/evaluator/Indicators?faces-redirect=true";
-    }
-
-    private Indicator getSignedInEvaluator() {
-        List<Indicator> indicatorsOfSelectedProject = selectedProject.getIndicatorsGraph().getIndicatorList();
-        return indicatorsOfSelectedProject.stream().filter(ind -> ind.getName().equals(signedInEvaluatorUsername)).findAny().orElse(null);
     }
 }

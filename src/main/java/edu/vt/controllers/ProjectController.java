@@ -11,6 +11,7 @@ import edu.vt.FacadeBeans.UserFacade;
 import edu.vt.globals.Methods;
 import edu.vt.controllers.util.JsfUtil;
 import edu.vt.controllers.util.JsfUtil.PersistAction;
+import edu.vt.pojo.Indicator;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -363,6 +364,25 @@ public class ProjectController implements Serializable {
             String evaluatorUserNames = evaluator_names.substring(0, evaluator_names.length() - 1);
 
             selectedProject.setEvaluatorUsernames(evaluatorUserNames);
+        }
+        
+        // Update evaluators in the indicators graph
+        Indicator removedEvaluator = null;
+        for (Indicator indicator : selectedProject.getIndicatorsGraph().getIndicatorList()) {
+            if (indicator.isEvaluator() && selectedEvaluators.stream().noneMatch(eval -> eval.getUsername().equals(indicator.getName()))) {
+                removedEvaluator = indicator;
+                break;
+            }
+        }
+        if (removedEvaluator != null) {
+            selectedProject.getIndicatorsGraph().getIndicatorList().remove(removedEvaluator);
+            for (Indicator indicator : selectedProject.getIndicatorsGraph().getIndicatorList()) {
+                indicator.deleteComparisons(removedEvaluator);
+                indicator.getChildIndicators().remove(removedEvaluator);
+                indicator.getEvaluatorScores().remove(removedEvaluator.getName());
+                indicator.getEvaluatorNotes().remove(removedEvaluator.getName());
+            }
+            selectedProject.getIndicatorsGraph().solve();
         }
 
         // Execute the update() method below to update the selected project

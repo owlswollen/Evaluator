@@ -15,6 +15,7 @@ public class IndicatorsGraph implements Serializable {
 
     private final Indicator root;
     private List<Indicator> indicatorList = new ArrayList<>();
+    private boolean solved = false;
 
     //=============
     // Constructors
@@ -40,6 +41,14 @@ public class IndicatorsGraph implements Serializable {
 
     public void setIndicatorList(List<Indicator> indicatorList) {
         this.indicatorList = indicatorList;
+    }
+
+    public boolean isSolved() {
+        return solved;
+    }
+
+    public void setSolved(boolean solved) {
+        this.solved = solved;
     }
 
     //=================
@@ -78,8 +87,8 @@ public class IndicatorsGraph implements Serializable {
         Score sum = new Score();
         for (Indicator childIndicator : indicator.getChildIndicators()) {
             if (childIndicator.isEvaluator()) {
-                if (indicator.getEvaluatorScores().containsKey(childIndicator)) {
-                    sum.add(indicator.getEvaluatorScores().get(childIndicator).multiply(indicator.getChildWeights().get(childIndicator)));
+                if (indicator.getEvaluatorScores().containsKey(childIndicator.getName())) {
+                    sum.add(indicator.getEvaluatorScores().get(childIndicator.getName()).multiply(indicator.getChildWeights().get(childIndicator)));
                 }
             } else {
                 calculateRecursiveScores(childIndicator);

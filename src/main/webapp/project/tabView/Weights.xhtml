@@ -24,7 +24,7 @@
                     =========================================================
                     -->
                     <c:if test="#{treeTableController.selectedNode != null}">
-                        <h1>Child Relative Weights</h1><br/>
+                        <h1>#{treeTableController.selectedNode.leaf ? "Evaluator" : "Child"} Relative Weights</h1><br/>
                     </c:if>
                     <table border="1" cellpadding="10" cellspacing="10" width="200px" style="border-collapse:collapse">
                         <p:repeat value="#{tabViewController.selectedIndicator.childIndicators}" var="item"

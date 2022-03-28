@@ -25,11 +25,11 @@
             <h:form id="EvalutatorProjectsForm">
                 <p:panel header="List of Projects" style="width: 80%">
                     <p:dataTable id="datalist"
-                                 value="#{evaluationController.listOfProjects}"
+                                 value="#{evaluatorController.listOfProjects}"
                                  var="aProject"
                                  widgetVar="projectsDataTable"
                                  selectionMode="single"
-                                 selection="#{evaluationController.selectedProject}"
+                                 selection="#{evaluatorController.selectedProject}"
                                  reflow="true"
                                  showGridlines="true"
                                  paginator="true"
@@ -37,8 +37,8 @@
                                  rows="10"
                                  rowsPerPageTemplate="5,10,20,30,50,70,90"
                                  emptyMessage="No projects found for the signed-in evaluator!">
-                        <p:ajax event="rowSelect" update="EvalutatorProjectsForm" listener="#{evaluationController.getLeafIndicatorsOfEvaluator}"/>
-                        <p:ajax event="rowUnselect" update="EvalutatorProjectsForm" listener="#{evaluationController.getLeafIndicatorsOfEvaluator}"/>
+                        <p:ajax event="rowSelect" update="EvalutatorProjectsForm" listener="#{evaluatorController.getLeafIndicatorsOfEvaluator}"/>
+                        <p:ajax event="rowUnselect" update="EvalutatorProjectsForm" listener="#{evaluatorController.getLeafIndicatorsOfEvaluator}"/>
                         <!--
                         ****************
                         *    Project   *
@@ -61,10 +61,10 @@
                         <f:facet name="footer">
                             <div align="center">
                                 <p:commandButton id="evaluateButton" value="Evaluate"
-                                                 action="#{evaluationController.evaluate()}"
+                                                 action="#{evaluatorController.evaluate()}"
                                                  update=":growlWarningMessage"
                                                  icon="fa fa-balance-scale" styleClass="rounded-button"
-                                                 disabled="#{empty evaluationController.selectedProject}"/>
+                                                 disabled="#{empty evaluatorController.selectedProject}"/>
                             </div>
                         </f:facet>
                     </p:dataTable>

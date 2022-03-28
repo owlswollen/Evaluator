@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Gokce Onen on 2022.3.22
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<ui:composition>
+    <p:dialog id="EvaluationStatusDlg" widgetVar="EvaluationStatusDialog" modal="true" header="Evaluation Status"
+              resizable="false" appendTo="@(body)">
+        <h:form id="statusForm" class="ui-datatable-data">
+            <div align="center">
+                <c:choose>
+                    <c:when test="#{tabViewController.allIndicatorsAssignedAnEvaluator()}">
+                        <c:choose>
+                            <c:when test="#{tabViewController.allEvaluatorScoresGiven()}">
+                                <h:outputText value="All indicators have been scored by all assigned evaluators." style="font-weight: bold; color: darkgreen"/><br/>
+                                <h:outputText value="The indicators graph is ready to propagate the scores." style="font-weight: bold; color: darkgreen"/><br/>
+                                <br/>
+                            </c:when>
+                            <c:otherwise>
+                                <h:outputText value="Some indicators have not yet been scored." style="font-weight: bold; color: maroon"/><br/>
+                                <h:outputText value="Following evaluators have not completed scoring the indicators assigned to them:" style="font-weight: bold; color: maroon"/><br/>
+                                <br/>
+                                <c:forEach var="item" items="#{tabViewController.getEvaluatorsNotCompletedScoring()}">
+                                    <h:outputText value="#{item}" style="color: black"/><br/>
+                                </c:forEach>
+                                <br/>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:when>
+                    <c:otherwise>
+                        <h:outputText value="Some indicators have not been assigned any evaluators." style="font-weight: bold; color: maroon"/><br/>
+                        <br/>
+                    </c:otherwise>
+                </c:choose>
+
+
+
+                <h:panelGroup>
+                    <!-- TODO: replace growl -->
+                    <p:commandButton value="Propagate Scores"
+                                     update=":treeForm, :tabForm, statusForm, growl"
+                                     action="#{tabViewController.propagateScores()}"
+                                     disabled="#{!tabViewController.allEvaluatorScoresGiven() or !tabViewController.allIndicatorsAssignedAnEvaluator()}"
+                                     onclick="PF('EvaluationStatusDialog').hide()"/>
+                </h:panelGroup>
+            </div>
+        </h:form>
+
+    </p:dialog>
+
+</ui:composition>
+</html>

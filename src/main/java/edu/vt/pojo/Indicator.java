@@ -44,9 +44,8 @@ public class Indicator implements Serializable {
     // Child indicators of this indicator
     private List<Indicator> childIndicators = new ArrayList<>();
 
-    // TODO: <string, string>
     // Low and high scores given by experts - for leaf indicators only
-    private Map<Indicator, Score> evaluatorScores = new HashMap<>();
+    private Map<String, Score> evaluatorScores = new HashMap<>();
 
     // Is this indicator an evaluator
     private boolean isEvaluator = false;
@@ -165,11 +164,11 @@ public class Indicator implements Serializable {
         isEvaluator = evaluator;
     }
 
-    public Map<Indicator, Score> getEvaluatorScores() {
+    public Map<String, Score> getEvaluatorScores() {
         return evaluatorScores;
     }
 
-    public void setEvaluatorScores(Map<Indicator, Score> evaluatorScores) {
+    public void setEvaluatorScores(Map<String, Score> evaluatorScores) {
         this.evaluatorScores = evaluatorScores;
     }
 
@@ -307,7 +306,7 @@ public class Indicator implements Serializable {
 
     // Add evaluator scores if this is a leaf indicator
     public void addEvaluatorScore(Indicator evaluator, Score score) {
-        evaluatorScores.put(evaluator, score);
+        evaluatorScores.put(evaluator.name, score);
         evaluatorNotes.put(evaluator.name, "");
     }
 

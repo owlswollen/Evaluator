@@ -126,14 +126,16 @@
                         -->
                         <f:facet name="footer">
                             <div align="center">
-                                <p:commandButton id="createButton" value="Create" icon="fas fa-plus" styleClass="rounded-button"
+                                <p:commandButton id="createButton" value="Create" icon="fas fa-plus"
+                                                 styleClass="rounded-button"
                                                  action="#{projectController.prepareCreate()}" ajax="false"/>
                                 &nbsp;
                                 <p:button id="viewButton" outcome="/project/View" value="View"
                                           icon="fas fa-eye" styleClass="rounded-button"
                                           disabled="#{empty projectController.selectedProject}"/>
                                 &nbsp;
-                                <p:commandButton id="editButton" value="Edit" icon="fas fa-edit" styleClass="rounded-button"
+                                <p:commandButton id="editButton" value="Edit" icon="fas fa-edit"
+                                                 styleClass="rounded-button"
                                                  action="#{projectController.prepareEdit()}" ajax="false"
                                                  disabled="#{empty projectController.selectedProject}"/>
                                 &nbsp;
@@ -168,9 +170,10 @@
                                 &nbsp;
                                 <!-- OPEN button: id is used since it is referenced to be activated or deactivated -->
                                 <p:commandButton id="openButton" value="Open"
-                                          action="#{treeTableController.openProject(projectController.selectedProject)}"
-                                          icon="fas fa-external-link-alt" styleClass="rounded-button"
-                                          disabled="#{empty projectController.selectedProject}"/>
+                                                 action="#{treeTableController.openProject(projectController.selectedProject)}"
+                                                 actionListener="#{tabViewController.openProject(projectController.selectedProject.indicatorsGraph)}"
+                                                 icon="fas fa-external-link-alt" styleClass="rounded-button"
+                                                 disabled="#{empty projectController.selectedProject}"/>
                             </div>
                         </f:facet>
                     </p:dataTable>

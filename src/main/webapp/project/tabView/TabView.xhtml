@@ -17,7 +17,6 @@
         <h:form id="tabForm">
             <p:tabView id="tabView" activeIndex="#{tabViewController.activeTabIndex}" dynamic="true">
                 <f:attribute name="selectedIndicator" value="#{treeTableController.selectedNode.data}"/>
-                <f:attribute name="rootIndicator" value="#{treeTableController.rootIndicator}"/>
                 <p:ajax event="tabChange"
                         update=":sliderForm"
                         listener="#{tabViewController.onTabChange}"/>
@@ -67,6 +66,9 @@
                         <c:if test="#{not empty tabViewController.selectedIndicator and not empty tabViewController.selectedIndicator.childIndicators}">
                             <ui:include src="/project/tabView/Weights.xhtml"/>
                         </c:if>
+                        <c:if test="#{tabViewController.selectedIndicator.leaf and empty tabViewController.selectedIndicator.childIndicators}">
+                            <h:outputText value="No evaluators"/>
+                        </c:if>
                     </h:panelGroup>
                 </p:tab>
                 <!--
@@ -78,11 +80,18 @@
                     <h:panelGroup id="scoresTab">
                         <c:if test="#{not empty tabViewController.selectedIndicator}">
                             <c:choose>
-                                <c:when test="#{!tabViewController.selectedIndicator.leaf and !tabViewController.allEvaluatorScoresGiven(tabViewController.rootIndicator)}">
-                                    <h:outputText value="Leaf indicators have not been scored by all the assigned evaluators yet."/><br/>
+                                <c:when test="#{!tabViewController.selectedIndicator.leaf and !tabViewController.scoresPropagated}">
+                                    <h:outputText value="Scores have not been propagated yet."/><br/>
                                 </c:when>
                                 <c:otherwise>
-                                    <ui:include src="/project/tabView/Scores.xhtml"/>
+                                    <c:choose>
+                                        <c:when test="#{empty tabViewController.selectedIndicator.childIndicators}">
+                                            <h:outputText value="No evaluators"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <ui:include src="/project/tabView/Scores.xhtml"/>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:otherwise>
                             </c:choose>
                         </c:if>
@@ -97,6 +106,9 @@
                     <h:panelGroup id="notesTab">
                         <c:if test="#{not empty tabViewController.selectedIndicator and not empty tabViewController.selectedIndicator.childIndicators}">
                             <ui:include src="/project/tabView/Notes.xhtml"/>
+                        </c:if>
+                        <c:if test="#{tabViewController.selectedIndicator.leaf and empty tabViewController.selectedIndicator.childIndicators}">
+                            <h:outputText value="No evaluators"/>
                         </c:if>
                     </h:panelGroup>
                 </p:tab>

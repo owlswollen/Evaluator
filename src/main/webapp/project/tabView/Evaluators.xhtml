@@ -16,7 +16,7 @@
     <div align="center">
         <h:form id="evaluatorForm">
             <div align="center" style="background-color: white">
-                <h:outputText value="Current Evaluators:" style="font-weight: bold"/><br/>
+                <h:outputText value="Evaluators:" style="font-weight: bold"/><br/>
                 <c:forEach var="item"
                            items="#{tabViewController.selectedIndicator.childIndicators}">
                     <h:outputText value="#{item.name}"/><br/>
@@ -55,14 +55,14 @@
                     <p:commandButton value="Assign"
                                      id="assignEvaluator"
                                      action="#{tabViewController.assignEvaluator(tabViewController.selectedEvaluator)}"
-                                     update="evaluatorForm, :tabForm:tabView:weightsTab, :growlInfoMessage"
+                                     update=":treeForm, evaluatorForm, :tabForm:tabView:weightsTab, :tabForm:tabView:scoresTab, :tabForm:tabView:notesTab, :growlInfoMessage"
                                      process="@this"
                                      rendered="#{!tabViewController.isEvaluatorAlreadyAssigned(tabViewController.selectedEvaluator)}"/>&nbsp;
 
                     <p:commandButton value="Remove"
                                      id="removeEvaluator"
                                      action="#{tabViewController.removeEvaluator(tabViewController.selectedEvaluator)}"
-                                     update="evaluatorForm, :tabForm:tabView:weightsTab, :growlInfoMessage"
+                                     update=":treeForm, evaluatorForm, :tabForm:tabView:weightsTab, :tabForm:tabView:scoresTab, :tabForm:tabView:notesTab, :growlInfoMessage"
                                      process="@this"
                                      rendered="#{tabViewController.isEvaluatorAlreadyAssigned(tabViewController.selectedEvaluator)}"/>&nbsp;
                 </c:if>

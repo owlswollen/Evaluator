@@ -15,13 +15,9 @@
 <ui:composition>
 
     <div style="padding: 16px">
-        <c:if test="#{tabViewController.allEvaluatorScoresGiven(tabViewController.rootIndicator)}">
+        <c:if test="#{tabViewController.scoresPropagated}">
             <h:outputText value="#{tabViewController.selectedIndicator.name}:" style="font-weight: bold"/>&nbsp;
             <h:outputText value="#{tabViewController.score}"/><br/><br/>
-        </c:if>
-
-        <c:if test="#{tabViewController.selectedIndicator.leaf and empty tabViewController.selectedIndicator.childIndicators}">
-            <h:outputText value="No evaluators"/>
         </c:if>
 
         <table border="1" cellpadding="10" cellspacing="10" width="200px" style="border-collapse:collapse">

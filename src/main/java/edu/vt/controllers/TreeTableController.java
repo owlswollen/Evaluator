@@ -360,7 +360,7 @@ public class TreeTableController implements Serializable {
     }
 
     public void saveGraph(Project selectedProject, IndicatorsGraph changedGraph) {
-        if (changedGraph != null) {
+        if (changedGraph != null && selectedNode != null) {
             indicatorsGraph = changedGraph;
         }
         selectedProject.setIndicatorsGraph(indicatorsGraph);

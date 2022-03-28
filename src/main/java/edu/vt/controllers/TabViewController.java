@@ -272,6 +272,8 @@ public class TabViewController implements Serializable {
     }
 
     public void onNodeSelect(NodeSelectEvent event) {
+        rootIndicator = (Indicator) event.getComponent().getAttributes().get("rootIndicator");
+
         // Leaf and branch indicators have different tabs in the tab view
         // The active tab will remain the same if the newly selected indicator has the previous active tab
         // Otherwise the active tab will be "Overview" by default
@@ -548,11 +550,12 @@ public class TabViewController implements Serializable {
     }
 
     public boolean allIndicatorsAssignedAnEvaluator() {
-        if (indicatorsGraph != null) {
-            for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
-                if (indicator.isLeaf() && indicator.getChildIndicators().isEmpty()) {
-                    return false;
-                }
+        if (indicatorsGraph == null) {
+            return false;
+        }
+        for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
+            if (indicator.isLeaf() && indicator.getChildIndicators().isEmpty()) {
+                return false;
             }
         }
         return true;

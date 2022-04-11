@@ -567,9 +567,9 @@ public class TabViewController implements Serializable {
         return true;
     }
 
-    public void changeScoresStatus(boolean propagated, Project selectedProject) {
-        scoresPropagated = propagated;
-        indicatorsGraph.setSolved(propagated);
+    public void propagateScores(Project selectedProject) {
+        scoresPropagated = true;
+        indicatorsGraph.setSolved(true);
         saveGraph(selectedProject);
     }
 

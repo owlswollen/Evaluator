@@ -49,7 +49,7 @@
                     <!-- TODO: replace growl -->
                     <p:commandButton value="Propagate Scores"
                                      update=":treeForm, :tabForm, statusForm, growl"
-                                     action="#{tabViewController.changeScoresStatus(true, projectController.selectedProject)}"
+                                     action="#{tabViewController.propagateScores(projectController.selectedProject)}"
                                      disabled="#{!tabViewController.allEvaluatorScoresGiven() or !tabViewController.allIndicatorsAssignedAnEvaluator()}"
                                      onclick="PF('EvaluationStatusDialog').hide()"/>
                 </h:panelGroup>

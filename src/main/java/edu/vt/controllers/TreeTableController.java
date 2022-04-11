@@ -532,7 +532,9 @@ public class TreeTableController implements Serializable {
 
         // TODO: Move into TreeTableController
         if (childIndicatorToAdd.isLeaf()) {
-            tabViewController.changeScoresStatus(false, selectedProject);
+            tabViewController.setScoresPropagated(true);
+            indicatorsGraph.setSolved(true);
+            saveGraph(selectedProject);
         }
 
         // Add the new node to the tree table
@@ -624,7 +626,9 @@ public class TreeTableController implements Serializable {
 
         // TODO: Move into TreeTableController
         if (siblingIndicatorToAdd.isLeaf()) {
-            tabViewController.changeScoresStatus(false, selectedProject);
+            tabViewController.setScoresPropagated(true);
+            indicatorsGraph.setSolved(true);
+            saveGraph(selectedProject);
         }
 
         // Add the new node to the tree table
@@ -755,6 +759,7 @@ public class TreeTableController implements Serializable {
     public void deleteIndicatorFromGraph(Project selectedProject) {
         if (selectedNode.getData().isRoot()) {
             indicatorsGraph = null;
+            actualRootTreeNode = null;
         } else {
             // Find the indicator to delete
             Indicator indicatorToDelete = null;

@@ -196,6 +196,11 @@
                     <h:outputText value="more important than" style="font-size: large"/><br/>
                     <h:outputText value="#{tabViewController.comparedIndicator2}" style="font-size: large"/><br/><br/>
                     <br/>
+
+                    <p:commandButton value="Save" icon="fas fa-save"
+                                     ajax="false" actionListener="#{tabViewController.saveGraph(projectController.selectedProject)}"
+                                     update=":growlInfoMessage"/><br/>
+                    <br/>
                 </div>
                 <br/>
             </c:if>

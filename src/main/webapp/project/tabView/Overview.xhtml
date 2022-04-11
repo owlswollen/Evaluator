@@ -14,21 +14,19 @@
 <ui:composition>
     <div style="margin-left: 20px">
         <h:outputText value="Indicator Name: " style="font-weight: bold"/><br/>
-        <h:outputText value="#{tabViewController.selectedIndicator.name}"/><br/>
+        <h:inputText value="#{tabViewController.selectedIndicator.name}"
+                     style="margin: 6px 0; font-size: medium; padding: 6px" /><br/>
+        <p:commandButton value="Save" icon="fas fa-save"
+                         ajax="false" actionListener="#{tabViewController.updateName(projectController.selectedProject)}"
+                         update=":growlInfoMessage"/><br/>
         <br/>
-
-        <c:if test="#{tabViewController.selectedEvaluator.score.evaluated}">
-        <h:outputText value="Score Range: " style="font-weight: bold"/><br/>
-        <h:outputText value="#{tabViewController.score}"/><br/>
-        <br/>
-        </c:if>
 
         <h:outputText value="Description: " style="font-weight: bold"/><br/>
         <p:textEditor id="description" secure='false' value="#{editorController.editorContent}" height="360"
                       style="margin: 6px 0"
                       placeholder="Enter indicator description here"/>
-        <p:commandButton value="Save" icon="fas fa-save" styleClass="rounded-button"
-                         ajax="false" actionListener="#{tabViewController.updateDescription()}"
+        <p:commandButton value="Save" icon="fas fa-save"
+                         ajax="false" actionListener="#{tabViewController.updateDescription(projectController.selectedProject)}"
                          update=":growlInfoMessage"/><br/>
         <br/>
 

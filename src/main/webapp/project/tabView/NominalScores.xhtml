@@ -63,7 +63,7 @@
 
                     <p:commandButton value="Save"
                                      id="saveScoreSet"
-                                     action="#{tabViewController.selectScoreSet(scoreSetController.selectedScoreSet)}"
+                                     action="#{tabViewController.selectScoreSet(scoreSetController.selectedScoreSet, projectController.selectedProject)}"
                                      update="scoreSetForm, :growlInfoMessage"
                                      style="margin-bottom: 96px"
                                      process="@this"/>&nbsp;

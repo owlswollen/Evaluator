@@ -4,7 +4,9 @@
  */
 package edu.vt.controllers;
 
+import edu.vt.EntityBeans.Project;
 import edu.vt.EntityBeans.ScoreSet;
+import edu.vt.FacadeBeans.ProjectFacade;
 import edu.vt.controllers.util.JsfUtil;
 import edu.vt.pojo.IndicatorsGraph;
 import edu.vt.pojo.Comparison;
@@ -20,12 +22,15 @@ import org.primefaces.model.charts.radar.RadarChartModel;
 import org.primefaces.model.charts.radar.RadarChartOptions;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.Serializable;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Named("tabViewController")
 @SessionScoped
@@ -57,6 +62,9 @@ public class TabViewController implements Serializable {
     private Indicator selectedEvaluator;
     private boolean scoreSetSelected;
     private boolean scoresPropagated;
+
+    @EJB
+    private ProjectFacade projectFacade;
 
     @Inject
     private EditorController editorController;
@@ -307,20 +315,47 @@ public class TabViewController implements Serializable {
         selectedEvaluator = null;
     }
 
+    public void saveGraph(Project selectedProject) {
+        selectedProject.setIndicatorsGraph(indicatorsGraph);
+        try {
+            projectFacade.edit(selectedProject);
+        } catch (EJBException ex) {
+            String msg = "";
+            Throwable cause = ex.getCause();
+            if (cause != null) {
+                msg = cause.getLocalizedMessage();
+            }
+            if (msg.length() > 0) {
+                JsfUtil.addErrorMessage(msg);
+            } else {
+                JsfUtil.addErrorMessage(ex, "A persistence error occurred!");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+            JsfUtil.addErrorMessage(ex, "A persistence error occurred");
+        }
+    }
+
     //-------------
     // OverView Tab
     //-------------
 
-    public void updateDescription() {
+    public void updateName(Project selectedProject) {
+        JsfUtil.addSuccessMessage("Indicator name was saved.");
+        saveGraph(selectedProject);
+    }
+
+    public void updateDescription(Project selectedProject) {
         selectedIndicator.setDescription(editorController.getEditorContent());
         JsfUtil.addSuccessMessage("Indicator description was saved.");
+        saveGraph(selectedProject);
     }
 
     //---------------
     // Evaluators Tab
     //---------------
 
-    public void assignEvaluator(Indicator evaluator) {
+    public void assignEvaluator(Indicator evaluator, Project selectedProject) {
         selectedIndicator.addChildIndicator(evaluator);
         // Add a row and a column for the newly added evaluator to the pairwise comparison matrix of the leaf leafIndicator
         // Set 1 to the newly added cells as the default comparison value
@@ -335,9 +370,10 @@ public class TabViewController implements Serializable {
         }
         selectedEvaluatorName = null;
         selectedEvaluator = null;
+        saveGraph(selectedProject);
     }
 
-    public void removeEvaluator(Indicator evaluator) {
+    public void removeEvaluator(Indicator evaluator, Project selectedProject) {
         // Remove the evaluators from the selected leaf indicator
         evaluator.getParentIndicators().remove(selectedIndicator);
         selectedIndicator.deleteComparisons(evaluator);
@@ -348,9 +384,11 @@ public class TabViewController implements Serializable {
         indicatorsGraph.solve();
         if (allEvaluatorScoresGiven() && indicatorsGraph.isSolved()) {
             scoresPropagated = true;
+            indicatorsGraph.setSolved(true);
         }
         selectedEvaluatorName = null;
         selectedEvaluator = null;
+        saveGraph(selectedProject);
     }
 
     public boolean isEvaluatorAlreadyAssigned(Indicator evaluator) {
@@ -361,11 +399,12 @@ public class TabViewController implements Serializable {
     // Nominal Scores Tab
     //-------------------
 
-    public void selectScoreSet(ScoreSet scoreSet) {
+    public void selectScoreSet(ScoreSet scoreSet, Project selectedProject) {
         selectedIndicator.setScoreSet(scoreSet);
         scoreSetSelected = true;
         scoreSetController.setSelectedScoreSetId(null);
         scoreSetController.setSelectedScoreSet(null);
+        saveGraph(selectedProject);
     }
 
     //------------
@@ -528,9 +567,10 @@ public class TabViewController implements Serializable {
         return true;
     }
 
-    public void propagateScores() {
-        scoresPropagated = true;
-        indicatorsGraph.setSolved(true);
+    public void changeScoresStatus(boolean propagated, Project selectedProject) {
+        scoresPropagated = propagated;
+        indicatorsGraph.setSolved(propagated);
+        saveGraph(selectedProject);
     }
 
     public List<String> getEvaluatorsNotCompletedScoring() {

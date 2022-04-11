@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Created by Gokce Onen on 2022.2.20
+  - Copyright © 2022 Gokce Onen. All rights reserved.
+  -->
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<ui:composition>
+    <p:dialog id="DeleteBranchDlg" widgetVar="DeleteBranchDialog" modal="true" header="Delete Branch"
+              resizable="false" appendTo="@(body)">
+
+        <h:form id="DeleteBranchForm" class="ui-datatable-data">
+            <div align="center">
+                <h:outputText value="The selected indicator and all its descendants will be deleted."/><br/>
+                <br/>
+                <h:panelGroup>
+                    <p:commandButton value="Cancel"
+                                     icon="fas fa-ban"
+                                     onclick="PF('DeleteBranchDialog').hide()" />&nbsp;
+
+                    <p:commandButton value="Delete" id="deleteButton" icon="fas fa-trash-alt"
+                                     onclick="PF('DeleteBranchDialog').hide()"
+                                     update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
+                                     actionListener="#{treeTableController.deleteIndicatorFromGraph(projectController.selectedProject)}">
+                        <p:confirm header="Deletion Confirmation"
+                                   message="Are you sure you want to permanently delete the selected indicator and all its descendants from the database?"/>
+                    </p:commandButton>
+                    <p:confirmDialog id="confirmDialogBox" global="true" showEffect="fade"
+                                     hideEffect="fade"
+                                     responsive="true" width="350">
+                        <div align="center">
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no"
+                                             icon="fas fa-window-close"/>
+                            &nbsp;
+                            <p:commandButton value="Yes" type="button"
+                                             class="ui-confirmdialog-yes ui-button-danger"
+                                             icon="fas fa-check-square"/>
+                        </div>
+                    </p:confirmDialog>
+                </h:panelGroup>
+            </div>
+        </h:form>
+
+    </p:dialog>
+
+</ui:composition>
+</html>

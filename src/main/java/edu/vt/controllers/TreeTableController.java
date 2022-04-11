@@ -21,7 +21,7 @@ import javax.ejb.EJBException;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.io.Serializable;
@@ -76,6 +76,9 @@ public class TreeTableController implements Serializable {
 
     @EJB
     private ProjectFacade projectFacade;
+
+    @Inject
+    private TabViewController tabViewController;
 
     //=============
     // Constructors
@@ -169,6 +172,14 @@ public class TreeTableController implements Serializable {
 
     public void setIndicatorsGraph(IndicatorsGraph indicatorsGraph) {
         this.indicatorsGraph = indicatorsGraph;
+    }
+
+    public TreeNode<Indicator> getActualRootTreeNode() {
+        return actualRootTreeNode;
+    }
+
+    public void setActualRootTreeNode(TreeNode<Indicator> actualRootTreeNode) {
+        this.actualRootTreeNode = actualRootTreeNode;
     }
 
     //=================
@@ -276,7 +287,7 @@ public class TreeTableController implements Serializable {
                 // then add its name to the parent and child options list
                 if (!node.isRoot()
                         && !node.equals(selectedNode.getData())
-                        && node.getParentIndicators().stream().noneMatch(object -> object.equals(selectedNode.getData()))
+                        && node.getChildIndicators().stream().noneMatch(object -> object.equals(selectedNode.getData()))
                         && !causesCycleWhileAddingParent(selectedNode.getData(), node)
                         && !node.isEvaluator()) {
 
@@ -351,39 +362,7 @@ public class TreeTableController implements Serializable {
         }
     }
 
-    // TODO: refactor save, open, retrieve, store, import, export, delete
-    public void deleteGraph() {
-        rootIndicator = null;
-        rootTreeNode = null;
-        selectedNode = null;
-        indicatorsGraph = null;
-    }
-
-    public void saveGraph(Project selectedProject, IndicatorsGraph changedGraph) {
-        if (changedGraph != null && selectedNode != null) {
-            indicatorsGraph = changedGraph;
-        }
-        selectedProject.setIndicatorsGraph(indicatorsGraph);
-        try {
-            projectFacade.edit(selectedProject);
-            JsfUtil.addSuccessMessage("Indicators Graph was successfully saved!");
-        } catch (EJBException ex) {
-            String msg = "";
-            Throwable cause = ex.getCause();
-            if (cause != null) {
-                msg = cause.getLocalizedMessage();
-            }
-            if (msg.length() > 0) {
-                JsfUtil.addErrorMessage(msg);
-            } else {
-                JsfUtil.addErrorMessage(ex, "A persistence error occurred!");
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-            JsfUtil.addErrorMessage(ex, "A persistence error occurred");
-        }
-    }
-
+    // TODO: refactor open, retrieve, store, import, export
     public String openProject(Project selectedProject) {
         indicatorsGraph = selectedProject.getIndicatorsGraph();
 
@@ -391,6 +370,8 @@ public class TreeTableController implements Serializable {
             showGraphOnTreeTable(indicatorsGraph);
             rootTreeNode.setExpanded(true);
             actualRootTreeNode.setExpanded(true);
+        } else {
+            rootTreeNode = new DefaultTreeNode(null, null);
         }
 
         return "/project/Project?faces-redirect=true";
@@ -450,9 +431,9 @@ public class TreeTableController implements Serializable {
         showGraphOnTreeTable(indicatorsGraph);
     }
 
-    //----------------------------------------------------------------
+    //----------------------------------------------
     // Methods for displaying the graph on TreeTable
-    //----------------------------------------------------------------
+    //----------------------------------------------
 
     public void showGraphOnTreeTable(IndicatorsGraph newGraph) {
         indicatorsGraph = newGraph;
@@ -478,9 +459,9 @@ public class TreeTableController implements Serializable {
         }
     }
 
-    //-----------------------------------
-    // Create Root, Add Child, Add Sibling, Add Parent
-    //-----------------------------------
+    //--------------------------------------------------------
+    // Create Root, Add Child, Add Sibling, Add Parent, Delete
+    //--------------------------------------------------------
 
     /***************
      * CREATE ROOT *
@@ -496,6 +477,9 @@ public class TreeTableController implements Serializable {
         actualRootTreeNode = new DefaultTreeNode(rootIndicator, rootTreeNode);
 
         newNodeName = null;
+
+        // Save graph to database
+        saveGraph(selectedProject);
     }
 
     /**********************
@@ -509,7 +493,7 @@ public class TreeTableController implements Serializable {
         childIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, childIndicatorToAdd);
         // Show a warning if the new node is already in the graph and existing indicator option was not used while adding
         if (childIndicatorToAdd != null && !addExistingIndicator) {
-            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, newNodeName + " is already in the graph.", "");
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, newNodeName + " is already in the graph.", "Select the \"Existing Indicator\" option while adding which will be available if it is allowed by the indicator hierarchy.");
             FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
             return;
         }
@@ -524,7 +508,7 @@ public class TreeTableController implements Serializable {
 
         // Find the indicator to which the child indicator will be added
         Indicator parentIndicator = null;
-        parentIndicator = findIndicatorBySelectedNode(rootIndicator, parentIndicator);
+        parentIndicator = findSelectedNodeInIndicatorsGraph(rootIndicator, parentIndicator);
 
         // Remove the evaluators of the parent indicator if the parent indicator used to be a leaf indicator
         if (parentIndicator.isLeaf()) {
@@ -546,6 +530,11 @@ public class TreeTableController implements Serializable {
             parentIndicator.compareIndicators(childIndicatorToAdd, siblingIndicator, 1.0);
         }
 
+        // TODO: Move into TreeTableController
+        if (childIndicatorToAdd.isLeaf()) {
+            tabViewController.changeScoresStatus(false, selectedProject);
+        }
+
         // Add the new node to the tree table
         addChildToTreeTable(rootTreeNode, childIndicatorToAdd, existingIndicator);
 
@@ -554,6 +543,10 @@ public class TreeTableController implements Serializable {
         indicatorsGraph.solve();
 
         newNodeName = null;
+        addExistingIndicator = false;
+
+        // Save graph to database
+        saveGraph(selectedProject);
     }
 
     /***************************
@@ -596,7 +589,7 @@ public class TreeTableController implements Serializable {
         siblingIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, siblingIndicatorToAdd);
         // Show a warning if the new node is already in the graph and existing indicator option was not used while adding
         if (siblingIndicatorToAdd != null && !addExistingIndicator) {
-            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, newNodeName + " is already in the graph.", "");
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, newNodeName + " is already in the graph.", "Select the \"Existing Indicator\" option while adding which will be available if it is allowed by the indicator hierarchy.");
             FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
             return;
         }
@@ -610,7 +603,7 @@ public class TreeTableController implements Serializable {
         }
 
         Indicator siblingIndicator = null;
-        siblingIndicator = findIndicatorBySelectedNode(rootIndicator, siblingIndicator);
+        siblingIndicator = findSelectedNodeInIndicatorsGraph(rootIndicator, siblingIndicator);
         String commonParentName = "";
         commonParentName = findCommonParentName(rootTreeNode, commonParentName);
         for (Indicator parentIndicator : siblingIndicator.getParentIndicators()) {
@@ -629,6 +622,11 @@ public class TreeTableController implements Serializable {
             }
         }
 
+        // TODO: Move into TreeTableController
+        if (siblingIndicatorToAdd.isLeaf()) {
+            tabViewController.changeScoresStatus(false, selectedProject);
+        }
+
         // Add the new node to the tree table
         addSiblingToTreeTable(rootTreeNode, siblingIndicatorToAdd, existingIndicator);
 
@@ -637,6 +635,10 @@ public class TreeTableController implements Serializable {
         indicatorsGraph.solve();
 
         newNodeName = null;
+        addExistingIndicator = false;
+
+        // Save graph to database
+        saveGraph(selectedProject);
     }
 
     /******************************
@@ -662,7 +664,7 @@ public class TreeTableController implements Serializable {
                     List<TreeNode<Indicator>> parentNodes = new ArrayList<>();
                     parentNodes = findNodesByName(rootTreeNode, treeNode.getParent().getData().getName(), parentNodes);
                     for (TreeNode<Indicator> parentNode : parentNodes) {
-                        parentNode.getChildren().add(new DefaultTreeNode(copyNode));
+                        parentNode.getChildren().add(copyNode);
                     }
                 } else {
                     // Add the new node to the children of the selected node's parents
@@ -681,7 +683,7 @@ public class TreeTableController implements Serializable {
     /***********************
      * ADD PARENT TO GRAPH *
      ***********************/
-    public void addParentToGraph(ActionEvent event) {
+    public void addParentToGraph(Project selectedProject) {
         // Find the parent node in the graph
         Indicator parentIndicator = null;
         parentIndicator = findNewNodeNameInGraph(rootIndicator, parentIndicator);
@@ -721,6 +723,10 @@ public class TreeTableController implements Serializable {
         indicatorsGraph.solve();
 
         newNodeName = null;
+        addExistingIndicator = false;
+
+        // Save graph to database
+        saveGraph(selectedProject);
     }
 
     /****************************
@@ -743,6 +749,58 @@ public class TreeTableController implements Serializable {
         }
     }
 
+    /*******************************
+     * DELETE INDICATOR FROM GRAPH *
+     *******************************/
+    public void deleteIndicatorFromGraph(Project selectedProject) {
+        if (selectedNode.getData().isRoot()) {
+            indicatorsGraph = null;
+        } else {
+            // Find the indicator to delete
+            Indicator indicatorToDelete = null;
+            indicatorToDelete = findSelectedNodeInIndicatorsGraph(rootIndicator, indicatorToDelete);
+
+            // Remove indicator from graph
+            for (Indicator parent : indicatorToDelete.getParentIndicators()) {
+                // Remove indicator from the child indicators of its parents
+                parent.getChildIndicators().remove(indicatorToDelete);
+
+                // Remove indicator from the child weights from its parents
+                parent.getChildWeights().remove(indicatorToDelete);
+
+                // Remove indicator from comparison matrices of its parents
+                parent.deleteComparisons(indicatorToDelete);
+            }
+            // Remove indicator from the parents of its children
+            for (Indicator child : indicatorToDelete.getChildIndicators()) {
+                child.getParentIndicators().remove(indicatorToDelete);
+            }
+
+            // Run the AHP algorithm again for the updated graph
+            indicatorsGraph = new IndicatorsGraph(rootIndicator);
+            indicatorsGraph.solve();
+        }
+        // Delete node from tree table
+        deleteNodeFromTreeTable();
+
+        selectedNode = null;
+
+        // Save graph to database
+        saveGraph(selectedProject);
+    }
+
+    /*******************************
+     * DELETE NODE FROM TREE TABLE *
+     *******************************/
+    public void deleteNodeFromTreeTable() {
+        // Find the nodes to delete
+        List<TreeNode<Indicator>> nodesToDelete = new ArrayList<>();
+        findNodesByName(rootTreeNode, selectedNode.getData().getName(), nodesToDelete);
+        for (TreeNode<Indicator> node : nodesToDelete) {
+            node.getParent().getChildren().remove(node);
+        }
+    }
+
     //-----------------------------------------------------
     // Helper methods for adding child, sibling, and parent
     //-----------------------------------------------------
@@ -750,7 +808,7 @@ public class TreeTableController implements Serializable {
     /*
      * Find the selected node in the acyclic graph
      */
-    private Indicator findIndicatorBySelectedNode(Indicator graphRoot, Indicator indicatorFound) {
+    private Indicator findSelectedNodeInIndicatorsGraph(Indicator graphRoot, Indicator indicatorFound) {
         if (graphRoot == selectedNode.getData()) {
             indicatorFound = graphRoot;
             return indicatorFound;
@@ -761,7 +819,7 @@ public class TreeTableController implements Serializable {
             if (childNode == selectedNode.getData()) {
                 return childNode;
             }
-            indicatorFound = findIndicatorBySelectedNode(childNode, indicatorFound);
+            indicatorFound = findSelectedNodeInIndicatorsGraph(childNode, indicatorFound);
         }
         return indicatorFound;
     }
@@ -840,5 +898,29 @@ public class TreeTableController implements Serializable {
             findNodesByName(treeNode, name, foundNodes);
         }
         return foundNodes;
+    }
+
+    /*
+     * Save graph to database
+     */
+    private void saveGraph(Project selectedProject) {
+        selectedProject.setIndicatorsGraph(indicatorsGraph);
+        try {
+            projectFacade.edit(selectedProject);
+        } catch (EJBException ex) {
+            String msg = "";
+            Throwable cause = ex.getCause();
+            if (cause != null) {
+                msg = cause.getLocalizedMessage();
+            }
+            if (msg.length() > 0) {
+                JsfUtil.addErrorMessage(msg);
+            } else {
+                JsfUtil.addErrorMessage(ex, "A persistence error occurred!");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+            JsfUtil.addErrorMessage(ex, "A persistence error occurred");
+        }
     }
 }

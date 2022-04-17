@@ -15,7 +15,7 @@
     <div style="margin-left: 20px">
         <h:outputText value="Indicator Name: " style="font-weight: bold"/><br/>
         <h:inputText value="#{tabViewController.selectedIndicator.name}"
-                     style="margin: 6px 0; font-size: medium; padding: 6px" /><br/>
+                     style="margin: 6px 0; width: 100%; padding: 6px; border: 1px solid gray; font-size: medium" /><br/>
         <p:commandButton value="Save" icon="fas fa-save"
                          ajax="false" actionListener="#{tabViewController.updateName(projectController.selectedProject)}"
                          update=":growlInfoMessage"/><br/>

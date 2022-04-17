@@ -377,6 +377,10 @@ public class TreeTableController implements Serializable {
         return "/project/Project?faces-redirect=true";
     }
 
+    public void resetAddExistingIndicator() {
+        addExistingIndicator = false;
+    }
+
     //--------------------------------------------------------
     // Methods for storing to DB and retrieving from DB
     //--------------------------------------------------------

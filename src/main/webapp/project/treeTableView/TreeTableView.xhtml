@@ -33,8 +33,8 @@
                          selectionMode="single"
                          selection="#{treeTableController.selectedNode}"
                          dynamic="true">
-                <f:attribute name="selectedIndicator" value="#{treeTableController.selectedNode.data}" />
-                <f:attribute name="rootIndicator" value="#{treeTableController.rootIndicator}" />
+                <f:attribute name="selectedIndicator" value="#{treeTableController.selectedNode.data}"/>
+                <f:attribute name="rootIndicator" value="#{treeTableController.rootIndicator}"/>
                 <p:ajax event="select" update="treeForm, :tabForm, :sliderForm"
                         listener="#{tabViewController.onNodeSelect}"/>
                 <f:facet name="header">
@@ -44,93 +44,110 @@
                     |  Root, Child, Sibling, Parent, Delete, Status Buttons  |
                     ==========================================================
                     -->
-                    <p:commandButton value="Root"
-                                     icon="fas fa-plus"
-                                     id="rootButton"
-                                     process="@this"
-                                     update=":CreateRootDlg"
-                                     disabled="#{not empty treeTableController.actualRootTreeNode}"
-                                     oncomplete="PF('CreateRootDialog').show()"/>&nbsp;
-                    <p:commandButton value="Child"
-                                     icon="fas fa-plus"
-                                     id="childButton"
-                                     process="@this"
-                                     update=":AddChildDlg"
-                                     disabled="#{empty treeTableController.selectedNode}"
-                                     oncomplete="PF('AddChildDialog').show()"/>&nbsp;
-                    <p:commandButton value="Sibling"
-                                     icon="fas fa-plus"
-                                     id="siblingButton"
-                                     process="@this"
-                                     update=":AddSiblingDlg"
-                                     disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root}"
-                                     oncomplete="PF('AddSiblingDialog').show()"/>&nbsp;
-                    <p:commandButton value="Parent"
-                                     icon="fas fa-plus"
-                                     id="parentButton"
-                                     process="@this"
-                                     update=":AddParentDlg"
-                                     disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root or treeTableController.parentOptionNames.size() == 0}"
-                                     oncomplete="PF('AddParentDialog').show()"/>&nbsp;
-                    <h:outputStylesheet library="css" name="panelStyle.css"/>
-                    <!--                <p:commandButton value="Store to DB"-->
-                    <!--                                 id="storeButton"-->
-                    <!--                                 action="#{treeTableController.storeToDb}"-->
-                    <!--                                 update="growl"-->
-                    <!--                                 process="@this"-->
-                    <!--                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;-->
-                    <!--                <p:commandButton value="Retrieve from DB"-->
-                    <!--                                 id="retrieveButton"-->
-                    <!--                                 action="#{treeTableController.retrieveFromDb}"-->
-                    <!--                                 update="treeForm"-->
-                    <!--                                 process="@this"/>&nbsp;-->
-                    <p:commandButton value="Delete"
-                                     icon="fas fa-trash-alt"
-                                     id="deleteBranchButton"
-                                     process="@this"
-                                     update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
-                                     rendered="#{not treeTableController.selectedNode.data.leaf}"
-                                     disabled="#{empty treeTableController.selectedNode}"
-                                     oncomplete="PF('DeleteBranchDialog').show()"/>
-                    <p:commandButton value="Delete"
-                                     id="deleteLeafButton"
-                                     icon="fas fa-trash-alt"
-                                     update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
-                                     rendered="#{treeTableController.selectedNode.data.leaf}"
-                                     actionListener="#{treeTableController.deleteIndicatorFromGraph(projectController.selectedProject)}">
-                        <p:confirm header="Deletion Confirmation"
-                                   message="Are you sure you want to permanently delete the selected indicator?"/>
-                    </p:commandButton>&nbsp;
-                    <p:confirmDialog id="confirmDialogBox" global="true" showEffect="fade"
-                                     hideEffect="fade"
-                                     responsive="true" width="350">
-                        <div align="center">
-                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no"
-                                             icon="fas fa-window-close"/>
-                            &nbsp;
-                            <p:commandButton value="Yes" type="button"
-                                             class="ui-confirmdialog-yes ui-button-danger"
-                                             icon="fas fa-check-square"/>
-                        </div>
-                    </p:confirmDialog>
-                    <!--                <p:commandButton value="Export Graph"-->
-                    <!--                                 id="exportButton"-->
-                    <!--                                 action="#{treeTableController.exportGraph}"-->
-                    <!--                                 update="growl"-->
-                    <!--                                 process="@this"-->
-                    <!--                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;-->
-                    <!--                <p:commandButton value="Import Graph"-->
-                    <!--                                 id="importButton"-->
-                    <!--                                 action="#{treeTableController.importGraph}"-->
-                    <!--                                 update="treeForm"-->
-                    <!--                                 process="@this"/>&nbsp;-->
-                    <p:commandButton value="Status"
-                                     icon="fas fa-spinner"
-                                     id="statusButton"
-                                     process="@this"
-                                     update=":EvaluationStatusDlg"
-                                     disabled="#{empty treeTableController.actualRootTreeNode}"
-                                     oncomplete="PF('EvaluationStatusDialog').show()"/>&nbsp;
+                    <div align="center">
+                        <p:commandButton value="Root"
+                                         icon="fas fa-plus"
+                                         id="rootButton"
+                                         process="@this"
+                                         style="margin: 5px 0 !important"
+                                         update=":CreateRootDlg"
+                                         disabled="#{not empty treeTableController.actualRootTreeNode}"
+                                         oncomplete="PF('CreateRootDialog').show()">&nbsp;
+                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}"/>
+                        </p:commandButton>
+                        <p:commandButton value="Child"
+                                         icon="fas fa-plus"
+                                         id="childButton"
+                                         process="@this"
+                                         style="margin: 5px 0 !important"
+                                         update=":AddChildDlg"
+                                         disabled="#{empty treeTableController.selectedNode}"
+                                         oncomplete="PF('AddChildDialog').show()">&nbsp;
+                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}"/>
+                        </p:commandButton>
+                        <p:commandButton value="Sibling"
+                                         icon="fas fa-plus"
+                                         id="siblingButton"
+                                         process="@this"
+                                         style="margin: 5px 0 !important"
+                                         update=":AddSiblingDlg"
+                                         disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root}"
+                                         oncomplete="PF('AddSiblingDialog').show()">&nbsp;
+                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}"/>
+                        </p:commandButton>&nbsp;
+                        <p:commandButton value="Parent"
+                                         icon="fas fa-plus"
+                                         id="parentButton"
+                                         process="@this"
+                                         style="margin: 5px 0 !important"
+                                         update=":AddParentDlg"
+                                         disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root or treeTableController.parentOptionNames.size() == 0}"
+                                         oncomplete="PF('AddParentDialog').show()">
+                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}" />
+                        </p:commandButton>&nbsp;
+                        <h:outputStylesheet library="css" name="panelStyle.css"/>
+                        <!--                <p:commandButton value="Store to DB"-->
+                        <!--                                 id="storeButton"-->
+                        <!--                                 action="#{treeTableController.storeToDb}"-->
+                        <!--                                 update="growl"-->
+                        <!--                                 process="@this"-->
+                        <!--                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;-->
+                        <!--                <p:commandButton value="Retrieve from DB"-->
+                        <!--                                 id="retrieveButton"-->
+                        <!--                                 action="#{treeTableController.retrieveFromDb}"-->
+                        <!--                                 update="treeForm"-->
+                        <!--                                 process="@this"/>&nbsp;-->
+                        <p:commandButton value="Delete"
+                                         icon="fas fa-trash-alt"
+                                         id="deleteBranchButton"
+                                         process="@this"
+                                         style="margin: 5px 0 !important"
+                                         update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
+                                         rendered="#{not treeTableController.selectedNode.data.leaf}"
+                                         disabled="#{empty treeTableController.selectedNode}"
+                                         oncomplete="PF('DeleteBranchDialog').show()"/>
+                        <p:commandButton value="Delete"
+                                         id="deleteLeafButton"
+                                         icon="fas fa-trash-alt"
+                                         style="margin: 5px 0 !important"
+                                         update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
+                                         rendered="#{treeTableController.selectedNode.data.leaf}"
+                                         actionListener="#{treeTableController.deleteIndicatorFromGraph(projectController.selectedProject)}">
+                            <p:confirm header="Deletion Confirmation"
+                                       message="Are you sure you want to permanently delete the selected indicator?"/>
+                        </p:commandButton>&nbsp;
+                        <p:confirmDialog id="confirmDialogBox" global="true" showEffect="fade"
+                                         hideEffect="fade"
+                                         responsive="true" width="350">
+                            <div align="center">
+                                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no"
+                                                 icon="fas fa-window-close"/>
+                                &nbsp;
+                                <p:commandButton value="Yes" type="button"
+                                                 class="ui-confirmdialog-yes ui-button-danger"
+                                                 icon="fas fa-check-square"/>
+                            </div>
+                        </p:confirmDialog>
+                        <!--                <p:commandButton value="Export Graph"-->
+                        <!--                                 id="exportButton"-->
+                        <!--                                 action="#{treeTableController.exportGraph}"-->
+                        <!--                                 update="growl"-->
+                        <!--                                 process="@this"-->
+                        <!--                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;-->
+                        <!--                <p:commandButton value="Import Graph"-->
+                        <!--                                 id="importButton"-->
+                        <!--                                 action="#{treeTableController.importGraph}"-->
+                        <!--                                 update="treeForm"-->
+                        <!--                                 process="@this"/>&nbsp;-->
+                        <p:commandButton value="Status"
+                                         icon="fas fa-spinner"
+                                         id="statusButton"
+                                         process="@this"
+                                         style="margin: 5px 0 !important"
+                                         update=":EvaluationStatusDlg"
+                                         disabled="#{empty treeTableController.actualRootTreeNode}"
+                                         oncomplete="PF('EvaluationStatusDialog').show()"/>&nbsp;
+                    </div>
                 </f:facet>
                 <p:column>
                     <h:outputText value="#{node.name}"/>

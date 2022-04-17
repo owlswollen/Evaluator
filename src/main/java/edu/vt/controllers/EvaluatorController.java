@@ -58,6 +58,9 @@ public class EvaluatorController implements Serializable {
     @Inject
     private EditorController editorController;
 
+    @Inject
+    private ScoreSetController scoreSetController;
+
     /*
     ============
     Constructors
@@ -247,6 +250,8 @@ public class EvaluatorController implements Serializable {
     public void onIndicatorSelect(NodeSelectEvent event) {
         selectedIndicator = (Indicator) event.getTreeNode().getData();
         editorController.setEditorContent(selectedIndicator.getEvaluatorNotes().get(signedInEvaluatorUsername));
+//        ScoreSetRow selectedScoreSetRow = new ScoreSetRow("", selectedIndicator.getScore().getLow(), selectedIndicator.getScore().getHigh());
+//        scoreSetController.setSelectedScoreSetRow(selectedScoreSetRow);
     }
 
     public String evaluate() {

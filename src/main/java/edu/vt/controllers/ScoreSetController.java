@@ -123,6 +123,16 @@ public class ScoreSetController implements Serializable {
     }
 
     /*
+     ********************
+     Reset Selected Score
+     ********************
+     */
+    public void reset() {
+        selectedScoreSetRowName = null;
+        selectedScoreSetRow = null;
+    }
+
+    /*
     **************************************************
     Get List of Score Set Rows for the Given Score Set
     **************************************************

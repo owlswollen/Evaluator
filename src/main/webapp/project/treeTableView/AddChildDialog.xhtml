@@ -14,26 +14,28 @@
 
 <ui:composition>
     <p:dialog id="AddChildDlg" widgetVar="AddChildDialog" modal="true" header="Add Child"
-              resizable="false" appendTo="@(body)">
+              width="800" appendTo="@(body)">
 
         <h:form id="AddChildForm" class="ui-datatable-data">
             <div align="center">
                 <p:selectOneRadio id="console" value="#{treeTableController.addExistingIndicator}" rendered="#{treeTableController.childOptionNames.size() gt 0}">
-                    <p:ajax update="panelGrid" />
+                    <p:ajax update="addPanel" />
                     <f:selectItem itemLabel="New Indicator" itemValue="#{false}"/>
                     <f:selectItem itemLabel="Existing Indicator" itemValue="#{true}"/>
                 </p:selectOneRadio>
-                <p:panelGrid id="panelGrid" columns="2" columnClasses="panelGridColumn1, panelGridColumn2">
-                    <h:outputText value="Child Indicator Name:" style="font-weight: bold"/>
+                <br/>
+                <h:panelGroup id="addPanel">
+                    <h:outputText value="Child Indicator Name:" style="font-weight: bold; color: maroon"/><br/>
                     <h:inputText value="#{treeTableController.newNodeName}"
                                  rendered="#{!treeTableController.addExistingIndicator}"
-                                 style="font-size: medium; padding: 6px" />
-                    <p:selectOneMenu id="parentSelect"
+                                 style="margin: 6px 0; width: 100%; padding: 9px; border: 1px solid gray; font-size: medium" />
+                    <p:selectOneMenu id="childSelect"
+                                     style="width: 100%; margin: 6px; border: 1px solid gray; font-size: medium"
                                      rendered="#{treeTableController.addExistingIndicator}"
                                      value="#{treeTableController.newNodeName}">
                         <f:selectItems value="#{treeTableController.childOptionNames}"/>
-                    </p:selectOneMenu>
-                </p:panelGrid>
+                    </p:selectOneMenu><br/>
+                </h:panelGroup>
                 <br/>
                 <h:panelGroup>
                     <p:commandButton value="Add"

@@ -67,7 +67,7 @@
                                         <c:when test="#{evaluatorController.isIndicatorEvaluable(evaluatorController.selectedIndicator)}">
                                             <div align="center">
                                                 <c:if test="#{treeTableController.selectedNode.data.scoreSet == null}">
-                                                    <h:outputText value="Score set not selected"/><br/>
+                                                    <h:outputText value="Score set was not selected by the administrators."/><br/>
                                                 </c:if>
                                                 <c:if test="#{treeTableController.selectedNode.data.scoreSet != null}">
                                                     <h:outputText value="Score Range:"
@@ -118,11 +118,12 @@
                                                                   placeholder="Enter notes here"/>
                                                     <br/>
 
-                                                    <p:commandButton value="Save" icon="fas fa-save" styleClass="rounded-button"
+                                                    <p:commandButton value="Save" icon="fas fa-save"
                                                                      ajax="false" actionListener="#{evaluatorController.saveScore(scoreSetController.selectedScoreSetRow)}"
+                                                                     action="#{scoreSetController.reset()}"
                                                                      disabled="#{empty scoreSetController.selectedScoreSetRow}"
                                                                      style="margin-bottom: 10px"
-                                                                     update=":growlInfoMessage"/><br/>
+                                                                     update="scoreForm, :growlInfoMessage"/><br/>
                                                 </c:if>
                                             </div>
                                         </c:when>

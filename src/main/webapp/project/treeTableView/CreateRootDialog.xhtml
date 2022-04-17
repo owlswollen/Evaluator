@@ -14,15 +14,15 @@
 
 <ui:composition>
     <p:dialog id="CreateRootDlg" widgetVar="CreateRootDialog" modal="true" header="Create Root"
-              resizable="false" appendTo="@(body)">
+              width="800" appendTo="@(body)">
 
         <h:form id="CreateRootForm" class="ui-datatable-data">
             <div align="center">
-                <p:panelGrid id="panelGrid" columns="2" columnClasses="panelGridColumn1, panelGridColumn2">
-                    <h:outputText value="Root Indicator Name:" style="font-weight: bold"/>
+                <h:panelGroup id="addPanel">
+                    <h:outputText value="Root Indicator Name:" style="font-weight: bold; color: maroon"/><br/>
                     <h:inputText value="#{treeTableController.newNodeName}"
-                                 style="font-size: medium; padding: 6px" />
-                </p:panelGrid>
+                                 style="margin: 6px 0; width: 100%; padding: 9px; border: 1px solid gray; font-size: medium" /><br/>
+                </h:panelGroup>
                 <br/>
                 <h:panelGroup>
                     <p:commandButton value="Add"

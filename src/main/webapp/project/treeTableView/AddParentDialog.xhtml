@@ -14,16 +14,17 @@
 
 <ui:composition>
     <p:dialog id="AddParentDlg" widgetVar="AddParentDialog" modal="true" header="Add Parent"
-              resizable="false" appendTo="@(body)">
+              width="800" appendTo="@(body)">
 
         <h:form id="AddParentForm" class="ui-datatable-data">
             <div align="center">
-                <p:panelGrid columns="2" columnClasses="panelGridColumn1, panelGridColumn2">
-                    <h:outputText value="Parent Indicator Name:" style="font-weight: bold"/>
-                    <p:selectOneMenu id="parentSelect" value="#{treeTableController.newNodeName}">
+                <h:panelGroup id="addPanel">
+                    <h:outputText value="Parent Indicator Name:" style="font-weight: bold; color: maroon"/><br/>
+                    <p:selectOneMenu id="parentSelect" value="#{treeTableController.newNodeName}"
+                                     style="width: 100%; margin: 6px; border: 1px solid gray; font-size: medium">
                         <f:selectItems value="#{treeTableController.parentOptionNames}"/>
-                    </p:selectOneMenu>
-                </p:panelGrid>
+                    </p:selectOneMenu><br/>
+                </h:panelGroup>
                 <br/>
                 <h:panelGroup>
                     <p:commandButton value="Add"

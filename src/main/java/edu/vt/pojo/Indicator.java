@@ -247,7 +247,7 @@ public class Indicator implements Serializable {
     }
 
     public boolean isConsistent() {
-        return getConsistencyRatio() < 0.1;
+        return getConsistencyRatio() <= 0.1;
     }
 
     public void addParentIndicator(Indicator parent) {

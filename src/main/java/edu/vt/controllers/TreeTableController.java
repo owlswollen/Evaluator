@@ -74,6 +74,7 @@ public class TreeTableController implements Serializable {
     @EJB
     private ProjectFacade projectFacade;
 
+    // TODO: remove
     @Inject
     private TabViewController tabViewController;
 
@@ -517,13 +518,6 @@ public class TreeTableController implements Serializable {
             parentIndicator.compareIndicators(childIndicatorToAdd, siblingIndicator, 1.0);
         }
 
-        // TODO: Move into TreeTableController
-        if (childIndicatorToAdd.isLeaf()) {
-            tabViewController.setScoresPropagated(true);
-            indicatorsGraph.setSolved(true);
-            saveGraph(selectedProject);
-        }
-
         // Add the new node to the tree table
         addChildToTreeTable(rootTreeNode, childIndicatorToAdd, existingIndicator);
 
@@ -605,13 +599,6 @@ public class TreeTableController implements Serializable {
                     parentIndicator.compareIndicators(nodeToCompare, siblingIndicatorToAdd, 1);
                 }
             }
-        }
-
-        // TODO: Move into TreeTableController
-        if (siblingIndicatorToAdd.isLeaf()) {
-            tabViewController.setScoresPropagated(true);
-            indicatorsGraph.setSolved(true);
-            saveGraph(selectedProject);
         }
 
         // Add the new node to the tree table

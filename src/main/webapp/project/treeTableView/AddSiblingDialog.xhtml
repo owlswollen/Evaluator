@@ -13,28 +13,16 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
 <ui:composition>
-    <p:dialog id="AddSiblingDlg" widgetVar="AddSiblingDialog" modal="true" header="Add Sibling"
-              width="800" appendTo="@(body)">
+    <p:dialog id="AddSiblingDlg" widgetVar="AddSiblingDialog" modal="true" header="Add Sibling" resizable="false"
+              position="center" width="60%"  appendTo="@(body)" showEffect="slide" hideEffect="fade" responsive="true">
 
         <h:form id="AddSiblingForm" class="ui-datatable-data">
             <div align="center">
-                <p:selectOneRadio id="console" value="#{treeTableController.addExistingIndicator}" rendered="#{treeTableController.siblingOptionNames.size() gt 0}">
-                    <p:ajax update="addPanel" />
-                    <f:selectItem itemLabel="New Indicator" itemValue="#{false}"/>
-                    <f:selectItem itemLabel="Existing Indicator" itemValue="#{true}"/>
-                </p:selectOneRadio>
-                <br/>
                 <h:panelGroup id="addPanel">
                     <h:outputText value="Sibling Indicator Name:" style="font-weight: bold; color: maroon"/><br/>
-                    <h:inputText value="#{treeTableController.newNodeName}"
-                                 rendered="#{!treeTableController.addExistingIndicator}"
-                                 style="margin: 6px 0; width: 100%; padding: 9px; border: 1px solid gray; font-size: medium" />
-                    <p:selectOneMenu id="siblingSelect"
-                                     style="width: 100%; margin: 6px; border: 1px solid gray; font-size: medium"
-                                     rendered="#{treeTableController.addExistingIndicator}"
-                                     value="#{treeTableController.newNodeName}">
-                        <f:selectItems value="#{treeTableController.siblingOptionNames}"/>
-                    </p:selectOneMenu><br/>
+                    <p:inputTextarea id="indicatorName" rows="1" cols="100" autoResize="false"
+                                     value="#{treeTableController.newNodeName}"
+                                     style="margin: 6px 0" /><br/>
                 </h:panelGroup>
                 <br/>
                 <h:panelGroup>

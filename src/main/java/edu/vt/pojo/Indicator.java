@@ -423,8 +423,9 @@ public class Indicator implements Serializable {
         double[] RI = new double[]{0.0, 0.0, 0.0, 0.59, 0.89, 1.11, 1.25, 1.32, 1.41, 1.45, 1.49, 1.51, 1.48, 1.56, 1.57, 1.58};
 
         // CR = CI / RI
-        if (getChildIndicators().size() > 2) {
-            consistencyRatio = consistencyIndex / RI[getChildIndicators().size()];
+        int childrenNumber = getChildIndicators().size();
+        if (childrenNumber > 2 && childrenNumber < 16) {
+            consistencyRatio = consistencyIndex / RI[childrenNumber];
         } else {
             consistencyRatio = 1;
         }

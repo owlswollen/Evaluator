@@ -112,10 +112,10 @@
                         ***************************
                         -->
                         <p:column headerText="Evaluators" style="vertical-align: top"
-                                  filterBy="#{projectController.evaluatorFirstLastNames(aProject)}"
+                                  filterBy="#{projectController.evaluatorFirstLastNamesAndUsernames(aProject)}"
                                   filterMatchMode="contains">
 
-                            <h:outputText value="#{projectController.evaluatorFirstLastNames(aProject)}"
+                            <h:outputText value="#{projectController.evaluatorFirstLastNamesAndUsernames(aProject)}"
                                           escape="false" style="white-space:pre-line;"/>
                         </p:column>
 

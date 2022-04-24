@@ -556,11 +556,24 @@ public class TabViewController implements Serializable {
         setCriticalityWeightings();
     }
 
-    public int inconsistencyIndex() {
+    public int consistencyRatio() {
         if (selectedIndicator != null) {
             return (int) (selectedIndicator.getConsistencyRatio() * 100);
         }
         return 0;
+    }
+
+    public void undoAhpResults() {
+        if (selectedIndicator != null) {
+            for (int i = 0; i < selectedIndicator.getChildIndicators().size(); i++) {
+                for (int j = 0; j < selectedIndicator.getChildIndicators().size(); j++) {
+                    selectedIndicator.compareIndicators(selectedIndicator.getChildIndicators().get(i), selectedIndicator.getChildIndicators().get(j), 1.);
+                }
+            }
+        }
+        IndicatorsGraph indicatorsGraph = new IndicatorsGraph(rootIndicator);
+        indicatorsGraph.solve();
+        getCriticalityWeightings();
     }
 
     //-----------

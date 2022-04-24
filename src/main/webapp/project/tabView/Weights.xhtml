@@ -61,6 +61,14 @@
                         </p:repeat>
                         <br/>
                     </div>
+                    <!--
+                    =======================
+                    |  Inconsistency Index  |
+                    =======================
+                    -->
+                    <h:outputText value="Inconsistency Index:" style="font-weight: bold"/>&nbsp;
+                    <h:outputText value="#{tabViewController.consistencyRatio()}%"/><br/>
+                    <br/>
                 </td>
                 <td style="width: 60%">
                     <!--

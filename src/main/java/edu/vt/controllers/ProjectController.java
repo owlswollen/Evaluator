@@ -159,6 +159,16 @@ public class ProjectController implements Serializable {
     }
 
     /*
+     ************************************************
+     Return project's evaluator names separated by \n
+     ************************************************
+     */
+    public String evaluatorFirstLastNamesAndUsernames(Project project) {
+        String evaluator_usernames = project.getEvaluatorUsernames();
+        return getFullNamesAndUsernames(evaluator_usernames);
+    }
+
+    /*
      ************************************
      Return project's evaluator usernames
      ************************************
@@ -185,6 +195,21 @@ public class ProjectController implements Serializable {
         String firstLastNames = stringBuilder.toString();
         // Drop the last \n
         return firstLastNames.substring(0, firstLastNames.length() - 1);
+    }
+
+    public String getFullNamesAndUsernames(String usernames) {
+        String[] arrayOfUsernames = usernames.split(",");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String username : arrayOfUsernames) {
+            User user = userFacade.findByUsername(username);
+            if (user != null) {
+                String fullNameAndUsername = String.format("%s %-20s (%s)", user.getFirstName(), user.getLastName(), username);
+                stringBuilder.append(fullNameAndUsername).append("\n");
+            }
+        }
+        String firstLastNamesAndUsernames = stringBuilder.toString();
+        // Drop the last \n
+        return firstLastNamesAndUsernames.substring(0, firstLastNamesAndUsernames.length() - 1);
     }
 
     /*

@@ -14,28 +14,33 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
 <ui:composition>
-    <p:dialog id="AhpResultsDlg" widgetVar="AhpResultsDialog" modal="true" header="AHP Results" resizable="false" appendTo="@(body)">
+    <p:dialog id="AhpResultsDlg" widgetVar="AhpResultsDialog" modal="true" header="AHP Results" resizable="false"
+              position="center" width="50%"  appendTo="@(body)" showEffect="slide" hideEffect="fade" responsive="true">
         <h:form id="AhpResultsForm" class="ui-datatable-data">
             <div align="center">
                 <c:choose>
                     <c:when test="#{tabViewController.selectedIndicator.isConsistent()}">
-                        <h:outputText value="Your pairwise comparisons resulted in an Inconsistency Index of #{tabViewController.inconsistencyIndex()}% that is below the allowable 10%."/><br/>
+                        <h:outputText value="Your pairwise comparisons resulted in an Consistency Ratio of #{tabViewController.consistencyRatio()}% that is below the allowable 10%."/><br/>
                     </c:when>
                     <c:otherwise>
-                        <h:outputText value="Your pairwise comparisons resulted in an Inconsistency Index of #{tabViewController.inconsistencyIndex()}% that is above the allowable 10%."/><br/>
+                        <h:outputText value="Your pairwise comparisons resulted in an Consistency Ratio of #{tabViewController.consistencyRatio()}% that is above the allowable 10%."/><br/>
                     </c:otherwise>
                 </c:choose>
                 <br/>
                 <h:panelGroup>
                     <p:commandButton value="Redo AHP"
-                                     icon="fa fa-times"
-                                     update=":treeForm, :tabForm:tabView:weightsTab"
-                                     actionListener="#{tabViewController.saveAhpResults(projectController.selectedProject)}"
+                                     icon="fas fa-redo"
+                                     update=":treeForm, :tabForm, :tabForm:tabView:weightsTab"
                                      onclick="PF('AhpResultsDialog').hide()" />&nbsp;&nbsp;
                     <p:commandButton value="Accept AHP Results"
-                                     icon="fa fa-check"
-                                     update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
+                                     icon="fas fa-check"
+                                     update=":treeForm, :tabForm, :tabForm:tabView:weightsTab, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
                                      actionListener="#{tabViewController.saveAhpResults(projectController.selectedProject)}"
+                                     onclick="PF('AhpResultsDialog').hide()" />&nbsp;&nbsp;
+                    <p:commandButton value="Undo AHP"
+                                     icon="fas fa-undo"
+                                     update=":treeForm, :tabForm, :tabForm:tabView:weightsTab"
+                                     actionListener="#{tabViewController.undoAhpResults()}"
                                      onclick="PF('AhpResultsDialog').hide()" />
                 </h:panelGroup>
             </div>

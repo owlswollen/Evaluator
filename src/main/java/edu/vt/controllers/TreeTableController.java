@@ -65,9 +65,6 @@ public class TreeTableController implements Serializable {
     // Sibling options to show in select one menu while adding a new sibling
     private List<String> siblingOptionNames = new ArrayList<>();
 
-    // Is the node to be added selected from the graph
-    private boolean addExistingIndicator = false;
-
     // AHP object holding the indicator hierarchy and alternatives
     private IndicatorsGraph indicatorsGraph;
 
@@ -156,14 +153,6 @@ public class TreeTableController implements Serializable {
 
     public void setSiblingOptionNames(List<String> siblingOptionNames) {
         this.siblingOptionNames = siblingOptionNames;
-    }
-
-    public boolean isAddExistingIndicator() {
-        return addExistingIndicator;
-    }
-
-    public void setAddExistingIndicator(boolean addExistingIndicator) {
-        this.addExistingIndicator = addExistingIndicator;
     }
 
     public IndicatorsGraph getIndicatorsGraph() {
@@ -377,10 +366,6 @@ public class TreeTableController implements Serializable {
         return "/project/Project?faces-redirect=true";
     }
 
-    public void resetAddExistingIndicator() {
-        addExistingIndicator = false;
-    }
-
     //--------------------------------------------------------
     // Methods for storing to DB and retrieving from DB
     //--------------------------------------------------------
@@ -495,20 +480,18 @@ public class TreeTableController implements Serializable {
         boolean existingIndicator = true;
         Indicator childIndicatorToAdd = null;
         childIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, childIndicatorToAdd);
-        // Show a warning if the new node is already in the graph and existing indicator option was not used while adding
-        if (childIndicatorToAdd != null && !addExistingIndicator) {
-            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, newNodeName + " is already in the graph.", "Select the \"Existing Indicator\" option while adding which will be available if it is allowed by the indicator hierarchy.");
+        // Show a warning if the new node is already in the graph
+        if (childIndicatorToAdd != null) {
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, newNodeName + " is already in the graph.", "");
             FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
             return;
         }
 
         // If it is not found in the graph create a new node with the given name and default attributes
-        if (childIndicatorToAdd == null) {
-            existingIndicator = false;
+        existingIndicator = false;
 
-            // Create new indicator to add to the graph
-            childIndicatorToAdd = new Indicator(newNodeName);
-        }
+        // Create new indicator to add to the graph
+        childIndicatorToAdd = new Indicator(newNodeName);
 
         // Find the indicator to which the child indicator will be added
         Indicator parentIndicator = null;
@@ -547,9 +530,7 @@ public class TreeTableController implements Serializable {
         // Run the AHP algorithm again for the updated graph
         indicatorsGraph = new IndicatorsGraph(rootIndicator);
         indicatorsGraph.solve();
-
         newNodeName = null;
-        addExistingIndicator = false;
 
         // Save graph to database
         saveGraph(selectedProject);
@@ -593,20 +574,18 @@ public class TreeTableController implements Serializable {
         boolean existingIndicator = true;
         Indicator siblingIndicatorToAdd = null;
         siblingIndicatorToAdd = findNewNodeNameInGraph(rootIndicator, siblingIndicatorToAdd);
-        // Show a warning if the new node is already in the graph and existing indicator option was not used while adding
-        if (siblingIndicatorToAdd != null && !addExistingIndicator) {
-            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, newNodeName + " is already in the graph.", "Select the \"Existing Indicator\" option while adding which will be available if it is allowed by the indicator hierarchy.");
+        // Show a warning if the new node is already in the graph
+        if (siblingIndicatorToAdd != null) {
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, newNodeName + " is already in the graph.", "");
             FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
             return;
         }
 
         // If it is not found in the graph create a new node with the given name and default attributes
-        if (siblingIndicatorToAdd == null) {
-            existingIndicator = false;
+        existingIndicator = false;
 
-            // Create new indicator to add to the graph
-            siblingIndicatorToAdd = new Indicator(newNodeName);
-        }
+        // Create new indicator to add to the graph
+        siblingIndicatorToAdd = new Indicator(newNodeName);
 
         Indicator siblingIndicator = null;
         siblingIndicator = findSelectedNodeInIndicatorsGraph(rootIndicator, siblingIndicator);
@@ -641,9 +620,7 @@ public class TreeTableController implements Serializable {
         // Run the AHP algorithm again for the updated graph
         indicatorsGraph = new IndicatorsGraph(rootIndicator);
         indicatorsGraph.solve();
-
         newNodeName = null;
-        addExistingIndicator = false;
 
         // Save graph to database
         saveGraph(selectedProject);
@@ -729,9 +706,7 @@ public class TreeTableController implements Serializable {
         // Run the AHP algorithm again for the updated graph
         indicatorsGraph = new IndicatorsGraph(rootIndicator);
         indicatorsGraph.solve();
-
         newNodeName = null;
-        addExistingIndicator = false;
 
         // Save graph to database
         saveGraph(selectedProject);

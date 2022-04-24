@@ -132,7 +132,6 @@
 
                     <p:inputText id="decimal"
                                  style="visibility: hidden; width: 0; height: 0"
-                                 valueChangeListener="#{tabViewController.onSlideEnd}"
                                  value="#{tabViewController.sliderValue}">
                         <p:ajax process="@this" update="tabForm"
                                 listener="#{tabViewController.onSlideEnd}"/>

@@ -302,6 +302,8 @@ public class TabViewController implements Serializable {
     public void onTabChange(TabChangeEvent event) {
         previousActiveTabTitle = event.getTab().getTitle();
         getTabContent((Indicator) event.getComponent().getAttributes().get("selectedIndicator"));
+        selectedEvaluatorName = null;
+        selectedEvaluator = null;
     }
 
     // Get data to show in the tab view from the selected node in the tree table
@@ -349,13 +351,13 @@ public class TabViewController implements Serializable {
     //-------------
 
     public void updateName(Project selectedProject) {
-        JsfUtil.addSuccessMessage("Indicator name was saved.");
+        JsfUtil.addSuccessMessage("Indicator name was successfully saved!");
         saveGraph(selectedProject);
     }
 
     public void updateDescription(Project selectedProject) {
         selectedIndicator.setDescription(editorController.getEditorContent());
-        JsfUtil.addSuccessMessage("Indicator description was saved.");
+        JsfUtil.addSuccessMessage("Indicator description was successfully saved!");
         saveGraph(selectedProject);
     }
 

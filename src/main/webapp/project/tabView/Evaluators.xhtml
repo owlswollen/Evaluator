@@ -53,6 +53,7 @@
                     <br/>
 
                     <p:commandButton value="Assign"
+                                     icon="fas fa-user-check"
                                      id="assignEvaluator"
                                      action="#{tabViewController.assignEvaluator(tabViewController.selectedEvaluator, projectController.selectedProject)}"
                                      update=":treeForm, evaluatorForm, :tabForm:tabView:weightsTab, :tabForm:tabView:scoresTab, :tabForm:tabView:notesTab, :growlInfoMessage"
@@ -60,6 +61,7 @@
                                      rendered="#{!tabViewController.isEvaluatorAlreadyAssigned(tabViewController.selectedEvaluator)}"/>&nbsp;
 
                     <p:commandButton value="Remove"
+                                     icon="fas fa-user-minus"
                                      id="removeEvaluator"
                                      action="#{tabViewController.removeEvaluator(tabViewController.selectedEvaluator, projectController.selectedProject)}"
                                      update=":treeForm, evaluatorForm, :tabForm:tabView:weightsTab, :tabForm:tabView:scoresTab, :tabForm:tabView:notesTab, :growlInfoMessage"

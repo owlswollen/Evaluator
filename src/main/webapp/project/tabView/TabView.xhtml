@@ -18,7 +18,7 @@
             <p:tabView id="tabView" activeIndex="#{tabViewController.activeTabIndex}" dynamic="true">
                 <f:attribute name="selectedIndicator" value="#{treeTableController.selectedNode.data}"/>
                 <p:ajax event="tabChange"
-                        update=":sliderForm"
+                        update=":sliderForm, evaluatorsTab"
                         listener="#{tabViewController.onTabChange}"/>
                 <!--
                 ==================

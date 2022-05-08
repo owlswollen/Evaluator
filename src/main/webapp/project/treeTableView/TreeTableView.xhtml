@@ -83,20 +83,9 @@
                                          update=":AddParentDlg"
                                          disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root or treeTableController.parentOptionNames.size() == 0}"
                                          oncomplete="PF('AddParentDialog').show()">
-                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}" />
+                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}"/>
                         </p:commandButton>&nbsp;
                         <h:outputStylesheet library="css" name="panelStyle.css"/>
-                        <!--                <p:commandButton value="Store to DB"-->
-                        <!--                                 id="storeButton"-->
-                        <!--                                 action="#{treeTableController.storeToDb}"-->
-                        <!--                                 update="growl"-->
-                        <!--                                 process="@this"-->
-                        <!--                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;-->
-                        <!--                <p:commandButton value="Retrieve from DB"-->
-                        <!--                                 id="retrieveButton"-->
-                        <!--                                 action="#{treeTableController.retrieveFromDb}"-->
-                        <!--                                 update="treeForm"-->
-                        <!--                                 process="@this"/>&nbsp;-->
                         <p:commandButton value="Delete"
                                          icon="fas fa-trash-alt"
                                          id="deleteBranchButton"
@@ -128,17 +117,6 @@
                                                  icon="fas fa-check-square"/>
                             </div>
                         </p:confirmDialog>
-                        <!--                <p:commandButton value="Export Graph"-->
-                        <!--                                 id="exportButton"-->
-                        <!--                                 action="#{treeTableController.exportGraph}"-->
-                        <!--                                 update="growl"-->
-                        <!--                                 process="@this"-->
-                        <!--                                 disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;-->
-                        <!--                <p:commandButton value="Import Graph"-->
-                        <!--                                 id="importButton"-->
-                        <!--                                 action="#{treeTableController.importGraph}"-->
-                        <!--                                 update="treeForm"-->
-                        <!--                                 process="@this"/>&nbsp;-->
                         <p:commandButton value="Status"
                                          icon="fas fa-spinner"
                                          id="statusButton"
@@ -147,6 +125,19 @@
                                          update=":EvaluationStatusDlg"
                                          disabled="#{empty treeTableController.actualRootTreeNode}"
                                          oncomplete="PF('EvaluationStatusDialog').show()"/>&nbsp;
+                        <p:commandButton value="Export"
+                                         icon="fas fa-download"
+                                         id="exportButton"
+                                         action="#{treeTableController.exportGraph}"
+                                         update="growl"
+                                         process="@this"
+                                         disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;
+                        <p:commandButton value="Import"
+                                         icon="fas fa-upload"
+                                         id="importButton"
+                                         action="#{treeTableController.importGraph}"
+                                         update="treeForm"
+                                         process="@this"/>&nbsp;
                     </div>
                 </f:facet>
                 <p:column>

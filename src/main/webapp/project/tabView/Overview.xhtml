@@ -14,9 +14,9 @@
 <ui:composition>
     <div style="margin-left: 20px">
         <h:outputText value="Indicator Name: " style="font-weight: bold"/><br/>
-        <p:inputTextarea id="indicatorName" rows="1" cols="50" autoResize="false"
+        <p:inputTextarea id="indicatorName" rows="1" cols="50" autoResize="true"
                          value="#{tabViewController.selectedIndicator.name}"
-                         style="margin: 6px 0" /><br/>
+                         style="margin: 6px 0; resize: auto" /><br/>
         <p:commandButton value="Save" icon="fas fa-save"
                          ajax="false" actionListener="#{tabViewController.updateName(projectController.selectedProject)}"
                          update=":growlInfoMessage"/><br/>

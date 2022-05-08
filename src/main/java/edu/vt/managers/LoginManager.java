@@ -158,8 +158,8 @@ public class LoginManager implements Serializable {
                             case 0:
                                 // Initialize the session map with user properties of interest in the method below
                                 initializeSessionMap(user);
-                                redirectToShowJSFpage("/userAccount/Profile.xhtml");
-//                                redirectToShowJSFpage("/project/List.xhtml");
+//                                redirectToShowJSFpage("/userAccount/Profile.xhtml");
+                                redirectToShowJSFpage("/project/List.xhtml");
                                 break;
                             // Send 2FA Code via Email
                             case 1:

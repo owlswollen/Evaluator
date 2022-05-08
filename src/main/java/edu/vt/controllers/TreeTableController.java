@@ -410,14 +410,11 @@ public class TreeTableController implements Serializable {
     //-------------------------------------------------------------
 
     public void exportGraph() {
-        BinarySerializationManager.storeGraph(indicatorsGraph);
-        FacesMessage message = new FacesMessage("Graph Exported", "Serialized graph is saved in GraphData.bin");
-        System.out.println(System.getProperty("user.dir"));
-        FacesContext.getCurrentInstance().addMessage(null, message);
+        BinarySerializationManager.exportGraph(indicatorsGraph);
     }
 
     public void importGraph() {
-        indicatorsGraph = BinarySerializationManager.retrieveGraph();
+        indicatorsGraph = BinarySerializationManager.importGraph();
         showGraphOnTreeTable(indicatorsGraph);
     }
 

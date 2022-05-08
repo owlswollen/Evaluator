@@ -129,6 +129,7 @@
                                          icon="fas fa-download"
                                          id="exportButton"
                                          action="#{treeTableController.exportGraph}"
+                                         style="margin: 5px 0 !important"
                                          update="growl"
                                          process="@this"
                                          disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;
@@ -136,11 +137,23 @@
                                          icon="fas fa-upload"
                                          id="importButton"
                                          action="#{treeTableController.importGraph}"
+                                         style="margin: 5px 0 !important"
                                          update="treeForm"
                                          process="@this"/>&nbsp;
+                        <p:commandButton value="Report"
+                                         icon="fas fa-file"
+                                         id="reportButton"
+                                         style="margin: 5px 0 !important">
+                            <p:dataExporter type="pdf" target="tree"
+                                            preProcessor="#{treeTableController.preProcessPDF}"
+                                            fileName="ProjectReport"/>
+                        </p:commandButton>
                     </div>
                 </f:facet>
                 <p:column>
+                    <f:facet name="header">
+                        <h:outputText value="Indicators"/>
+                    </f:facet>
                     <h:outputText value="#{node.name}"/>
                 </p:column>
             </p:treeTable>

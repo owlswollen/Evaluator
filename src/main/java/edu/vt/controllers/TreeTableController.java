@@ -4,31 +4,33 @@
  */
 package edu.vt.controllers;
 
+import com.lowagie.text.*;
+import com.lowagie.text.html.simpleparser.HTMLWorker;
+import com.lowagie.text.pdf.PdfPTable;
 import edu.vt.EntityBeans.Project;
 import edu.vt.FacadeBeans.ProjectFacade;
 import edu.vt.controllers.util.JsfUtil;
 import edu.vt.managers.BinarySerializationManager;
-import edu.vt.managers.DatabaseSerializationManager;
 import edu.vt.pojo.IndicatorsGraph;
 import edu.vt.pojo.Indicator;
 import edu.vt.pojo.SampleProject;
+import edu.vt.pojo.Score;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
-
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.io.StringReader;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,15 +70,11 @@ public class TreeTableController implements Serializable {
     // AHP object holding the indicator hierarchy and alternatives
     private IndicatorsGraph indicatorsGraph;
 
-    // DB ID of the serialized object
-    private Long serializedId;
+    // Opened project
+    private Project selectedProject;
 
     @EJB
     private ProjectFacade projectFacade;
-
-    // TODO: remove
-    @Inject
-    private TabViewController tabViewController;
 
     //=============
     // Constructors
@@ -85,9 +83,6 @@ public class TreeTableController implements Serializable {
     @PostConstruct
     public void init() {
         rootIndicator = new Indicator("Temporary Root");
-
-        // Create the default acyclic graph and show it in the tree table
-//        createDefaultGraphAndTree();
     }
 
     //==========================
@@ -352,8 +347,11 @@ public class TreeTableController implements Serializable {
         }
     }
 
-    // TODO: refactor open, retrieve, store, import, export
+    /*
+     * Show selected project's indicators hierarchy
+     */
     public String openProject(Project selectedProject) {
+        this.selectedProject = selectedProject;
         indicatorsGraph = selectedProject.getIndicatorsGraph();
 
         if (indicatorsGraph != null) {
@@ -367,43 +365,79 @@ public class TreeTableController implements Serializable {
         return "/project/Project?faces-redirect=true";
     }
 
-    //--------------------------------------------------------
-    // Methods for storing to DB and retrieving from DB
-    //--------------------------------------------------------
+    //-------------------------------------------------------------
+    // Methods for generating report of the project
+    //-------------------------------------------------------------
 
-    public void storeToDb() throws ClassNotFoundException, SQLException {
-        Connection connection = createConnection();
+    public void preProcessPDF(Object document) throws IOException, BadElementException, DocumentException {
+        Document pdf = (Document) document;
+        pdf.open();
+        pdf.setPageSize(PageSize.A4);
 
-        // serializing java object to mysql database
-        serializedId = DatabaseSerializationManager.serializeJavaObjectToDB(connection, indicatorsGraph);
+        Paragraph titleParagraph = new Paragraph();
+        titleParagraph.setAlignment(Element.ALIGN_CENTER);
+        String title = selectedProject.getTitle() + "\n\nREPORT\n";
+        Chunk titleChunk = new Chunk(title, FontFactory.getFont(FontFactory.TIMES_ROMAN, 16, Font.BOLD));
+        titleParagraph.add(titleChunk);
+        titleParagraph.add(Chunk.NEWLINE);
+        titleParagraph.add(Chunk.NEWLINE);
+        pdf.add(titleParagraph);
 
-        FacesMessage message = new FacesMessage("Stored to DB", "Graph is serialized to database");
-        FacesContext.getCurrentInstance().addMessage(null, message);
+        Paragraph descriptionParagraph = new Paragraph();
+        descriptionParagraph.setAlignment(Element.ALIGN_LEFT);
+        descriptionParagraph.add(new Chunk("Project Description:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
+        ArrayList elementList = HTMLWorker.parseToList(new StringReader(selectedProject.getDescription()), null);
+        for (Object element : elementList) {
+            descriptionParagraph.add(element);
+            descriptionParagraph.add(Chunk.NEWLINE);
+        }
+        descriptionParagraph.add(Chunk.NEWLINE);
+        descriptionParagraph.add(Chunk.NEWLINE);
+        descriptionParagraph.setIndentationLeft(20);
+        pdf.add(descriptionParagraph);
+
+        Paragraph indicatorsParagraph = new Paragraph();
+        indicatorsParagraph.add(new Chunk("Indicators:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
+        indicatorsParagraph.add(Chunk.NEWLINE);
+        indicatorsParagraph.setIndentationLeft(20);
+        pdf.add(indicatorsParagraph);
     }
 
-    public void retrieveFromDb() throws ClassNotFoundException, SQLException, IOException {
-        Connection connection = createConnection();
-
-        // de-serializing java object from mysql database
-        indicatorsGraph = (IndicatorsGraph) DatabaseSerializationManager.deSerializeJavaObjectFromDB(connection, serializedId);
-        connection.close();
-
-        showGraphOnTreeTable(indicatorsGraph);
-    }
-
-    private Connection createConnection() throws ClassNotFoundException, SQLException {
-        String driver = "com.mysql.cj.jdbc.Driver";
-        String url = "jdbc:mysql://localhost:3306/SerializedJavaObjectsDB";
-        String username = "root";
-        String password = "CSD@mysql-1872";
-
-        Properties connectionProps = new Properties();
-        connectionProps.put("user", username);
-        connectionProps.put("password", password);
-
-        Class.forName(driver);
-        return DriverManager.getConnection(url, connectionProps);
-    }
+//    public void postProcessPDF(Object document) throws IOException, BadElementException, DocumentException {
+//        Document pdf = (Document) document;
+//        pdf.open();
+//
+//        Paragraph indicatorsParagraph = new Paragraph();
+//        for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
+//            indicatorsParagraph.add(new Chunk(indicator.getName() + ":\n\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
+//            indicatorsParagraph.add(new Chunk("Indicator Description:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
+//            Chunk indicatorChunk = new Chunk(indicator.getDescription() == null ? "" : indicator.getDescription(), FontFactory.getFont(FontFactory.TIMES_ROMAN, 16, Font.TIMES_ROMAN));
+//            indicatorsParagraph.add(indicatorChunk);
+//
+//            if (indicator.isLeaf()) {
+//                PdfPTable table = new PdfPTable(3);
+//                table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+//                table.addCell("Evaluator Username");
+//                table.addCell("Weight");
+//                table.addCell("Numerical Score");
+//                for (Indicator evaluator : indicator.getChildIndicators()) {
+//                    table.addCell(evaluator.getName());
+//                    table.addCell(indicator.getChildWeights().get(evaluator).toString());
+//                    Score score = indicator.getEvaluatorScores().get(evaluator.getName());
+//                    String scoreText = "[" + score.getLow() + " .. " + score.getHigh() + "]";
+//                    table.addCell(scoreText);
+//                }
+//            }
+//            else {
+//
+//            }
+//
+//            if (!indicator.isRoot()) {
+//
+//            }
+//            pdf.add(indicatorsParagraph);
+//        }
+//    }
 
     //-------------------------------------------------------------
     // Methods for exporting and importing a graph as a binary file
@@ -415,7 +449,13 @@ public class TreeTableController implements Serializable {
 
     public void importGraph() {
         indicatorsGraph = BinarySerializationManager.importGraph();
-        showGraphOnTreeTable(indicatorsGraph);
+        if (indicatorsGraph == null) {
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Indicators Graph is empty.", "");
+            FacesContext.getCurrentInstance().addMessage(null, facesMsg);
+        } else {
+            saveGraph(selectedProject);
+            showGraphOnTreeTable(indicatorsGraph);
+        }
     }
 
     //----------------------------------------------
@@ -450,9 +490,9 @@ public class TreeTableController implements Serializable {
     // Create Root, Add Child, Add Sibling, Add Parent, Delete
     //--------------------------------------------------------
 
-    /***************
-     * CREATE ROOT *
-     ***************/
+    /*
+     * CREATE ROOT
+     */
     public void createRoot(Project selectedProject) {
         rootIndicator = new Indicator(newNodeName);
 
@@ -469,9 +509,9 @@ public class TreeTableController implements Serializable {
         saveGraph(selectedProject);
     }
 
-    /**********************
-     * ADD CHILD TO GRAPH *
-     **********************/
+    /*
+     * ADD CHILD TO GRAPH
+     */
     public void addChildToGraph(Project selectedProject) {
 
         // Check if the new node is already in the graph
@@ -527,9 +567,9 @@ public class TreeTableController implements Serializable {
         saveGraph(selectedProject);
     }
 
-    /***************************
-     * ADD CHILD TO TREE TABLE *
-     ***************************/
+    /*
+     * ADD CHILD TO TREE TABLE
+     */
     private void addChildToTreeTable(TreeNode<Indicator> treeRoot, Indicator nodeToAdd, boolean existingIndicator) {
         List<TreeNode<Indicator>> subChildren = treeRoot.getChildren();
         for (TreeNode<Indicator> treeNode : subChildren) {
@@ -556,9 +596,9 @@ public class TreeTableController implements Serializable {
         }
     }
 
-    /************************
-     * ADD SIBLING TO GRAPH *
-     ************************/
+    /*
+     * ADD SIBLING TO GRAPH
+     */
     public void addSiblingToGraph(Project selectedProject) {
 
         // Check if the new node is already in the graph
@@ -610,9 +650,9 @@ public class TreeTableController implements Serializable {
         saveGraph(selectedProject);
     }
 
-    /******************************
-     * ADD SIBLING TO TREE TABLE *
-     ******************************/
+    /*
+     * ADD SIBLING TO TREE TABLE
+     */
     private void addSiblingToTreeTable(TreeNode<Indicator> treeRoot, Indicator nodeToAdd, boolean existingIndicator) {
         List<TreeNode<Indicator>> subChildren = treeRoot.getChildren();
         for (TreeNode<Indicator> treeNode : subChildren) {
@@ -649,9 +689,9 @@ public class TreeTableController implements Serializable {
         }
     }
 
-    /***********************
-     * ADD PARENT TO GRAPH *
-     ***********************/
+    /*
+     * ADD PARENT TO GRAPH
+     */
     public void addParentToGraph(Project selectedProject) {
         // Find the parent node in the graph
         Indicator parentIndicator = null;
@@ -696,9 +736,9 @@ public class TreeTableController implements Serializable {
         saveGraph(selectedProject);
     }
 
-    /****************************
-     * ADD PARENT TO TREE TABLE *
-     ****************************/
+    /*
+     * ADD PARENT TO TREE TABLE
+     */
     private void addParentToTreeTable(TreeNode<Indicator> treeRoot) {
         List<TreeNode<Indicator>> subChildren = treeRoot.getChildren();
         for (TreeNode<Indicator> treeNode : subChildren) {
@@ -716,9 +756,9 @@ public class TreeTableController implements Serializable {
         }
     }
 
-    /*******************************
-     * DELETE INDICATOR FROM GRAPH *
-     *******************************/
+    /*
+     * DELETE INDICATOR FROM GRAPH
+     */
     public void deleteIndicatorFromGraph(Project selectedProject) {
         if (selectedNode.getData().isRoot()) {
             indicatorsGraph = null;
@@ -757,9 +797,9 @@ public class TreeTableController implements Serializable {
         saveGraph(selectedProject);
     }
 
-    /*******************************
-     * DELETE NODE FROM TREE TABLE *
-     *******************************/
+    /*
+     * DELETE NODE FROM TREE TABLE
+     */
     public void deleteNodeFromTreeTable() {
         // Find the nodes to delete
         List<TreeNode<Indicator>> nodesToDelete = new ArrayList<>();

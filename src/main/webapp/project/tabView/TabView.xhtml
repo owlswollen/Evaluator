@@ -15,7 +15,9 @@
 <ui:composition>
     <div class="card">
         <h:form id="tabForm">
-            <p:tabView id="tabView" activeIndex="#{tabViewController.activeTabIndex}" dynamic="true">
+            <p:tabView id="tabView" activeIndex="#{tabViewController.activeTabIndex}"
+                       rendered="#{not empty treeTableController.selectedNode.data}"
+                       dynamic="true">
                 <f:attribute name="selectedIndicator" value="#{treeTableController.selectedNode.data}"/>
                 <p:ajax event="tabChange"
                         update=":sliderForm, evaluatorsTab"

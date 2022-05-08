@@ -30,4 +30,8 @@ dependencies {
 
     // MySQL JDBC Connector to Java is configured in WildFly
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.26'
+
+    // itext-2.1.7.jar is located in the flat filesystem directory defined above
+    // itext-2.1.7.jar provides a Java API to generate PDF files.
+    compileOnly group: 'com.lowagie', name: 'itext', version: '2.1.7'
 }

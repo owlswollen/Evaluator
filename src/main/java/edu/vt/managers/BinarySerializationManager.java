@@ -4,11 +4,13 @@
  */
 package edu.vt.managers;
 
+import com.lowagie.text.Document;
 import edu.vt.pojo.IndicatorsGraph;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 
 public class BinarySerializationManager {
@@ -19,11 +21,17 @@ public class BinarySerializationManager {
 
     public static void exportGraph(IndicatorsGraph indicatorsGraph) {
         try {
-            JFileChooser fileChooser = new JFileChooser();
-            int response = fileChooser.showSaveDialog(null);
-            // If the user selects a file
-            if (response == JFileChooser.APPROVE_OPTION) {
-                FileOutputStream fileOut = new FileOutputStream(fileChooser.getSelectedFile().getAbsolutePath());
+            FileDialog fileDialog = new FileDialog(new Frame(), "Export...", FileDialog.SAVE);
+            fileDialog.setDirectory(System.getProperty("user.dir"));
+            fileDialog.setFile("IndicatorsGraph.bin");
+            fileDialog.setVisible(true);
+            String fileName = fileDialog.getFile();
+            if (fileName != null) {
+                if (!fileName.endsWith(".bin") && !fileName.endsWith(".txt")) {
+                    fileName = fileName + ".bin";
+                }
+                File file = new File(fileDialog.getDirectory(), fileName);
+                FileOutputStream fileOut = new FileOutputStream(file);
                 ObjectOutputStream out = new ObjectOutputStream(fileOut);
                 out.writeObject(indicatorsGraph);
                 out.close();
@@ -31,19 +39,22 @@ public class BinarySerializationManager {
                 FacesMessage message = new FacesMessage("Indicators Graph was successfully exported.", "");
                 FacesContext.getCurrentInstance().addMessage(null, message);
             }
-        } catch (IOException i) {
-            i.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
     public static IndicatorsGraph importGraph() {
         try {
-            JFileChooser fileChooser = new JFileChooser();
-            int response = fileChooser.showOpenDialog(null);
+            FileDialog fileDialog = new FileDialog(new Frame(), "Import...", FileDialog.LOAD);
+            fileDialog.setDirectory("user.dir");
+            fileDialog.setFile("*.bin");
+            fileDialog.setVisible(true);
+            String filename = fileDialog.getFile();
             IndicatorsGraph indicatorsGraph = null;
-            // If the user selects a file
-            if (response == JFileChooser.APPROVE_OPTION) {
-                FileInputStream fileIn = new FileInputStream(fileChooser.getSelectedFile().getAbsolutePath());
+            if (filename != null) {
+                File file = new File(fileDialog.getDirectory(), fileDialog.getFile());
+                FileInputStream fileIn = new FileInputStream(file);
                 ObjectInputStream in = new ObjectInputStream(fileIn);
                 indicatorsGraph = (IndicatorsGraph) in.readObject();
                 in.close();

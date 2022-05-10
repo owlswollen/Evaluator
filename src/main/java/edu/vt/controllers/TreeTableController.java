@@ -10,13 +10,19 @@ import com.lowagie.text.pdf.PdfPTable;
 import edu.vt.EntityBeans.Project;
 import edu.vt.FacadeBeans.ProjectFacade;
 import edu.vt.controllers.util.JsfUtil;
+import edu.vt.globals.Constants;
 import edu.vt.managers.BinarySerializationManager;
 import edu.vt.pojo.IndicatorsGraph;
 import edu.vt.pojo.Indicator;
 import edu.vt.pojo.SampleProject;
 import edu.vt.pojo.Score;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.TreeNode;
+import org.primefaces.model.file.UploadedFile;
+
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
@@ -25,10 +31,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringReader;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
@@ -72,6 +75,8 @@ public class TreeTableController implements Serializable {
 
     // Opened project
     private Project selectedProject;
+
+    private StreamedContent indicatorsGraphFile;
 
     @EJB
     private ProjectFacade projectFacade;
@@ -165,6 +170,29 @@ public class TreeTableController implements Serializable {
 
     public void setActualRootTreeNode(TreeNode<Indicator> actualRootTreeNode) {
         this.actualRootTreeNode = actualRootTreeNode;
+    }
+
+    public StreamedContent getIndicatorsGraphFile() throws IOException {
+        String fileName = "IndicatorsGraph.bin";
+        String directory = System.getProperty("user.dir");
+        File file = new File(directory, fileName);
+        FileOutputStream fileOut = new FileOutputStream(file);
+        ObjectOutputStream out = new ObjectOutputStream(fileOut);
+        out.writeObject(indicatorsGraph);
+        out.close();
+        fileOut.close();
+        FileInputStream fileStream = new FileInputStream(file);
+        String contentType = FacesContext.getCurrentInstance().getExternalContext().getMimeType(file.getAbsolutePath());
+        indicatorsGraphFile = DefaultStreamedContent.builder()
+                .name(fileName)
+                .contentType(contentType)
+                .stream(() -> fileStream)
+                .build();
+        return indicatorsGraphFile;
+    }
+
+    public void setIndicatorsGraphFile(StreamedContent indicatorsGraphFile) {
+        this.indicatorsGraphFile = indicatorsGraphFile;
     }
 
     //=================
@@ -385,11 +413,10 @@ public class TreeTableController implements Serializable {
 
         Paragraph descriptionParagraph = new Paragraph();
         descriptionParagraph.setAlignment(Element.ALIGN_LEFT);
-        descriptionParagraph.add(new Chunk("Project Description:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
+        descriptionParagraph.add(new Chunk("Project Description:\n\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
         ArrayList elementList = HTMLWorker.parseToList(new StringReader(selectedProject.getDescription()), null);
         for (Object element : elementList) {
             descriptionParagraph.add(element);
-            descriptionParagraph.add(Chunk.NEWLINE);
         }
         descriptionParagraph.add(Chunk.NEWLINE);
         descriptionParagraph.add(Chunk.NEWLINE);
@@ -439,16 +466,32 @@ public class TreeTableController implements Serializable {
 //        }
 //    }
 
-    //-------------------------------------------------------------
-    // Methods for exporting and importing a graph as a binary file
-    //-------------------------------------------------------------
+    /*
+     * Import indicators graph
+     */
+    public void handleFileUpload(FileUploadEvent event) throws IOException {
+        UploadedFile uploadedFile = event.getFile();
+        if (uploadedFile != null && uploadedFile.getContent() != null && uploadedFile.getContent().length > 0 && uploadedFile.getFileName() != null) {
+            String filename = event.getFile().getFileName();
+            try (InputStream inputStream = event.getFile().getInputStream()) {
+                byte[] buffer = new byte[inputStream.available()];
+                inputStream.read(buffer);
+                File targetFile = new File(filename);
+                OutputStream outStream;
+                outStream = new FileOutputStream(targetFile);
+                outStream.write(buffer);
+                outStream.close();
 
-    public void exportGraph() {
-        BinarySerializationManager.exportGraph(indicatorsGraph);
-    }
+                FileInputStream fileIn = new FileInputStream(targetFile);
+                ObjectInputStream in = new ObjectInputStream(fileIn);
+                indicatorsGraph = (IndicatorsGraph) in.readObject();
+                in.close();
+                fileIn.close();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
 
-    public void importGraph() {
-        indicatorsGraph = BinarySerializationManager.importGraph();
         if (indicatorsGraph == null) {
             FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Indicators Graph is empty.", "");
             FacesContext.getCurrentInstance().addMessage(null, facesMsg);

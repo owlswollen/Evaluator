@@ -128,18 +128,19 @@
                         <p:commandButton value="Export"
                                          icon="fas fa-download"
                                          id="exportButton"
-                                         action="#{treeTableController.exportGraph}"
                                          style="margin: 5px 0 !important"
                                          update="growl"
                                          process="@this"
-                                         disabled="#{empty treeTableController.rootIndicator}"/>&nbsp;
+                                         disabled="#{empty treeTableController.rootIndicator}">
+                            <p:fileDownload value="#{treeTableController.indicatorsGraphFile}"/>
+                        </p:commandButton>&nbsp;
                         <p:commandButton value="Import"
                                          icon="fas fa-upload"
                                          id="importButton"
-                                         action="#{treeTableController.importGraph}"
+                                         process="@this"
                                          style="margin: 5px 0 !important"
-                                         update="treeForm"
-                                         process="@this"/>&nbsp;
+                                         update="ImportDlg"
+                                         oncomplete="PF('ImportDialog').show()"/>&nbsp;
                         <p:commandButton value="Report"
                                          icon="fas fa-file"
                                          id="reportButton"
@@ -167,6 +168,7 @@
     <ui:include src="/project/treeTableView/AddSiblingDialog.xhtml"/>
     <ui:include src="/project/treeTableView/DeleteBranchDialog.xhtml"/>
     <ui:include src="/project/treeTableView/EvaluationStatusDialog.xhtml"/>
+    <ui:include src="/project/treeTableView/ImportDialog.xhtml"/>
 
 </ui:composition>
 

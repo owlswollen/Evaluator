@@ -130,16 +130,15 @@
                                          id="exportButton"
                                          style="margin: 5px 0 !important"
                                          update="growl"
-                                         process="@this"
+                                         ajax="false"
                                          disabled="#{empty treeTableController.rootIndicator}">
                             <p:fileDownload value="#{treeTableController.indicatorsGraphFile}"/>
                         </p:commandButton>&nbsp;
                         <p:commandButton value="Import"
                                          icon="fas fa-upload"
                                          id="importButton"
-                                         process="@this"
                                          style="margin: 5px 0 !important"
-                                         update="ImportDlg"
+                                         update="ImportDlg, :treeForm"
                                          oncomplete="PF('ImportDialog').show()"/>&nbsp;
                         <p:commandButton value="Report"
                                          icon="fas fa-file"

@@ -174,7 +174,7 @@ public class TreeTableController implements Serializable {
 
     public StreamedContent getIndicatorsGraphFile() throws IOException {
         String fileName = "IndicatorsGraph.bin";
-        String directory = System.getProperty("user.dir");
+        String directory = Constants.FILES_ABSOLUTE_PATH;
         File file = new File(directory, fileName);
         FileOutputStream fileOut = new FileOutputStream(file);
         ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -476,7 +476,7 @@ public class TreeTableController implements Serializable {
             try (InputStream inputStream = event.getFile().getInputStream()) {
                 byte[] buffer = new byte[inputStream.available()];
                 inputStream.read(buffer);
-                File targetFile = new File(filename);
+                File targetFile = new File(Constants.FILES_ABSOLUTE_PATH, filename);
                 OutputStream outStream;
                 outStream = new FileOutputStream(targetFile);
                 outStream.write(buffer);

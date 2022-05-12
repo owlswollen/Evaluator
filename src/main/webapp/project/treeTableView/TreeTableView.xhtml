@@ -141,13 +141,13 @@
                                          update="ImportDlg, :treeForm"
                                          oncomplete="PF('ImportDialog').show()"/>&nbsp;
                         <p:commandButton value="Report"
-                                         icon="fas fa-file"
+                                         icon="fas fa-download"
                                          id="reportButton"
-                                         style="margin: 5px 0 !important">
-                            <p:dataExporter type="pdf" target="tree"
-                                            preProcessor="#{treeTableController.preProcessPDF}"
-                                            fileName="ProjectReport"/>
-                        </p:commandButton>
+                                         style="margin: 5px 0 !important"
+                                         update="growl"
+                                         ajax="false">
+                            <p:fileDownload value="#{reportManager.createReport(treeTableController.selectedProject)}"/>
+                        </p:commandButton>&nbsp;
                     </div>
                 </f:facet>
                 <p:column>

@@ -173,7 +173,7 @@ public class TreeTableController implements Serializable {
     }
 
     public StreamedContent getIndicatorsGraphFile() throws IOException {
-        String fileName = "IndicatorsGraph.bin";
+        String fileName = "IndicatorsGraph.pdf";
         String directory = Constants.FILES_ABSOLUTE_PATH;
         File file = new File(directory, fileName);
         FileOutputStream fileOut = new FileOutputStream(file);
@@ -193,6 +193,14 @@ public class TreeTableController implements Serializable {
 
     public void setIndicatorsGraphFile(StreamedContent indicatorsGraphFile) {
         this.indicatorsGraphFile = indicatorsGraphFile;
+    }
+
+    public Project getSelectedProject() {
+        return selectedProject;
+    }
+
+    public void setSelectedProject(Project selectedProject) {
+        this.selectedProject = selectedProject;
     }
 
     //=================
@@ -392,79 +400,6 @@ public class TreeTableController implements Serializable {
 
         return "/project/Project?faces-redirect=true";
     }
-
-    //-------------------------------------------------------------
-    // Methods for generating report of the project
-    //-------------------------------------------------------------
-
-    public void preProcessPDF(Object document) throws IOException, BadElementException, DocumentException {
-        Document pdf = (Document) document;
-        pdf.open();
-        pdf.setPageSize(PageSize.A4);
-
-        Paragraph titleParagraph = new Paragraph();
-        titleParagraph.setAlignment(Element.ALIGN_CENTER);
-        String title = selectedProject.getTitle() + "\n\nREPORT\n";
-        Chunk titleChunk = new Chunk(title, FontFactory.getFont(FontFactory.TIMES_ROMAN, 16, Font.BOLD));
-        titleParagraph.add(titleChunk);
-        titleParagraph.add(Chunk.NEWLINE);
-        titleParagraph.add(Chunk.NEWLINE);
-        pdf.add(titleParagraph);
-
-        Paragraph descriptionParagraph = new Paragraph();
-        descriptionParagraph.setAlignment(Element.ALIGN_LEFT);
-        descriptionParagraph.add(new Chunk("Project Description:\n\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
-        ArrayList elementList = HTMLWorker.parseToList(new StringReader(selectedProject.getDescription()), null);
-        for (Object element : elementList) {
-            descriptionParagraph.add(element);
-        }
-        descriptionParagraph.add(Chunk.NEWLINE);
-        descriptionParagraph.add(Chunk.NEWLINE);
-        descriptionParagraph.setIndentationLeft(20);
-        pdf.add(descriptionParagraph);
-
-        Paragraph indicatorsParagraph = new Paragraph();
-        indicatorsParagraph.add(new Chunk("Indicators:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
-        indicatorsParagraph.add(Chunk.NEWLINE);
-        indicatorsParagraph.setIndentationLeft(20);
-        pdf.add(indicatorsParagraph);
-    }
-
-//    public void postProcessPDF(Object document) throws IOException, BadElementException, DocumentException {
-//        Document pdf = (Document) document;
-//        pdf.open();
-//
-//        Paragraph indicatorsParagraph = new Paragraph();
-//        for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
-//            indicatorsParagraph.add(new Chunk(indicator.getName() + ":\n\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
-//            indicatorsParagraph.add(new Chunk("Indicator Description:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
-//            Chunk indicatorChunk = new Chunk(indicator.getDescription() == null ? "" : indicator.getDescription(), FontFactory.getFont(FontFactory.TIMES_ROMAN, 16, Font.TIMES_ROMAN));
-//            indicatorsParagraph.add(indicatorChunk);
-//
-//            if (indicator.isLeaf()) {
-//                PdfPTable table = new PdfPTable(3);
-//                table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-//                table.addCell("Evaluator Username");
-//                table.addCell("Weight");
-//                table.addCell("Numerical Score");
-//                for (Indicator evaluator : indicator.getChildIndicators()) {
-//                    table.addCell(evaluator.getName());
-//                    table.addCell(indicator.getChildWeights().get(evaluator).toString());
-//                    Score score = indicator.getEvaluatorScores().get(evaluator.getName());
-//                    String scoreText = "[" + score.getLow() + " .. " + score.getHigh() + "]";
-//                    table.addCell(scoreText);
-//                }
-//            }
-//            else {
-//
-//            }
-//
-//            if (!indicator.isRoot()) {
-//
-//            }
-//            pdf.add(indicatorsParagraph);
-//        }
-//    }
 
     /*
      * Import indicators graph

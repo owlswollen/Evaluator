@@ -193,7 +193,11 @@ public class ReportManager implements Serializable {
              */
             if (selectedProject.getIndicatorsGraph().isSolved() && indicator.getScore() != null) {
                 indicatorDetailParagraph.add(new Chunk("Score:\n\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, green)));indicatorDetailParagraph.add(new Chunk(" ", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
-                indicatorDetailParagraph.add(new Chunk("[" + decimalFormat.format(indicator.getScore().getLow()) + " .. " + decimalFormat.format(indicator.getScore().getHigh()) + "]", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14)));
+                String scoreText = "";
+                if (indicator.getScore() != null) {
+                    scoreText = "[" + decimalFormat.format(indicator.getScore().getLow()) + " .. " + decimalFormat.format(indicator.getScore().getHigh()) + "]";
+                }
+                indicatorDetailParagraph.add(new Chunk(scoreText, FontFactory.getFont(FontFactory.TIMES_ROMAN, 14)));
                 indicatorDetailParagraph.add(Chunk.NEWLINE);
                 indicatorDetailParagraph.add(Chunk.NEWLINE);
             }
@@ -211,8 +215,11 @@ public class ReportManager implements Serializable {
                 for (Indicator evaluator : indicator.getChildIndicators()) {
                     table.addCell(evaluator.getName());
                     table.addCell(decimalFormat.format(indicator.getChildWeights().get(evaluator)));
+                    String scoreText = "";
                     Score score = indicator.getEvaluatorScores().get(evaluator.getName());
-                    String scoreText = "[" + decimalFormat.format(score.getLow()) + " .. " + decimalFormat.format(score.getHigh()) + "]";
+                    if (score != null) {
+                        scoreText = "[" + decimalFormat.format(score.getLow()) + " .. " + decimalFormat.format(score.getHigh()) + "]";
+                    }
                     table.addCell(scoreText);
                 }
                 indicatorDetailParagraph.add(table);
@@ -232,8 +239,11 @@ public class ReportManager implements Serializable {
                 table.addCell(new Phrase("Weight", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
                 for (Indicator childIndicator : indicator.getChildIndicators()) {
                     table.addCell(childIndicator.getName());
-                    String scoreText = "[" + decimalFormat.format(childIndicator.getScore().getLow()) + " .. " + decimalFormat.format(childIndicator.getScore().getHigh()) + "]";
                     table.addCell(decimalFormat.format(indicator.getChildWeights().get(childIndicator)));
+                    String scoreText = "";
+                    if (childIndicator.getScore() != null) {
+                        scoreText = "[" + decimalFormat.format(childIndicator.getScore().getLow()) + " .. " + decimalFormat.format(childIndicator.getScore().getHigh()) + "]";
+                    }
                     table.addCell(scoreText);
                 }
                 indicatorDetailParagraph.add(table);
@@ -272,11 +282,15 @@ public class ReportManager implements Serializable {
                 for (Indicator childIndicator : indicator.getChildIndicators()) {
                     table.addCell(childIndicator.getName());
                     StringBuilder notes = new StringBuilder();
-                    ArrayList elementList = HTMLWorker.parseToList(new StringReader(indicator.getEvaluatorNotes().get(childIndicator.getName())), null);
-                    for (Object element : elementList) {
-                        notes.append(element);
+                    if (indicator.getEvaluatorNotes().containsKey(childIndicator.getName())) {
+                        ArrayList elementList = HTMLWorker.parseToList(new StringReader(indicator.getEvaluatorNotes().get(childIndicator.getName())), null);
+                        for (Object element : elementList) {
+                            notes.append(element);
+                        }
+                        table.addCell(notes.substring(1, notes.length() - 1));
+                    } else {
+                        table.addCell("");
                     }
-                    table.addCell(notes.substring(1, notes.length() - 1));
                 }
                 indicatorDetailParagraph.add(table);
                 indicatorDetailParagraph.add(Chunk.NEWLINE);

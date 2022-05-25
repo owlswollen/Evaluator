@@ -53,7 +53,7 @@
                                          update=":CreateRootDlg"
                                          disabled="#{not empty treeTableController.actualRootTreeNode}"
                                          oncomplete="PF('CreateRootDialog').show()">&nbsp;
-                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}"/>
+                            <p:ajax event="dialogReturn"/>
                         </p:commandButton>
                         <p:commandButton value="Child"
                                          icon="fas fa-plus"
@@ -63,7 +63,7 @@
                                          update=":AddChildDlg"
                                          disabled="#{empty treeTableController.selectedNode}"
                                          oncomplete="PF('AddChildDialog').show()">&nbsp;
-                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}"/>
+                            <p:ajax event="dialogReturn"/>
                         </p:commandButton>
                         <p:commandButton value="Sibling"
                                          icon="fas fa-plus"
@@ -73,7 +73,7 @@
                                          update=":AddSiblingDlg"
                                          disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root}"
                                          oncomplete="PF('AddSiblingDialog').show()">&nbsp;
-                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}"/>
+                            <p:ajax event="dialogReturn"/>
                         </p:commandButton>&nbsp;
                         <p:commandButton value="Parent"
                                          icon="fas fa-plus"
@@ -83,7 +83,7 @@
                                          update=":AddParentDlg"
                                          disabled="#{empty treeTableController.selectedNode or treeTableController.selectedNode.data.root or treeTableController.parentOptionNames.size() == 0}"
                                          oncomplete="PF('AddParentDialog').show()">
-                            <p:ajax event="dialogReturn" listener="#{treeTableController.resetAddExistingIndicator}"/>
+                            <p:ajax event="dialogReturn"/>
                         </p:commandButton>&nbsp;
                         <h:outputStylesheet library="css" name="panelStyle.css"/>
                         <p:commandButton value="Delete"

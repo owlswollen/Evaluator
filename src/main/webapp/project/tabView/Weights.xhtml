@@ -19,14 +19,14 @@
             <tr>
                 <td style="width: 40%">
                     <!--
-                    =========================================================
-                    |  Relative weights of children of selected indicator   |
-                    =========================================================
+                    ===========================
+                    |  Child Relative Weights |
+                    ===========================
                     -->
                     <c:if test="#{treeTableController.selectedNode != null}">
                         <h1>#{treeTableController.selectedNode.leaf ? "Evaluator" : "Child"} Relative Weights</h1><br/>
                     </c:if>
-                    <table border="1" cellpadding="10" cellspacing="10" width="200px" style="border-collapse:collapse">
+                    <table border="1" cellpadding="10" cellspacing="10" width="86%" style="border-collapse:collapse">
                         <p:repeat value="#{tabViewController.selectedIndicator.childIndicators}" var="item"
                                   varStatus="status">
                             <tr>
@@ -44,9 +44,9 @@
                     </table>
                     <br/>
                     <!--
-                    =============
-                    |  Legends  |
-                    =============
+                    ==================
+                    |  Show Legends  |
+                    ==================
                     -->
                     <div style="margin-left: 30px">
                         <p:selectBooleanCheckbox value="#{tabViewController.showLegends}" itemLabel="Show legends"
@@ -62,12 +62,12 @@
                         <br/>
                     </div>
                     <!--
-                    =======================
+                    =========================
                     |  Inconsistency Index  |
-                    =======================
+                    =========================
                     -->
-                    <h:outputText value="Inconsistency Index:" style="font-weight: bold"/>&nbsp;
-                    <h:outputText value="#{tabViewController.consistencyRatio()}%"/><br/>
+                    <h:outputText value="Consistency:" style="font-weight: bold"/>&nbsp;
+                    <h:outputText value="#{tabViewController.consistencyLevel()}%"/><br/>
                     <br/>
                 </td>
                 <td style="width: 60%">
@@ -77,7 +77,17 @@
                     ===========================================
                     -->
                     <div align="center" style="width: 600px">
-                        <p:radarChart model="#{tabViewController.getRadarModel()}"/>
+                        <p:radarChart id="chart" model="#{tabViewController.getRadarModel()}" widgetVar="chart}"/>
+<!--                        <p:commandButton id="exp" value="Export" icon="ui-icon-extlink"-->
+<!--                                         onclick="exportChart()"-->
+<!--                                         actionListener="#{reportManager.submittedBase64Str}"/>-->
+<!--                        <h:inputHidden id="b64" value="#{reportManager.base64Str}"/>-->
+<!--                        <script type="text/javascript">-->
+<!--                            function exportChart() {-->
+<!--                                document.getElementById('tabForm:tabView:b64').value = PF('chart').exportAsImage().src;-->
+<!--                            }-->
+<!--                        </script>-->
+
                     </div>
                 </td>
             </tr>
@@ -88,9 +98,9 @@
             <h1>Criticality Weightings</h1>
         </c:if>
         <!--
-        ========================================
-        |  Data Table of Pairwise Comparisons  |
-        ========================================
+        ============================
+        |  Criticality Weightings  |
+        ============================
         -->
         <c:if test="#{tabViewController.comparisons.size() > 0}">
             <p:remoteCommand name="onCellEdit" update="weightsTable, tabForm"/>

@@ -19,11 +19,11 @@
         <h:form id="AhpResultsForm" class="ui-datatable-data">
             <div align="center">
                 <c:choose>
-                    <c:when test="#{tabViewController.selectedIndicator.isConsistent()}">
-                        <h:outputText value="Your pairwise comparisons resulted in an Consistency Ratio of #{tabViewController.consistencyRatio()}% that is below the allowable 10%."/><br/>
+                    <c:when test="#{tabViewController.consistencyLevel() >= 90}">
+                        <h:outputText value="Your pairwise comparisons resulted in #{tabViewController.consistencyLevel()}% consistency that is above the allowable 90%."/><br/>
                     </c:when>
                     <c:otherwise>
-                        <h:outputText value="Your pairwise comparisons resulted in an Consistency Ratio of #{tabViewController.consistencyRatio()}% that is above the allowable 10%."/><br/>
+                        <h:outputText value="Your pairwise comparisons resulted in #{tabViewController.consistencyLevel()}% consistency that is below the allowable 90%."/><br/>
                     </c:otherwise>
                 </c:choose>
                 <br/>
@@ -40,7 +40,7 @@
                     <p:commandButton value="Undo AHP"
                                      icon="fas fa-undo"
                                      update=":treeForm, :tabForm, :tabForm:tabView:weightsTab"
-                                     actionListener="#{tabViewController.undoAhpResults()}"
+                                     actionListener="#{tabViewController.undoAhpResults(projectController.selectedProject)}"
                                      onclick="PF('AhpResultsDialog').hide()" />
                 </h:panelGroup>
             </div>

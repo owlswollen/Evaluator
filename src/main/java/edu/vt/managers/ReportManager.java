@@ -19,11 +19,15 @@ import org.primefaces.model.StreamedContent;
 
 import javax.enterprise.context.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.imageio.ImageIO;
 import javax.inject.Named;
 import java.awt.*;
+import java.awt.image.RenderedImage;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Named(value = "reportManager")
@@ -39,6 +43,20 @@ public class ReportManager implements Serializable {
     private final Color maroon = new Color(128,0,0);
     private final Color blue = new Color(0, 0, 102);
     private final Color green = new Color(0, 51, 0);
+    private String base64Str;
+
+    /*
+    =========================
+    Getter and Setter Methods
+    =========================
+     */
+    public String getBase64Str() {
+        return base64Str;
+    }
+
+    public void setBase64Str(String base64Str) {
+        this.base64Str = base64Str;
+    }
 
     /*
     ================
@@ -74,6 +92,25 @@ public class ReportManager implements Serializable {
                 .contentType(contentType)
                 .stream(() -> inputStream)
                 .build();
+    }
+
+    public void submittedBase64Str(ActionEvent event){
+        // You probably want to have a more comprehensive check here.
+        // In this example I only use a simple check
+        if(base64Str.split(",").length > 1){
+            String encoded = base64Str.split(",")[1];
+            byte[] decoded = Base64.getDecoder().decode(encoded);
+            // Write to a .png file
+            try {
+                RenderedImage renderedImage = ImageIO.read(new ByteArrayInputStream(decoded));
+                String fileName = "out.png";
+                String directory = Constants.FILES_ABSOLUTE_PATH;
+                File file = new File(directory, fileName);
+                ImageIO.write(renderedImage, "png", file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /*
@@ -304,7 +341,7 @@ public class ReportManager implements Serializable {
 //                indicatorDetailParagraph.add(new Chunk("Evaluator Weights Graph:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, green)));
 //                indicatorDetailParagraph.add(new Chunk("", FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.BOLD)));
 //
-//                // TABLE
+//
 //
 //                indicatorDetailParagraph.add(Chunk.NEWLINE);
 //                indicatorDetailParagraph.add(Chunk.NEWLINE);
@@ -317,7 +354,7 @@ public class ReportManager implements Serializable {
 //                indicatorDetailParagraph.add(new Chunk("Child Weights Graph:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, green)));
 //                indicatorDetailParagraph.add(new Chunk("", FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.BOLD)));
 //
-//                // TABLE
+//
 //
 //                indicatorDetailParagraph.add(Chunk.NEWLINE);
 //                indicatorDetailParagraph.add(Chunk.NEWLINE);

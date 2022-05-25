@@ -29,6 +29,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.Serializable;
 import java.util.*;
 import java.util.logging.Level;
@@ -319,6 +320,10 @@ public class TabViewController implements Serializable {
         selectedEvaluator = null;
     }
 
+    public void unselect() {
+        selectedIndicator = null;
+    }
+
     public void saveGraph(Project selectedProject) {
         selectedProject.setIndicatorsGraph(indicatorsGraph);
         try {
@@ -338,12 +343,6 @@ public class TabViewController implements Serializable {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
             JsfUtil.addErrorMessage(ex, "A persistence error occurred");
         }
-    }
-
-    public void saveAhpResults(Project selectedProject) {
-        saveGraph(selectedProject);
-        FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, "AHP results were successfully saved!", "");
-        FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
     }
 
     //-------------
@@ -512,8 +511,9 @@ public class TabViewController implements Serializable {
 
         RadialLinearTicks ticks = new RadialLinearTicks();
         ticks.setBeginAtZero(true);
-        ticks.setMin(0);
+        ticks.setMin(0.0);
         ticks.setStepSize(0.1);
+        ticks.setMax(1.0);
         RadialScales scales = new RadialScales();
         scales.setTicks(ticks);
         options.setScales(scales);
@@ -558,14 +558,20 @@ public class TabViewController implements Serializable {
         setCriticalityWeightings();
     }
 
-    public int consistencyRatio() {
+    public int consistencyLevel() {
         if (selectedIndicator != null) {
-            return (int) (selectedIndicator.getConsistencyRatio() * 100);
+            return (int) ((1 - selectedIndicator.getConsistencyIndex() / 8) * 100);
         }
         return 0;
     }
 
-    public void undoAhpResults() {
+    public void saveAhpResults(Project selectedProject) {
+        saveGraph(selectedProject);
+        FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, "AHP results were successfully saved!", "");
+        FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
+    }
+
+    public void undoAhpResults(Project selectedProject) {
         if (selectedIndicator != null) {
             for (int i = 0; i < selectedIndicator.getChildIndicators().size(); i++) {
                 for (int j = 0; j < selectedIndicator.getChildIndicators().size(); j++) {

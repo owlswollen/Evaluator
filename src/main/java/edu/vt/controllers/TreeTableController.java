@@ -173,7 +173,7 @@ public class TreeTableController implements Serializable {
     }
 
     public StreamedContent getIndicatorsGraphFile() throws IOException {
-        String fileName = "IndicatorsGraph.bin";
+        String fileName = selectedProject.getTitle() + "-Exported.bin";
         String directory = Constants.FILES_ABSOLUTE_PATH;
         File file = new File(directory, fileName);
         FileOutputStream fileOut = new FileOutputStream(file);

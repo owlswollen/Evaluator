@@ -51,32 +51,41 @@ public class TabViewController implements Serializable {
     // Root of the indicators graph
     private Indicator rootIndicator;
 
-    // Pairwise comparison matrix values (shown in the dataTable in Weights tab)
+    // Evaluator selection variables of the Evaluators tab
+    private String selectedEvaluatorName;
+    private Indicator selectedEvaluator;
+
+    // Show legends in the radar chart and in the pairwise comparison matrix dataTable in the Weights tab
+    private boolean showLegends;
+
+    // Pairwise comparison matrix values shown in the dataTable in Weights tab
     private List<List<Comparison>> comparisons;
 
-    // Pairwise comparison matrix variables to prepare the values to be shown in the dataTable
+    // Pairwise comparison matrix variables to prepare the values to be shown in the dataTable in the Weights tab
     private String comparedIndicator1;
     private String comparedIndicator2;
     private int editedRowIndex;
     private int editedColumnIndex;
 
-    // Pairwise comparison slider variables
+    // Pairwise comparison slider variables of the Weights tab
     private boolean sliderVisible;
     private Double sliderValue;
 
-    // Indicator score variables
+    // Score of the selected indicator to show in the Scores tab
     private String score;
+
+    // Child scores variable to show in the Scores tab of a branch indicator
     private List<String> childScores;
-    private boolean scoreSetSelected;
-    private boolean scoresPropagated;
+
+    // Evaluator scores variable to show in the Scores tab of a leaf indicator
     private List<String> evaluatorScores;
 
-    // Evaluator variables
-    private String selectedEvaluatorName;
-    private Indicator selectedEvaluator;
+    // Is a nominal score set assigned to the selected project
+    // (A condition for evaluators to be able to score the leaf indicators)
+    private boolean scoreSetSelected;
 
-    // Show legends in the radar chart and in the pairwise comparison matrix dataTable
-    private boolean showLegends;
+    // Check if the scores are propagated through Evaluation Status dialog
+    private boolean scoresPropagated;
 
     // Opened project
     private Project selectedProject;
@@ -640,6 +649,8 @@ public class TabViewController implements Serializable {
     //-------------------------
     // Evaluation Status Dialog
     //-------------------------
+    // Evaluation Status Dialog methods below are placed in TabViewController instead of TreeTableController even though the Status button is located in the TreeTable view.
+    // Because all usages of the evaluation status data and methods is in the TabViewController.
     /*
      * Propagate Scores button
      */

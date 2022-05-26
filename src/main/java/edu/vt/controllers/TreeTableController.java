@@ -194,6 +194,7 @@ public class TreeTableController implements Serializable {
      */
     private void getParentOptions(Indicator graphRoot) {
         // Using BFS to show the parent or child option names in a meaningful order in the select one menu
+        // (First parent names, then child names)
         Queue<Indicator> queue = new ArrayDeque<>();
         Indicator node;
         Set<Indicator> visited = new HashSet<>();
@@ -212,7 +213,7 @@ public class TreeTableController implements Serializable {
                 // and if the current node is not one of the parents of the selected node
                 // and if the current node is not one of the descendents of the selected node
                 // and if the current node is not an evaluator
-                // then add its name to the parent and child options list
+                // then add its name to the parent options list
                 if (!node.isRoot()
                         && !node.equals(selectedNode.getData())
                         && node.getChildIndicators().stream().noneMatch(object -> object.equals(selectedNode.getData()))
@@ -314,7 +315,7 @@ public class TreeTableController implements Serializable {
     }
 
     /*
-     * Change expansion status on node expand
+     * Update expansion status on node expand
      */
     public void onNodeExpand(NodeExpandEvent event) {
         Indicator collapsedIndicator = (Indicator) event.getTreeNode().getData();
@@ -322,7 +323,7 @@ public class TreeTableController implements Serializable {
     }
 
     /*
-     * Change expansion status on node collapse
+     * Update expansion status on node collapse
      */
     public void onNodeCollapse(NodeCollapseEvent event) {
         Indicator collapsedIndicator = (Indicator) event.getTreeNode().getData();

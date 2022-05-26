@@ -29,7 +29,7 @@
                     <p:commandButton value="Add"
                                      onclick="PF('CreateRootDialog').hide()"
                                      update=":treeForm, :tabForm"
-                                     action="#{tabViewController.openProject(treeTableController.indicatorsGraph)}"
+                                     action="#{tabViewController.openProject(treeTableController.selectedProject)}"
                                      actionListener="#{treeTableController.createRoot()}" />
                 </h:panelGroup>
             </div>

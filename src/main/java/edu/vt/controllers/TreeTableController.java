@@ -170,6 +170,25 @@ public class TreeTableController implements Serializable {
     ================
      */
     /*
+     * Open the Project Specification page showing selected project's indicators hierarchy
+     */
+    public String openProject(Project selectedProject) {
+        this.selectedProject = selectedProject;
+        indicatorsGraph = selectedProject.getIndicatorsGraph();
+
+        if (indicatorsGraph != null) {
+            showGraphOnTreeTable(indicatorsGraph, false);
+            rootTreeNode.setExpanded(true);
+            actualRootTreeNode.setExpanded(true);
+        } else {
+            rootTreeNode = new DefaultTreeNode(null, null);
+        }
+        checkExpansionStatus();
+
+        return "/project/Project?faces-redirect=true";
+    }
+
+    /*
      * Get parent options to be added to the selected node
      * (displayed in SelectOneMenu in the Add Parent dialog)
      */
@@ -227,25 +246,6 @@ public class TreeTableController implements Serializable {
             }
         }
         return false;
-    }
-
-    /*
-     * Open the page showing selected project's indicators hierarchy
-     */
-    public String openProject(Project selectedProject) {
-        this.selectedProject = selectedProject;
-        indicatorsGraph = selectedProject.getIndicatorsGraph();
-
-        if (indicatorsGraph != null) {
-            showGraphOnTreeTable(indicatorsGraph, false);
-            rootTreeNode.setExpanded(true);
-            actualRootTreeNode.setExpanded(true);
-        } else {
-            rootTreeNode = new DefaultTreeNode(null, null);
-        }
-        checkExpansionStatus();
-
-        return "/project/Project?faces-redirect=true";
     }
 
     //----------------------------------------------
@@ -667,7 +667,7 @@ public class TreeTableController implements Serializable {
             }
         } catch (Exception ex) {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-            JsfUtil.addErrorMessage(ex, "A persistence error occurred");
+            JsfUtil.addErrorMessage(ex, "A persistence error occurred!");
         }
     }
 }

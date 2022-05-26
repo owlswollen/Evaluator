@@ -35,12 +35,12 @@
                     <p:commandButton value="Accept AHP Results"
                                      icon="fas fa-check"
                                      update=":treeForm, :tabForm, :tabForm:tabView:weightsTab, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
-                                     actionListener="#{tabViewController.saveAhpResults(projectController.selectedProject)}"
+                                     actionListener="#{tabViewController.acceptAhpResults()}"
                                      onclick="PF('AhpResultsDialog').hide()" />&nbsp;&nbsp;
                     <p:commandButton value="Undo AHP"
                                      icon="fas fa-undo"
                                      update=":treeForm, :tabForm, :tabForm:tabView:weightsTab"
-                                     actionListener="#{tabViewController.undoAhpResults(projectController.selectedProject)}"
+                                     actionListener="#{tabViewController.undoAhp()}"
                                      onclick="PF('AhpResultsDialog').hide()" />
                 </h:panelGroup>
             </div>

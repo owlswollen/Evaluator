@@ -20,7 +20,6 @@ import org.primefaces.model.charts.optionconfig.elements.ElementsLine;
 import org.primefaces.model.charts.radar.RadarChartDataSet;
 import org.primefaces.model.charts.radar.RadarChartModel;
 import org.primefaces.model.charts.radar.RadarChartOptions;
-
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
@@ -29,7 +28,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.Serializable;
 import java.util.*;
 import java.util.logging.Level;
@@ -39,32 +37,49 @@ import java.util.logging.Logger;
 @SessionScoped
 public class TabViewController implements Serializable {
 
-    //===================
-    // Instance Variables
-    //===================
-
+    /*
+    ===============================
+    Instance Variables (Properties)
+    ===============================
+     */
+    // Selected indicator in the TreeTable
     private Indicator selectedIndicator;
+
+    // Indicators graph of selected project
     private IndicatorsGraph indicatorsGraph;
+
+    // Root of the indicators graph
     private Indicator rootIndicator;
-    private String previousActiveTabTitle;
-    private String activeTabIndex;
+
+    // Pairwise comparison matrix values (shown in the dataTable in Weights tab)
     private List<List<Comparison>> comparisons;
-    private boolean sliderVisible;
+
+    // Pairwise comparison matrix variables to prepare the values to be shown in the dataTable
     private String comparedIndicator1;
     private String comparedIndicator2;
     private int editedRowIndex;
     private int editedColumnIndex;
+
+    // Pairwise comparison slider variables
+    private boolean sliderVisible;
     private Double sliderValue;
+
+    // Indicator score variables
     private String score;
     private List<String> childScores;
-    private List<String> evaluatorScores;
-    private boolean showLegends;
-    private List<String> leafIndicatorTabs;
-    private List<String> branchIndicatorTabs;
-    private String selectedEvaluatorName;
-    private Indicator selectedEvaluator;
     private boolean scoreSetSelected;
     private boolean scoresPropagated;
+    private List<String> evaluatorScores;
+
+    // Evaluator variables
+    private String selectedEvaluatorName;
+    private Indicator selectedEvaluator;
+
+    // Show legends in the radar chart and in the pairwise comparison matrix dataTable
+    private boolean showLegends;
+
+    // Opened project
+    private Project selectedProject;
 
     @EJB
     private ProjectFacade projectFacade;
@@ -75,24 +90,22 @@ public class TabViewController implements Serializable {
     @Inject
     private ScoreSetController scoreSetController;
 
-    //=============
-    // Constructors
-    //=============
-
+    /*
+    ============
+    Constructors
+    ============
+     */
     @PostConstruct
     public void init() {
         sliderVisible = false;
-        leafIndicatorTabs = Arrays.asList("Overview", "Evaluators", "Nominal Scores", "Weights", "Scores", "Notes");
-        branchIndicatorTabs = Arrays.asList("Overview", "Nominal Scores", "Weights", "Scores");
-        activeTabIndex = "-1";
-        previousActiveTabTitle = "Overview";
         scoresPropagated = false;
     }
 
-    //==========================
-    // Getter and Setter Methods
-    //==========================
-
+    /*
+    =========================
+    Getter and Setter Methods
+    =========================
+     */
     public Indicator getSelectedIndicator() {
         return selectedIndicator;
     }
@@ -225,14 +238,6 @@ public class TabViewController implements Serializable {
         this.showLegends = showLegends;
     }
 
-    public String getActiveTabIndex() {
-        return activeTabIndex;
-    }
-
-    public void setActiveTabIndex(String activeTabIndex) {
-        this.activeTabIndex = activeTabIndex;
-    }
-
     public String getSelectedEvaluatorName() {
         return selectedEvaluatorName;
     }
@@ -270,44 +275,52 @@ public class TabViewController implements Serializable {
         this.scoresPropagated = scoresPropagated;
     }
 
-    //=================
-    // Instance Methods
-    //=================
+    public Project getSelectedProject() {
+        return selectedProject;
+    }
 
-    public void openProject(IndicatorsGraph indicatorsGraph) {
-        this.indicatorsGraph = indicatorsGraph;
+    public void setSelectedProject(Project selectedProject) {
+        this.selectedProject = selectedProject;
+    }
+
+    /*
+    ================
+    Instance Methods
+    ================
+     */
+    /*
+     * Set indicator's graph information when the Project Specification page is opened
+     */
+    public void openProject(Project selectedProject) {
+        this.selectedProject = selectedProject;
+        this.indicatorsGraph = selectedProject.getIndicatorsGraph();
         if (indicatorsGraph != null) {
             rootIndicator = indicatorsGraph.getRoot();
             scoresPropagated = indicatorsGraph.isSolved();
         }
     }
 
+    /*
+     * Update the TabView content when a tree node is selected in the TreeTable
+     */
     public void onNodeSelect(NodeSelectEvent event) {
         rootIndicator = (Indicator) event.getComponent().getAttributes().get("rootIndicator");
-
-        // Leaf and branch indicators have different tabs in the tab view
-        // The active tab will remain the same if the newly selected indicator has the previous active tab
-        // Otherwise the active tab will be "Overview" by default
-        activeTabIndex = "0";
         Indicator newSelectedIndicator = (Indicator) event.getComponent().getAttributes().get("selectedIndicator");
-//        if (selectedIndicator != null) {
-//            activeTabIndex = String.valueOf(newSelectedIndicator.isLeaf() ? leafIndicatorTabs.indexOf(previousActiveTabTitle) : branchIndicatorTabs.indexOf(previousActiveTabTitle));
-//        }
-//        if (activeTabIndex.equals("-1")) {
-//            activeTabIndex = "0"; // Overview tab
-//        }
-
         getTabContent(newSelectedIndicator);
     }
 
+    /*
+     * Update the TabView content when a different tab is selected in the TabView
+     */
     public void onTabChange(TabChangeEvent event) {
-        previousActiveTabTitle = event.getTab().getTitle();
         getTabContent((Indicator) event.getComponent().getAttributes().get("selectedIndicator"));
         selectedEvaluatorName = null;
         selectedEvaluator = null;
     }
 
-    // Get data to show in the tab view from the selected node in the tree table
+    /*
+     * Get data to show in the TabView from the selected node in the TreeTable
+     */
     public void getTabContent(Indicator selectedIndicator) {
         sliderVisible = false;
 
@@ -320,11 +333,10 @@ public class TabViewController implements Serializable {
         selectedEvaluator = null;
     }
 
-    public void unselect() {
-        selectedIndicator = null;
-    }
-
-    public void saveGraph(Project selectedProject) {
+    /*
+     * Save graph to database
+     */
+    private void saveGraph() {
         selectedProject.setIndicatorsGraph(indicatorsGraph);
         try {
             projectFacade.edit(selectedProject);
@@ -341,32 +353,39 @@ public class TabViewController implements Serializable {
             }
         } catch (Exception ex) {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
-            JsfUtil.addErrorMessage(ex, "A persistence error occurred");
+            JsfUtil.addErrorMessage(ex, "A persistence error occurred!");
         }
     }
 
     //-------------
     // OverView Tab
     //-------------
-
-    public void updateName(Project selectedProject) {
+    /*
+     * Indicator Name
+     */
+    public void updateName() {
         JsfUtil.addSuccessMessage("Indicator name was successfully saved!");
-        saveGraph(selectedProject);
+        saveGraph();
     }
 
-    public void updateDescription(Project selectedProject) {
+    /*
+     * Description
+     */
+    public void updateDescription() {
         selectedIndicator.setDescription(editorController.getEditorContent());
         JsfUtil.addSuccessMessage("Indicator description was successfully saved!");
-        saveGraph(selectedProject);
+        saveGraph();
     }
 
     //---------------
     // Evaluators Tab
     //---------------
-
-    public void assignEvaluator(Indicator evaluator, Project selectedProject) {
+    /*
+     * Assign Button
+     */
+    public void assignEvaluator(Indicator evaluator) {
         selectedIndicator.addChildIndicator(evaluator);
-        // Add a row and a column for the newly added evaluator to the pairwise comparison matrix of the leaf leafIndicator
+        // Add a row and a column for the newly added evaluator to the pairwise comparison matrix of the leaf indicator
         // Set 1 to the newly added cells as the default comparison value
         for (Indicator siblingEvaluator : selectedIndicator.getChildIndicators()) {
             selectedIndicator.compareIndicators(evaluator, siblingEvaluator, 1.0);
@@ -379,10 +398,13 @@ public class TabViewController implements Serializable {
         }
         selectedEvaluatorName = null;
         selectedEvaluator = null;
-        saveGraph(selectedProject);
+        saveGraph();
     }
 
-    public void removeEvaluator(Indicator evaluator, Project selectedProject) {
+    /*
+     * Remove Button
+     */
+    public void removeEvaluator(Indicator evaluator) {
         // Remove the evaluators from the selected leaf indicator
         evaluator.getParentIndicators().remove(selectedIndicator);
         selectedIndicator.deleteComparisons(evaluator);
@@ -397,7 +419,7 @@ public class TabViewController implements Serializable {
         }
         selectedEvaluatorName = null;
         selectedEvaluator = null;
-        saveGraph(selectedProject);
+        saveGraph();
     }
 
     public boolean isEvaluatorAlreadyAssigned(Indicator evaluator) {
@@ -407,20 +429,23 @@ public class TabViewController implements Serializable {
     //-------------------
     // Nominal Scores Tab
     //-------------------
-
-    public void selectScoreSet(ScoreSet scoreSet, Project selectedProject) {
+    /*
+     * Save Button
+     */
+    public void saveScoreSet(ScoreSet scoreSet) {
         selectedIndicator.setScoreSet(scoreSet);
         scoreSetSelected = true;
         scoreSetController.setSelectedScoreSetId(null);
         scoreSetController.setSelectedScoreSet(null);
-        saveGraph(selectedProject);
+        saveGraph();
     }
 
     //------------
     // Weights Tab
     //------------
-
-    // Get pairwise comparison matrix data for the weights tab
+    /*
+     * Get pairwise comparison matrix data to show in the dataTable
+     */
     public void getCriticalityWeightings() {
         if (selectedIndicator != null) {
             comparisons = new ArrayList<>();
@@ -438,7 +463,9 @@ public class TabViewController implements Serializable {
         }
     }
 
-    // Set pairwise comparison matrix data after it is edited in the weights tab
+    /*
+     * Set pairwise comparison matrix data after it is edited using the slider
+     */
     public void setCriticalityWeightings() {
         comparisons.get(editedRowIndex).get(editedColumnIndex).setValue(sliderValue);
         comparisons.get(editedColumnIndex).get(editedRowIndex).setValue(1. / sliderValue);
@@ -453,7 +480,9 @@ public class TabViewController implements Serializable {
         indicatorsGraph.solve();
     }
 
-    // Create radar chart model to show in the Weights tab
+    /*
+     * Create the radar chart model
+     */
     public RadarChartModel getRadarModel() {
         RadarChartModel radarModel = new RadarChartModel();
         if (selectedIndicator == null) {
@@ -479,6 +508,7 @@ public class TabViewController implements Serializable {
         Double sum = 0.0;
         int count = 0;
 
+        // Get radar chart data
         for (Indicator childNode : selectedIndicator.getChildIndicators()) {
             Double value = selectedIndicator.getChildWeights().get(childNode);
             dataVal.add(value);
@@ -500,7 +530,7 @@ public class TabViewController implements Serializable {
             data.setLabels(labels);
         }
 
-        /* Options */
+        // Radar chart options
         RadarChartOptions options = new RadarChartOptions();
         Elements elements = new Elements();
         ElementsLine elementsLine = new ElementsLine();
@@ -543,7 +573,9 @@ public class TabViewController implements Serializable {
         return radarModel;
     }
 
-    // Create pairwise comparison slider
+    /*
+     * Create pairwise comparison slider
+     */
     public void createSlider(int rowIndex, int columnIndex) {
         editedRowIndex = rowIndex;
         editedColumnIndex = columnIndex;
@@ -552,12 +584,17 @@ public class TabViewController implements Serializable {
         comparedIndicator2 = comparisons.get(rowIndex).get(columnIndex).getIndicator2().getName();
     }
 
-    // Pairwise comparison slider event
+    /*
+     * Get selected value from the slider
+     */
     public void onSlideEnd(SlideEndEvent event) {
         sliderValue = event.getValue();
         setCriticalityWeightings();
     }
 
+    /*
+     * Compute consistency level [0, 100]
+     */
     public int consistencyLevel() {
         if (selectedIndicator != null) {
             return (int) ((1 - selectedIndicator.getConsistencyIndex() / 8) * 100);
@@ -565,13 +602,19 @@ public class TabViewController implements Serializable {
         return 0;
     }
 
-    public void saveAhpResults(Project selectedProject) {
-        saveGraph(selectedProject);
+    /*
+     * Accept AHP Results button in the AHP Results dialog
+     */
+    public void acceptAhpResults() {
+        saveGraph();
         FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, "AHP results were successfully saved!", "");
         FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
     }
 
-    public void undoAhpResults(Project selectedProject) {
+    /*
+     * Undo AHP button in the AHP Results dialog
+     */
+    public void undoAhp() {
         if (selectedIndicator != null) {
             for (int i = 0; i < selectedIndicator.getChildIndicators().size(); i++) {
                 for (int j = 0; j < selectedIndicator.getChildIndicators().size(); j++) {
@@ -585,9 +628,47 @@ public class TabViewController implements Serializable {
     }
 
     //-----------
-    // Scores Tab
+    // Notes Tab
     //-----------
+    /*
+     * Get notes by the evaluator username
+     */
+    public String getNotes(String evaluatorUsername) {
+        return selectedIndicator.getEvaluatorNotes().get(evaluatorUsername);
+    }
 
+    //-------------------------
+    // Evaluation Status Dialog
+    //-------------------------
+    /*
+     * Propagate Scores button
+     */
+    public void propagateScores(Project selectedProject) {
+        scoresPropagated = true;
+        indicatorsGraph.setSolved(true);
+        saveGraph();
+    }
+
+    /*
+     * Check if all leaf indicators are assigned at least one evaluator
+     * (One of the conditions to propagate scores)
+     */
+    public boolean allIndicatorsAssignedAnEvaluator() {
+        if (indicatorsGraph == null) {
+            return false;
+        }
+        for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
+            if (indicator.isLeaf() && indicator.getChildIndicators().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*
+     * Check if all evaluators have completed scoring the indicators assigned to them
+     * (One of the conditions to propagate scores)
+     */
     public boolean allEvaluatorScoresGiven() {
         if (indicatorsGraph != null) {
             for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
@@ -603,12 +684,9 @@ public class TabViewController implements Serializable {
         return true;
     }
 
-    public void propagateScores(Project selectedProject) {
-        scoresPropagated = true;
-        indicatorsGraph.setSolved(true);
-        saveGraph(selectedProject);
-    }
-
+    /*
+     * List of the evaluators that have not completed scoring the indicators assigned to them
+     */
     public List<String> getEvaluatorsNotCompletedScoring() {
         List<String> evaluatorsNotCompleted = new ArrayList<>();
         for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
@@ -623,25 +701,5 @@ public class TabViewController implements Serializable {
             }
         }
         return evaluatorsNotCompleted;
-    }
-
-    public boolean allIndicatorsAssignedAnEvaluator() {
-        if (indicatorsGraph == null) {
-            return false;
-        }
-        for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
-            if (indicator.isLeaf() && indicator.getChildIndicators().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    //-----------
-    // Notes Tab
-    //-----------
-
-    public String getNotes(String evaluatorUsername) {
-        return selectedIndicator.getEvaluatorNotes().get(evaluatorUsername);
     }
 }

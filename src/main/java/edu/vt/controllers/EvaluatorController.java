@@ -145,7 +145,7 @@ public class EvaluatorController implements Serializable {
     public void setSelectedProject(Project selectedProject) {
         IndicatorsGraph indicatorsGraph = selectedProject.getIndicatorsGraph();
         if (indicatorsGraph != null) {
-            treeTableController.showGraphOnTreeTable(indicatorsGraph);
+            treeTableController.showGraphOnTreeTable(indicatorsGraph, false);
             treeTableController.expandAllNodes(treeTableController.getRootTreeNode());
         }
         this.selectedProject = selectedProject;

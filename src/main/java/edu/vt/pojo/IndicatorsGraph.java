@@ -140,19 +140,6 @@ public class IndicatorsGraph implements Serializable {
     }
 
     public void printSolution() {
-        System.out.println("");
-        System.out.println("Results:");
-        System.out.println("");
-        System.out.println("*******************************************");
-        System.out.println("-------------------------------------------");
-        System.out.println("*******************************************");
-        printScores();
-    }
-
-    private void printScores() {
-        for (Indicator indicator : indicatorList) {
-            indicator.printScore();
-        }
     }
 
 }

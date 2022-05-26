@@ -37,6 +37,8 @@
                 <f:attribute name="rootIndicator" value="#{treeTableController.rootIndicator}"/>
                 <p:ajax event="select" update="treeForm, :tabForm, :sliderForm"
                         listener="#{tabViewController.onNodeSelect}"/>
+                <p:ajax event="expand" listener="#{treeTableController.onNodeExpand}"/>
+                <p:ajax event="collapse" listener="#{treeTableController.onNodeCollapse}"/>
                 <f:facet name="header">
                     <h:outputStylesheet library="css" name="panelStyle.css"/>
                     <!--
@@ -101,7 +103,7 @@
                                          style="margin: 5px 0 !important"
                                          update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
                                          rendered="#{treeTableController.selectedNode.data.leaf}"
-                                         actionListener="#{treeTableController.deleteIndicatorFromGraph(projectController.selectedProject)}">
+                                         actionListener="#{treeTableController.deleteIndicatorFromGraph()}">
                             <p:confirm header="Deletion Confirmation"
                                        message="Are you sure you want to permanently delete the selected indicator?"/>
                         </p:commandButton>&nbsp;

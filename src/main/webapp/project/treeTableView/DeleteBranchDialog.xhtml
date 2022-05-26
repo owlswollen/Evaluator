@@ -28,7 +28,7 @@
                     <p:commandButton value="Delete" id="deleteButton" icon="fas fa-trash-alt"
                                      onclick="PF('DeleteBranchDialog').hide()"
                                      update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
-                                     actionListener="#{treeTableController.deleteIndicatorFromGraph(projectController.selectedProject)}">
+                                     actionListener="#{treeTableController.deleteIndicatorFromGraph()}">
                         <p:confirm header="Deletion Confirmation"
                                    message="Are you sure you want to permanently delete the selected indicator and all its descendants from the database?"/>
                     </p:commandButton>

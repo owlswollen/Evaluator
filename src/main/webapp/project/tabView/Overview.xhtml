@@ -13,6 +13,11 @@
 
 <ui:composition>
     <div style="margin-left: 20px">
+        <!--
+        ====================
+        |  INDICATOR NAME  |
+        ====================
+        -->
         <h:outputText value="Indicator Name: " style="font-weight: bold"/><br/>
         <p:inputTextarea id="indicatorName" rows="1" cols="50" autoResize="true"
                          value="#{tabViewController.selectedIndicator.name}"
@@ -21,7 +26,11 @@
                          ajax="false" actionListener="#{tabViewController.updateName()}"
                          update=":growlInfoMessage"/><br/>
         <br/>
-
+        <!--
+        =================
+        |  DESCRIPTION  |
+        =================
+        -->
         <h:outputText value="Description: " style="font-weight: bold"/><br/>
         <p:textEditor id="description" secure='false' value="#{editorController.editorContent}" height="360"
                       style="margin: 6px 0"
@@ -30,7 +39,11 @@
                          ajax="false" actionListener="#{tabViewController.updateDescription()}"
                          update=":growlInfoMessage"/><br/>
         <br/>
-
+        <!--
+        ============
+        |  PARENTS |
+        ============
+        -->
         <c:if test="#{!tabViewController.selectedIndicator.root}">
             <h:outputText value="Parents:" style="font-weight: bold"/><br/>
             <c:forEach var="item"
@@ -42,9 +55,19 @@
 
         <c:if test="#{not empty tabViewController.selectedIndicator.childIndicators}">
             <c:choose>
+                <!--
+                ================
+                |  EVALUATORS  |
+                ================
+                -->
                 <c:when test="#{tabViewController.selectedIndicator.leaf}">
                     <h:outputText value="Evalutors:" style="font-weight: bold"/>
                 </c:when>
+                <!--
+                ==============
+                |  CHILDREN  |
+                ==============
+                -->
                 <c:otherwise>
                     <h:outputText value="Children:" style="font-weight: bold"/>
                 </c:otherwise>

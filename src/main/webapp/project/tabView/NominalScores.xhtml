@@ -16,6 +16,11 @@
     <div align="center">
         <h:form id="scoreSetForm">
             <div align="center" style="background-color: white">
+                <!--
+                =======================
+                |  NOMINAL SCORE SET  |
+                =======================
+                -->
                 <h:outputText value="Nominal Score Set:" style="font-weight: bold"/><br/>
                 <c:choose>
                     <c:when test="#{empty tabViewController.selectedIndicator.scoreSet}">
@@ -26,6 +31,11 @@
                     </c:otherwise>
                 </c:choose>
                 <br/>
+                <!--
+                ==============================
+                |  SELECT NOMINAL SCORE SET  |
+                ==============================
+                -->
                 <p:panelGrid id="panelNominalScores" columns="2">
                     <h:outputText value="Select Nominal Score Set:" style="font-weight: bold"/>
                     <p:selectOneMenu id="selectNominalScores"
@@ -40,6 +50,11 @@
                     </p:selectOneMenu>
                 </p:panelGrid><br/>
                 <br/>
+                <!--
+                ===========
+                |  TABLE  |
+                ===========
+                -->
                 <c:if test="#{scoreSetController.selectedScoreSet != null}">
                     <div align="center">
                         <table border="1" cellpadding="5" cellspacing="0">
@@ -60,7 +75,11 @@
                         </table>
                         <br/>
                     </div>
-
+                    <!--
+                    ==========
+                    |  SAVE  |
+                    ==========
+                    -->
                     <p:commandButton value="Save"
                                      icon="fas fa-save"
                                      id="saveScoreSet"

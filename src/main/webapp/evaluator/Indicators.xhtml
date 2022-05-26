@@ -24,9 +24,9 @@
         <table style="max-width: 2200px">
             <tr>
                 <!--
-                ================
-                |  TREE TABLE  |
-                ================
+                =============================
+                |  TREE TABLE (LEFT PANEL)  |
+                =============================
                 -->
                 <td style="width: 50%; vertical-align: top">
                     <h:form id="indicatorsForm">
@@ -53,9 +53,9 @@
                     </h:form>
                 </td>
                 <!--
-                ===========
-                |  SCORE  |
-                ===========
+                ===========================
+                |  SCORING (RIGHT PANEL)  |
+                ===========================
                 -->
                 <td style="width: 50%; vertical-align: top">
                     <h:form id="scoreForm">
@@ -66,6 +66,11 @@
                                     <c:choose>
                                         <c:when test="#{evaluatorController.isIndicatorEvaluable(evaluatorController.selectedIndicator)}">
                                             <div align="center">
+                                                <!--
+                                                =================
+                                                |  SCORE RANGE  |
+                                                =================
+                                                -->
                                                 <c:if test="#{treeTableController.selectedNode.data.scoreSet == null}">
                                                     <h:outputText value="Score set was not selected by the administrators."/><br/>
                                                 </c:if>
@@ -85,7 +90,11 @@
 
                                                     <p:panelGrid id="scorePanel" columns="2"
                                                                  columnClasses="panelGridColumn1, panelGridColumn2">
-
+                                                        <!--
+                                                        ===========
+                                                        |  SCORE  |
+                                                        ===========
+                                                        -->
                                                         <h:outputText value="Score:" style="font-weight: bold"/>
                                                         <p:selectOneMenu id="selectScore"
                                                                          value="#{scoreSetController.selectedScoreSetRowName}"
@@ -100,16 +109,28 @@
                                                                     itemLabel="#{scoreSetRow.name}"
                                                                     itemValue="#{scoreSetRow.name}"/>
                                                         </p:selectOneMenu>
-
+                                                        <!--
+                                                        ===============
+                                                        |  LOW SCORE  |
+                                                        ===============
+                                                        -->
                                                         <h:outputText value="Low Score:" style="font-weight: bold"/>
                                                         <h:outputText
                                                                 value="#{scoreSetController.selectedScoreSetRow.lowScore}"/>
-
+                                                        <!--
+                                                        ================
+                                                        |  HIGH SCORE  |
+                                                        ================
+                                                        -->
                                                         <h:outputText value="High Score:" style="font-weight: bold"/>
                                                         <h:outputText
                                                                 value="#{scoreSetController.selectedScoreSetRow.highScore}"/>
                                                     </p:panelGrid><br/>
-
+                                                    <!--
+                                                    ===========
+                                                    |  NOTES  |
+                                                    ===========
+                                                    -->
                                                     <h:outputText value="Notes:" style="font-weight: bold"/><br/>
                                                     <p:textEditor id="notesTextEditor" secure='false'
                                                                   styleClass="noupdate"
@@ -117,7 +138,11 @@
                                                                   style="margin: 6px 0"
                                                                   placeholder="Enter notes here"/>
                                                     <br/>
-
+                                                    <!--
+                                                    ===========
+                                                    |  SAVE  |
+                                                    ===========
+                                                    -->
                                                     <p:commandButton value="Save" icon="fas fa-save"
                                                                      ajax="false" actionListener="#{evaluatorController.saveScore(scoreSetController.selectedScoreSetRow)}"
                                                                      disabled="#{empty scoreSetController.selectedScoreSetRow}"

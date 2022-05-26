@@ -16,6 +16,11 @@
     <div align="center">
         <h:form id="evaluatorForm">
             <div align="center" style="background-color: white">
+                <!--
+                ================
+                |  EVALUATORS  |
+                ================
+                -->
                 <h:outputText value="Evaluators:" style="font-weight: bold"/><br/>
                 <c:forEach var="item"
                            items="#{tabViewController.selectedIndicator.childIndicators}">
@@ -25,6 +30,11 @@
                     <h:outputText value="None"/><br/>
                 </c:if>
                 <br/>
+                <!--
+                ======================
+                |  SELECT EVALUATOR  |
+                ======================
+                -->
                 <p:panelGrid id="panelEvaluator" columns="2">
                     <h:outputText value="Select Evaluator:" style="font-weight: bold"/>
                     <p:selectOneMenu id="selectEvaluator"
@@ -42,16 +52,27 @@
                 <c:if test="#{tabViewController.selectedEvaluator != null}">
                     <div align="center">
                         <!--
-                        Display the evaluator's account profile photo in a circle.
+                        ===================
+                        |  PROFILE PHOTO  |
+                        ===================
                         -->
                         <p:graphicImage cache="false" styleClass="profilePhoto"
                                         value="#{userController.photoOfUser(userController.getUserByUsername(tabViewController.selectedEvaluator.name).id)}"/>
                         <br/>
+                        <!--
+                        ==============
+                        |  USERNAME  |
+                        ==============
+                        -->
                         <h:outputText value="Username:" style="font-weight: bold"/>&nbsp;
                         <h:outputText value="#{tabViewController.selectedEvaluator.name}"/>
                     </div>
                     <br/>
-
+                    <!--
+                    ===========
+                    |  ASSIGN |
+                    ===========
+                    -->
                     <p:commandButton value="Assign"
                                      icon="fas fa-user-check"
                                      id="assignEvaluator"
@@ -59,7 +80,11 @@
                                      update=":treeForm, evaluatorForm, :tabForm:tabView:weightsTab, :tabForm:tabView:scoresTab, :tabForm:tabView:notesTab, :growlInfoMessage"
                                      process="@this"
                                      rendered="#{!tabViewController.isEvaluatorAlreadyAssigned(tabViewController.selectedEvaluator)}"/>&nbsp;
-
+                    <!--
+                    ============
+                    |  REMOVE  |
+                    ============
+                    -->
                     <p:commandButton value="Remove"
                                      icon="fas fa-user-minus"
                                      id="removeEvaluator"

@@ -18,6 +18,11 @@
               position="center" width="40%"  appendTo="@(body)" showEffect="slide" hideEffect="fade" responsive="true">
         <h:form id="statusForm" class="ui-datatable-data">
             <div align="center">
+                <!--
+                ===========
+                |  STATUS |
+                ===========
+                -->
                 <c:choose>
                     <c:when test="#{tabViewController.allIndicatorsAssignedAnEvaluator()}">
                         <c:choose>
@@ -42,13 +47,14 @@
                         <br/>
                     </c:otherwise>
                 </c:choose>
-
-
-
+                <!--
+                =====================
+                |  PROPAGATE SCORES |
+                =====================
+                -->
                 <h:panelGroup>
-                    <!-- TODO: replace growl -->
                     <p:commandButton value="Propagate Scores"
-                                     update=":treeForm, :tabForm, statusForm, growl"
+                                     update=":treeForm, :tabForm, statusForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
                                      action="#{tabViewController.propagateScores(projectController.selectedProject)}"
                                      disabled="#{!tabViewController.allEvaluatorScoresGiven() or !tabViewController.allIndicatorsAssignedAnEvaluator()}"
                                      onclick="PF('EvaluationStatusDialog').hide()"/>

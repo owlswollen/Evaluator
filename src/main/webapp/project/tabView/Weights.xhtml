@@ -20,7 +20,7 @@
                 <td style="width: 40%">
                     <!--
                     ===========================
-                    |  Child Relative Weights |
+                    |  CHILD RELATIVE WEIGHTS |
                     ===========================
                     -->
                     <c:if test="#{treeTableController.selectedNode != null}">
@@ -45,7 +45,7 @@
                     <br/>
                     <!--
                     ==================
-                    |  Show Legends  |
+                    |  SHOW LEGENDS  |
                     ==================
                     -->
                     <div style="margin-left: 30px">
@@ -62,9 +62,9 @@
                         <br/>
                     </div>
                     <!--
-                    =========================
-                    |  Inconsistency Index  |
-                    =========================
+                    =================
+                    |  CONSISTENCY  |
+                    =================
                     -->
                     <h:outputText value="Consistency:" style="font-weight: bold"/>&nbsp;
                     <h:outputText value="#{tabViewController.consistencyLevel()}%"/><br/>
@@ -73,21 +73,11 @@
                 <td style="width: 60%">
                     <!--
                     ===========================================
-                    |  Radar Chart of child relative weights  |
+                    |  RADAR CHART OF CHILD RELATIVE WEIGHTS  |
                     ===========================================
                     -->
                     <div align="center" style="width: 600px">
                         <p:radarChart id="chart" model="#{tabViewController.getRadarModel()}" widgetVar="chart}"/>
-<!--                        <p:commandButton id="exp" value="Export" icon="ui-icon-extlink"-->
-<!--                                         onclick="exportChart()"-->
-<!--                                         actionListener="#{reportManager.submittedBase64Str}"/>-->
-<!--                        <h:inputHidden id="b64" value="#{reportManager.base64Str}"/>-->
-<!--                        <script type="text/javascript">-->
-<!--                            function exportChart() {-->
-<!--                                document.getElementById('tabForm:tabView:b64').value = PF('chart').exportAsImage().src;-->
-<!--                            }-->
-<!--                        </script>-->
-
                     </div>
                 </td>
             </tr>
@@ -99,7 +89,7 @@
         </c:if>
         <!--
         ============================
-        |  Criticality Weightings  |
+        |  CRITICALITY WEIGHTINGS  |
         ============================
         -->
         <c:if test="#{tabViewController.comparisons.size() > 0}">
@@ -115,7 +105,7 @@
                         oncomplete="onCellEdit()"/>
                 <!--
                 ===========================
-                |  Indicator name column  |
+                |  INDICATOR NAME COLUMN  |
                 ===========================
                 -->
                 <p:column headerText="Indicator"
@@ -130,7 +120,7 @@
                 </p:column>
                 <!--
                 ===================
-                |  Value columns  |
+                |  VALUE COLUMNS  |
                 ===================
                 -->
                 <c:forEach items="#{tabViewController.comparisons.get(rowIndex)}"
@@ -139,7 +129,7 @@
                               style="text-align: center">
                         <!--
                         ===================================
-                        |  Diagonal cells (not editable)  |
+                        |  DIAGONAL CELLS (NOT EDITABLE)  |
                         ===================================
                         -->
                         <p:commandButton value="#{cell.formattedValue}"
@@ -149,7 +139,7 @@
                         </p:commandButton>
                         <!--
                         ===============================================
-                        |  Upper and lower triangle cells (editable)  |
+                        |  UPPER AND LOWER TRIANGLE CELLS (EDITABLE)  |
                         ===============================================
                         -->
                         <p:commandButton value="#{cell.formattedValue}"

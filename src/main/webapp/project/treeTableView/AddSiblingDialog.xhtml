@@ -18,6 +18,11 @@
 
         <h:form id="AddSiblingForm" class="ui-datatable-data">
             <div align="center">
+                <!--
+                ===================
+                |  INDICATOR NAME |
+                ===================
+                -->
                 <h:panelGroup id="addPanel">
                     <h:outputText value="Sibling Indicator Name:" style="font-weight: bold; color: maroon"/><br/>
                     <p:inputTextarea id="indicatorName" rows="1" cols="50" autoResize="true"
@@ -25,10 +30,15 @@
                                      style="margin: 6px 0; resize: auto" /><br/>
                 </h:panelGroup>
                 <br/>
+                <!--
+                ========
+                |  ADD |
+                ========
+                -->
                 <h:panelGroup>
                     <p:commandButton value="Add"
                                      actionListener="#{treeTableController.addSiblingToGraph()}"
-                                     update=":treeForm, :tabForm, growl"
+                                     update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
                                      action="#{tabViewController.getTabContent(treeTableController.selectedNode.data)}"
                                      onclick="PF('AddSiblingDialog').hide()"/>
                 </h:panelGroup>

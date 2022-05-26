@@ -10,14 +10,18 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:c="http://java.sun.com/jsp/jstl/core"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 <ui:composition>
     <p:dialog id="AhpResultsDlg" widgetVar="AhpResultsDialog" modal="true" header="AHP Results" resizable="false"
               position="center" width="50%"  appendTo="@(body)" showEffect="slide" hideEffect="fade" responsive="true">
         <h:form id="AhpResultsForm" class="ui-datatable-data">
             <div align="center">
+                <!--
+                ============
+                |  RESULTS |
+                ============
+                -->
                 <c:choose>
                     <c:when test="#{tabViewController.consistencyLevel() >= 90}">
                         <h:outputText value="Your pairwise comparisons resulted in #{tabViewController.consistencyLevel()}% consistency that is above the allowable 90%."/><br/>
@@ -28,15 +32,30 @@
                 </c:choose>
                 <br/>
                 <h:panelGroup>
+                    <!--
+                    =============
+                    |  REDO AHP |
+                    =============
+                    -->
                     <p:commandButton value="Redo AHP"
                                      icon="fas fa-redo"
                                      update=":treeForm, :tabForm, :tabForm:tabView:weightsTab"
                                      onclick="PF('AhpResultsDialog').hide()" />&nbsp;&nbsp;
+                    <!--
+                    =======================
+                    |  ACCEPT AHP RESULTS |
+                    =======================
+                    -->
                     <p:commandButton value="Accept AHP Results"
                                      icon="fas fa-check"
                                      update=":treeForm, :tabForm, :tabForm:tabView:weightsTab, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
                                      actionListener="#{tabViewController.acceptAhpResults()}"
                                      onclick="PF('AhpResultsDialog').hide()" />&nbsp;&nbsp;
+                    <!--
+                    =============
+                    |  UNDO AHP |
+                    =============
+                    -->
                     <p:commandButton value="Undo AHP"
                                      icon="fas fa-undo"
                                      update=":treeForm, :tabForm, :tabForm:tabView:weightsTab"

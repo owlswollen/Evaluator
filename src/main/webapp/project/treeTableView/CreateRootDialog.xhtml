@@ -18,6 +18,11 @@
 
         <h:form id="CreateRootForm" class="ui-datatable-data">
             <div align="center">
+                <!--
+                ===================
+                |  INDICATOR NAME |
+                ===================
+                -->
                 <h:panelGroup id="addPanel">
                     <h:outputText value="Root Indicator Name:" style="font-weight: bold; color: maroon"/><br/>
                     <p:inputTextarea id="indicatorName" rows="1" cols="50" autoResize="true"
@@ -25,6 +30,11 @@
                                      style="margin: 6px 0; resize: auto" /><br/>
                 </h:panelGroup>
                 <br/>
+                <!--
+                ========
+                |  ADD |
+                ========
+                -->
                 <h:panelGroup>
                     <p:commandButton value="Add"
                                      onclick="PF('CreateRootDialog').hide()"

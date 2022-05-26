@@ -16,7 +16,11 @@
     <div align="center">
         <h:form id="notesForm">
             <div align="center" style="background-color: white">
-
+                <!--
+                ====================
+                |  SELECT EVALUTOR |
+                ====================
+                -->
                 <p:panelGrid id="panelEvaluator" columns="2">
                     <h:outputText value="Select Evaluator:" style="font-weight: bold"/>
                     <p:selectOneMenu id="selectEvaluator"
@@ -33,9 +37,19 @@
                 <br/>
                 <c:if test="#{tabViewController.selectedEvaluator != null}">
                     <div align="center">
+                        <!--
+                        =============
+                        |  USERNAME |
+                        =============
+                        -->
                         <h:outputText value="Username:" style="font-weight: bold"/><br/>
                         <h:outputText value="#{tabViewController.selectedEvaluator.name}"/><br/>
                         <br/>
+                        <!--
+                        ==========
+                        |  NOTES |
+                        ==========
+                        -->
                         <h:outputText value="Notes:" style="font-weight: bold"/><br/>
                         <c:choose>
                             <c:when test="#{empty tabViewController.getNotes(tabViewController.selectedEvaluator.name)}">

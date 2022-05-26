@@ -40,9 +40,9 @@
                         <p:ajax event="rowSelect" update="EvalutatorProjectsForm" listener="#{evaluatorController.getLeafIndicatorsOfEvaluator}"/>
                         <p:ajax event="rowUnselect" update="EvalutatorProjectsForm" listener="#{evaluatorController.getLeafIndicatorsOfEvaluator}"/>
                         <!--
-                        ****************
-                        *    Project   *
-                        ****************
+                        =============
+                        |  Project  |
+                        =============
                         -->
                         <p:column headerText="Project" style="vertical-align: top; padding: 16px 32px !important;"
                                   sortBy="#{aProject.title}"
@@ -52,11 +52,10 @@
                             <h:outputText
                                     value="#{aProject.title}"/>
                         </p:column>
-
                         <!--
-                        *************************
-                        *   Data Table Footer   *
-                        *************************
+                        =======================
+                        |  DATA TABLE FOOTER  |
+                        =======================
                         -->
                         <f:facet name="footer">
                             <div align="center">

@@ -18,6 +18,11 @@
 
         <h:form id="AddParentForm" class="ui-datatable-data">
             <div align="center">
+                <!--
+                ===================
+                |  INDICATOR NAME |
+                ===================
+                -->
                 <h:panelGroup id="addPanel">
                     <h:outputText value="Parent Indicator Name:" style="font-weight: bold; color: maroon"/><br/>
                     <p:selectOneMenu id="parentSelect" value="#{treeTableController.newNodeName}"
@@ -26,10 +31,15 @@
                     </p:selectOneMenu><br/>
                 </h:panelGroup>
                 <br/>
+                <!--
+                ========
+                |  ADD |
+                ========
+                -->
                 <h:panelGroup>
                     <p:commandButton value="Add"
                                      actionListener="#{treeTableController.addParentToGraph()}"
-                                     update=":treeForm, :tabForm, growl"
+                                     update=":treeForm, :tabForm, :growlInfoMessage,:growlWarningMessage,:growlErrorMessage,:growlFatalMessage"
                                      action="#{tabViewController.getTabContent(treeTableController.selectedNode.data)}"
                                      onclick="PF('AddParentDialog').hide()"/>
                 </h:panelGroup>

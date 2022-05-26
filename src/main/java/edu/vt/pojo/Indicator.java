@@ -5,9 +5,6 @@
 package edu.vt.pojo;
 
 import edu.vt.EntityBeans.ScoreSet;
-import edu.vt.controllers.EditorController;
-
-import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,10 +13,11 @@ import java.util.Map;
 
 public class Indicator implements Serializable {
 
-    //===================
-    // Instance Variables
-    //===================
-
+    /*
+    ===============================
+    Instance Variables (Properties)
+    ===============================
+     */
     // Name of the indicator
     private String name;
 
@@ -56,8 +54,9 @@ public class Indicator implements Serializable {
     // Leaf indicator's evaluator notes
     private Map<String, String> evaluatorNotes = new HashMap<>();
 
-    /* Calculated values */
-
+    //----------------
+    // Computed Values
+    //----------------
     // The integrated weight calculated recursively starting from the root indicator
     // Stored to be used in the calculation of further indicators
     double recursiveWeight = 1;
@@ -68,11 +67,11 @@ public class Indicator implements Serializable {
     private boolean calculated;
     private double weight;
 
-    //=============
-    // Constructors
-    //=============
-
-
+    /*
+    ============
+    Constructors
+    ============
+     */
     public Indicator() {
     }
 
@@ -80,10 +79,11 @@ public class Indicator implements Serializable {
         this.name = name;
     }
 
-    //==========================
-    // Getter and Setter Methods
-    //==========================
-
+    /*
+    =========================
+    Getter and Setter Methods
+    =========================
+     */
     public double getConsistencyIndex() {
         return consistencyIndex;
     }
@@ -228,11 +228,14 @@ public class Indicator implements Serializable {
         this.evaluatorNotes = evaluatorNotes;
     }
 
-    //=================
-    // Instance Methods
-    //=================
-
-    // Calculate the indicator's weight recursively using the weights of its parents
+    /*
+    ================
+    Instance Methods
+    ================
+     */
+    /*
+     * Calculate the indicator's weight recursively using the weights of its parents
+     */
     public void calculateWeight() {
         double result = 0;
         if (parentIndicators.isEmpty()) {
@@ -246,21 +249,18 @@ public class Indicator implements Serializable {
         weight = result;
     }
 
-    public boolean isConsistent() {
-        return getConsistencyRatio() <= 0.1;
-    }
-
-    public void addParentIndicator(Indicator parent) {
-        parentIndicators.add(parent);
-        parent.getChildIndicators().add(this);
-    }
-
+    /*
+     * Add child indicators to this indicator
+     */
     public void addChildIndicators(List<Indicator> childIndicators) {
         for (Indicator indicator : childIndicators) {
             addChildIndicator(indicator);
         }
     }
 
+    /*
+     * Add a child indicator to this indicator
+     */
     public void addChildIndicator(Indicator newChild) {
         getChildIndicators().add(newChild);
         newChild.parentIndicators.add(this);
@@ -273,6 +273,26 @@ public class Indicator implements Serializable {
         comparisonMatrix.get(newChild).put(newChild, 1.0);
     }
 
+    /*
+     * Add parent indicators to this indicator
+     */
+    public void addParentIndicators(List<Indicator> parentIndicators) {
+        for (Indicator parent : parentIndicators) {
+            addParentIndicator(parent);
+        }
+    }
+
+    /*
+     * Add a parent indicator to this indicator
+     */
+    public void addParentIndicator(Indicator parent) {
+        parentIndicators.add(parent);
+        parent.getChildIndicators().add(this);
+    }
+
+    /*
+     * Create the pairwise comparisons matrix
+     */
     public void compareIndicators(Indicator indicator1, Indicator indicator2, double relativeWeighting) {
         // Get the row index "indicator1" of the comparison matrix
         // Add the map of the "indicator2" to be compared with "indicator1" and their relative weighting
@@ -282,7 +302,16 @@ public class Indicator implements Serializable {
         comparisonMatrix.get(indicator2).put(indicator1, 1.0 / relativeWeighting);
     }
 
-    // Remove deleted child indicator from the pairwise comparisons matrix
+    /*
+     * Check if comparisons of the child indicators of this indicator are consistent
+     */
+    public boolean isConsistent() {
+        return getConsistencyRatio() <= 0.1;
+    }
+
+    /*
+     * Remove deleted child indicator from the pairwise comparisons matrix
+     */
     public void deleteComparisons(Indicator deletedIndicator) {
         // Remove indicator from the pairwise comparisons matrix
         comparisonMatrix.remove(deletedIndicator);
@@ -298,22 +327,24 @@ public class Indicator implements Serializable {
         }
     }
 
-    public void addParentIndicators(List<Indicator> parentIndicators) {
-        for (Indicator parent : parentIndicators) {
-            addParentIndicator(parent);
-        }
-    }
-
-    // Add evaluator scores if this is a leaf indicator
+    /*
+     * Add evaluator scores if this is a leaf indicator
+     */
     public void addEvaluatorScore(Indicator evaluator, Score score) {
         evaluatorScores.put(evaluator.name, score);
         evaluatorNotes.put(evaluator.name, "");
     }
 
-    protected double getChildWeight(Indicator indicator) {
-        return childWeights.get(indicator);
+    /*
+     * Get weight of a child indicator
+     */
+    protected double getChildWeight(Indicator childIndicator) {
+        return childWeights.get(childIndicator);
     }
 
+    /*
+     * Compute AHP child weights, consistency index, consistency ratio, and absolute weight of this indicator
+     */
     public void solve() {
         for (Indicator parent : getParentIndicators()) {
             if (!parent.isCalculated()) {
@@ -350,54 +381,11 @@ public class Indicator implements Serializable {
         calculateConsistencyRatio();
         calculateAbsoluteWeight();
         calculated = true;
-        //printSolution();
     }
 
-    private void printSolution() {
-        System.out.println();
-        System.out.println((isRoot() ? "Root: " : "Indicator: ") + name);
-        System.out.println("Lambda_Max: " + lambdaMax);
-        System.out.println("CI: " + getConsistencyIndex());
-        System.out.println("CR: " + getConsistencyRatio());
-        // Results
-        System.out.println();
-        System.out.println("Child Relative Weights:");
-        for (Indicator indicator : getChildIndicators()) {
-            System.out.println(indicator.name + " : " + childWeights.get(indicator));
-        }
-
-        System.out.println();
-        System.out.println("---------------------------------------");
-    }
-
-    public void printScore() {
-        try {
-            System.out.println(this.getName() + "\nLow Score: " + this.getScore().getLow() + "\nHigh Score: " + this.getScore().getHigh() + "\n");
-        } catch (NullPointerException ignored) {
-        }
-    }
-
-    private void calculateAbsoluteWeight() {
-        if (this.isRoot()) {
-            absoluteWeight = 1.0;
-            return;
-        }
-        double sum = 0;
-        for (Indicator parent : parentIndicators) {
-            parent.calculateAbsoluteWeight();
-            sum += parent.absoluteWeight * parent.getChildWeight(this);
-        }
-        absoluteWeight = sum;
-    }
-
-    public boolean isRoot() {
-        return parentIndicators.isEmpty();
-    }
-
-    public boolean isLeaf() {
-        return (childIndicators.size() == 0 || (childIndicators.get(0)).isEvaluator) && !isEvaluator;
-    }
-
+    /*
+     * Calculate consistency index of this indicator
+     */
     void calculateConsistencyIndex() {
         // Multiply each column with the indicator weight at the corresponding index
         // Calculate sum of each row = weighted sum value
@@ -418,6 +406,9 @@ public class Indicator implements Serializable {
         consistencyIndex = (lambdaMax - childCount) / (childCount - 1);
     }
 
+    /*
+     * Calculate consistency ratio of this indicator
+     */
     void calculateConsistencyRatio() {
         // Random Index
         double[] RI = new double[]{0.0, 0.0, 0.0, 0.59, 0.89, 1.11, 1.25, 1.32, 1.41, 1.45, 1.49, 1.51, 1.48, 1.56, 1.57, 1.58};
@@ -429,6 +420,38 @@ public class Indicator implements Serializable {
         } else {
             consistencyRatio = 1;
         }
+    }
+
+    /*
+     * Calculate absolute weight of this indicator
+     */
+    private void calculateAbsoluteWeight() {
+        if (this.isRoot()) {
+            absoluteWeight = 1.0;
+            return;
+        }
+        double sum = 0;
+        for (Indicator parent : parentIndicators) {
+            parent.calculateAbsoluteWeight();
+            sum += parent.absoluteWeight * parent.getChildWeight(this);
+        }
+        absoluteWeight = sum;
+    }
+
+    public void printScore() { }
+
+    /*
+     * Is this indicator the root indicator
+     */
+    public boolean isRoot() {
+        return parentIndicators.isEmpty();
+    }
+
+    /*
+     * Is this indicator a leaf indicator
+     */
+    public boolean isLeaf() {
+        return (childIndicators.size() == 0 || (childIndicators.get(0)).isEvaluator) && !isEvaluator;
     }
 }
 

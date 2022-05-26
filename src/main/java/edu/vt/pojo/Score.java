@@ -6,7 +6,6 @@ package edu.vt.pojo;
 
 import java.io.Serializable;
 
-// TODO: replace with ScoreSetRow?
 public class Score implements Serializable {
     /*
     ===============================
@@ -17,9 +16,9 @@ public class Score implements Serializable {
     private Double high;
 
     /*
-    ===================
-    Constructor Methods
-    ===================
+    ============
+    Constructors
+    ============
      */
     public Score() {
         this.low = 0.0;

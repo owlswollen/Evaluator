@@ -5,7 +5,6 @@
 package edu.vt.controllers;
 
 import edu.vt.EntityBeans.Project;
-import edu.vt.EntityBeans.ScoreSet;
 import edu.vt.FacadeBeans.ProjectFacade;
 import edu.vt.FacadeBeans.UserFacade;
 import edu.vt.controllers.util.JsfUtil;
@@ -14,7 +13,6 @@ import edu.vt.pojo.Indicator;
 import edu.vt.pojo.Score;
 import edu.vt.pojo.ScoreSetRow;
 import org.primefaces.event.NodeSelectEvent;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,13 +35,22 @@ public class EvaluatorController implements Serializable {
     Instance Variables (Properties)
     ===============================
      */
+    // List of projects that the signed-in user is assigned to as an evaluator
     private List<Project> listOfProjects = null;
-    private List<Indicator> listOfLeafIndicators = null;
-    private Indicator selectedIndicator;
+
+    // Selected project from the list of project
     private Project selectedProject;
-    private List<ScoreSet> listOfScoreSets = null;
-    private ScoreSet selectedScoreSet;
+
+    // List of the leaf indicators of the selected project
+    private List<Indicator> listOfLeafIndicators = null;
+
+    // Selected leaf indicator from the list of leaf indicators
+    private Indicator selectedIndicator;
+
+    // Signed-in evaluator's username
     private String signedInEvaluatorUsername;
+
+    // Score given by the evaluator in a text format
     private String scoreText = "";
 
     @EJB
@@ -106,22 +113,6 @@ public class EvaluatorController implements Serializable {
         this.selectedIndicator = selectedIndicator;
     }
 
-    public List<ScoreSet> getListOfScoreSets() {
-        return listOfScoreSets;
-    }
-
-    public void setListOfScoreSets(List<ScoreSet> listOfScoreSets) {
-        this.listOfScoreSets = listOfScoreSets;
-    }
-
-    public ScoreSet getSelectedScoreSet() {
-        return selectedScoreSet;
-    }
-
-    public void setSelectedScoreSet(ScoreSet selectedScoreSet) {
-        this.selectedScoreSet = selectedScoreSet;
-    }
-
     public ProjectFacade getProjectFacade() {
         return projectFacade;
     }
@@ -180,8 +171,22 @@ public class EvaluatorController implements Serializable {
     Instance Methods
     ================
      */
+    /*
+     * Evaluate button in the List of Projects page to show the indicators of the selected project
+     */
+    public String evaluate() {
+        if (selectedProject.getIndicatorsGraph() == null) {
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, "This project does not have an indicators graph yet.", "");
+            FacesContext.getCurrentInstance().addMessage(null, facesMsg);
+            return "/evaluator/Projects?faces-redirect=false";
+        }
 
-    // Get list of leaf indicators in the selected project whose evaluator is the signed-in user
+        return "/evaluator/Indicators?faces-redirect=true";
+    }
+
+    /*
+     * Get list of leaf indicators of the selected project whose evaluator is the signed-in user
+     */
     public void getLeafIndicatorsOfEvaluator() {
         listOfLeafIndicators = new ArrayList<>();
         getListOfProjects();
@@ -195,6 +200,9 @@ public class EvaluatorController implements Serializable {
         }
     }
 
+    /*
+     * Save button in the Indicators page to save the score of the leaf indicator given by the evaluator
+     */
     public void saveScore(ScoreSetRow scoreSetRow) {
         List<Indicator> indicatorsOfSelectedProject = selectedProject.getIndicatorsGraph().getIndicatorList();
         for (Indicator leafIndicator : indicatorsOfSelectedProject) {
@@ -225,16 +233,26 @@ public class EvaluatorController implements Serializable {
         }
     }
 
+    /*
+     * Check if an indicator is evaluable by the signed-in user
+     */
     public boolean isIndicatorEvaluable(Indicator indicator) {
         // If the indicator is a leaf indicator and the signed-in user is assigned to it as an evaluator
         return indicator.isLeaf() && indicator.getChildIndicators().stream().anyMatch(eval -> eval.getName().equals(signedInEvaluatorUsername));
     }
 
+    /*
+     * Check if an indicator has already been evaluated by the signed-in user
+     */
     public boolean isIndicatorEvaluated(Indicator indicator) {
         // If the indicator is evaluated by the signed-in evaluator
         return indicator.getEvaluatorScores().keySet().stream().anyMatch(eval -> eval.equals(signedInEvaluatorUsername));
     }
 
+    /*
+     * Show the leaf indicators that has to be evaluated by the evaluator in maroon color and
+     * the leaf indicators that has already been evaluated by the evaluator in dark green color
+     */
     public String getStyleForEvaluableIndicators(Indicator indicator) {
         String style = "";
         if (isIndicatorEvaluable(indicator)) {
@@ -247,19 +265,13 @@ public class EvaluatorController implements Serializable {
         return style;
     }
 
+    /*
+     * Get the selected indicator's data on node select event of the TreeTable
+     */
     public void onIndicatorSelect(NodeSelectEvent event) {
         selectedIndicator = (Indicator) event.getTreeNode().getData();
         editorController.setEditorContent(selectedIndicator.getEvaluatorNotes().get(signedInEvaluatorUsername));
         scoreSetController.reset();
     }
 
-    public String evaluate() {
-        if (selectedProject.getIndicatorsGraph() == null) {
-            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, "This project does not have an indicators graph yet.", "");
-            FacesContext.getCurrentInstance().addMessage(null, facesMsg);
-            return "/evaluator/Projects?faces-redirect=false";
-        }
-
-        return "/evaluator/Indicators?faces-redirect=true";
-    }
 }

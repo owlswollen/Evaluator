@@ -16,18 +16,13 @@ import edu.vt.pojo.Indicator;
 import edu.vt.pojo.Score;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
-
 import javax.enterprise.context.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.imageio.ImageIO;
 import javax.inject.Named;
 import java.awt.*;
-import java.awt.image.RenderedImage;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @Named(value = "reportManager")
@@ -43,20 +38,6 @@ public class ReportManager implements Serializable {
     private final Color maroon = new Color(128,0,0);
     private final Color blue = new Color(0, 0, 102);
     private final Color green = new Color(0, 51, 0);
-    private String base64Str;
-
-    /*
-    =========================
-    Getter and Setter Methods
-    =========================
-     */
-    public String getBase64Str() {
-        return base64Str;
-    }
-
-    public void setBase64Str(String base64Str) {
-        this.base64Str = base64Str;
-    }
 
     /*
     ================
@@ -94,33 +75,11 @@ public class ReportManager implements Serializable {
                 .build();
     }
 
-    public void submittedBase64Str(ActionEvent event){
-        // You probably want to have a more comprehensive check here.
-        // In this example I only use a simple check
-        if(base64Str.split(",").length > 1){
-            String encoded = base64Str.split(",")[1];
-            byte[] decoded = Base64.getDecoder().decode(encoded);
-            // Write to a .png file
-            try {
-                RenderedImage renderedImage = ImageIO.read(new ByteArrayInputStream(decoded));
-                String fileName = "out.png";
-                String directory = Constants.FILES_ABSOLUTE_PATH;
-                File file = new File(directory, fileName);
-                ImageIO.write(renderedImage, "png", file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
+    //----------------------------------------------------
+    // Helper methods for generating report of the project
+    //----------------------------------------------------
     /*
-    ============================================
-    Methods for generating report of the project
-    ============================================
-     */
-
-    /*
-     * PROJECT TITLE
+     * Project Title
      */
     private Paragraph getTitleParagraph() {
         Paragraph titleParagraph = new Paragraph();
@@ -135,7 +94,7 @@ public class ReportManager implements Serializable {
     }
 
     /*
-     * PROJECT DESCRIPTION
+     * Project Description
      */
     private Paragraph getDescriptionParagraph() throws IOException {
         Paragraph descriptionParagraph = new Paragraph();
@@ -154,7 +113,7 @@ public class ReportManager implements Serializable {
     }
 
     /*
-     * INDICATORS HIERARCHY
+     * Indicators Hierarchy
      */
     private List<Paragraph> getIndicatorsHierarchyParagraphs() {
         List<Paragraph> paragraphs = new ArrayList<>();
@@ -190,7 +149,7 @@ public class ReportManager implements Serializable {
     }
 
     /*
-     * INDIVIDUAL INDICATOR DETAILS
+     * Individual Indicator Details
      */
     private List<Paragraph> getIndicatorDetailParagraphs() throws IOException {
         List<Paragraph> paragraphs = new ArrayList<>();
@@ -209,12 +168,12 @@ public class ReportManager implements Serializable {
             Paragraph indicatorDetailParagraph = new Paragraph();
 
             /*
-             * INDICATOR NAME
+             * Indicator Name
              */
             indicatorDetailParagraph.add(new Chunk(indicator.getName() + ":\n\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, maroon)));
 
             /*
-             * INDICATOR DESCRIPTION
+             * Indicator Description
              */
             if (indicator.getDescription() != null) {
                 indicatorDetailParagraph.add(new Chunk("Description:\n\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, green)));indicatorDetailParagraph.add(new Chunk(" ", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14)));
@@ -226,7 +185,7 @@ public class ReportManager implements Serializable {
             }
 
             /*
-             * INDICATOR SCORE
+             * Indicator Score
              */
             if (selectedProject.getIndicatorsGraph().isSolved() && indicator.getScore() != null) {
                 indicatorDetailParagraph.add(new Chunk("Score:\n\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, green)));indicatorDetailParagraph.add(new Chunk(" ", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD)));
@@ -240,7 +199,7 @@ public class ReportManager implements Serializable {
             }
 
             /*
-             * LEAF INDICATOR EVALUATORS, WEIGHTS, AND SCORES
+             * Leaf Indicator Evaluators, Weights, and Scores
              */
             if (indicator.isLeaf() && !indicator.getChildIndicators().isEmpty()) {
                 indicatorDetailParagraph.add(new Chunk("Evaluators' Weights and Scores:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, green)));indicatorDetailParagraph.add(new Chunk("", FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.BOLD)));
@@ -265,7 +224,7 @@ public class ReportManager implements Serializable {
             }
 
             /*
-             * BRANCH INDICATOR CHILDREN, SCORES, AND WEIGHTS
+             * Branch Indicator Children, Scores, and Weights
              */
             if (!indicator.isLeaf()) {
                 indicatorDetailParagraph.add(new Chunk("Child Indicators, Aggregate Scores, and Weights:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, green)));indicatorDetailParagraph.add(new Chunk("", FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.BOLD)));
@@ -289,7 +248,7 @@ public class ReportManager implements Serializable {
             }
 
             /*
-             * PARENT INDICATORS
+             * Parent Indicators
              */
             indicatorDetailParagraph.add(new Chunk("Parent Indicators:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, green)));indicatorDetailParagraph.add(new Chunk("", FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.BOLD)));
             PdfPTable parentTable = new PdfPTable(1);
@@ -308,7 +267,7 @@ public class ReportManager implements Serializable {
             indicatorDetailParagraph.add(Chunk.NEWLINE);
 
             /*
-             * EVALUATOR NOTES
+             * Evaluator Notes
              */
             if (indicator.isLeaf() && !indicator.getChildIndicators().isEmpty()) {
                 indicatorDetailParagraph.add(new Chunk("Notes:\n", FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, Font.BOLD, green)));indicatorDetailParagraph.add(new Chunk("", FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.BOLD)));

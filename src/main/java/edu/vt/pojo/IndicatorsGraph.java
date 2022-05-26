@@ -7,28 +7,31 @@ package edu.vt.pojo;
 import java.io.Serializable;
 import java.util.*;
 
-
 public class IndicatorsGraph implements Serializable {
-    //===================
-    // Instance Variables
-    //===================
 
+    /*
+    ===============================
+    Instance Variables (Properties)
+    ===============================
+     */
     private final Indicator root;
     private List<Indicator> indicatorList = new ArrayList<>();
     private boolean solved = false;
 
-    //=============
-    // Constructors
-    //=============
-
+    /*
+    ============
+    Constructors
+    ============
+     */
     public IndicatorsGraph(Indicator root) {
         this.root = root;
     }
 
-    //==========================
-    // Getter and Setter Methods
-    //==========================
-
+    /*
+    =========================
+    Getter and Setter Methods
+    =========================
+     */
     public Indicator getRoot() {
         return root;
     }
@@ -51,13 +54,14 @@ public class IndicatorsGraph implements Serializable {
         this.solved = solved;
     }
 
-    //=================
-    // Instance Methods
-    //=================
-
-    //--------------------------
-    // Main solver method of AHP
-    //--------------------------
+    /*
+    ================
+    Instance Methods
+    ================
+     */
+    /*
+     * Main solver method of AHP
+     */
     public void solve() {
         // Calculate the child relative weights
         // Calculate lambda max, consistency index, consistency ratio, absolute weight for each indicator in the graph
@@ -73,8 +77,9 @@ public class IndicatorsGraph implements Serializable {
     //---------------
     // Helper methods
     //---------------
-
-    // Calculate recursive child relative weights of indicators starting from root
+    /*
+     * Calculate recursive child relative weights of indicators starting from root
+     */
     private void calculateRecursiveWeight(Indicator indicator) {
         indicator.calculateWeight();
         for (Indicator childIndicator : indicator.getChildIndicators()) {
@@ -82,7 +87,9 @@ public class IndicatorsGraph implements Serializable {
         }
     }
 
-    // Calculate recursive scores of indicators starting from leaves
+    /*
+     * Calculate recursive scores of indicators starting from leaves
+     */
     private void calculateRecursiveScores(Indicator indicator) {
         Score sum = new Score();
         for (Indicator childIndicator : indicator.getChildIndicators()) {
@@ -98,6 +105,9 @@ public class IndicatorsGraph implements Serializable {
         indicator.setScore(sum);
     }
 
+    /*
+     * Get all indicators in the indicators graph
+     */
     private void getListOfAllIndicators(Indicator currentRoot) {
         indicatorList.add(currentRoot);
         for (Indicator child : currentRoot.getChildIndicators()) {
@@ -107,9 +117,12 @@ public class IndicatorsGraph implements Serializable {
         }
     }
 
-    // Run individual indicator solver for all the indicators in the graph
+    /*
+     * Run individual indicator solver for all the indicators in the graph
+     */
     private void bfsSolverForIndicator(Indicator indicator) {
-        // Using BFS to complete the calculations of the parents before the calculations of children
+        // Using breadth-first search to complete the calculations of the parents before the calculations of children
+        // Because the computed values of the parent indicators are used in the computations of the children's values
         Queue<Indicator> queue = new ArrayDeque<>();
         Indicator currentIndicator;
         Set<Indicator> visited = new HashSet<>();

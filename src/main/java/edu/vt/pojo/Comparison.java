@@ -6,26 +6,29 @@ package edu.vt.pojo;
 
 public class Comparison {
 
-    //===================
-    // Instance Variables
-    //===================
-
+    /*
+    ===============================
+    Instance Variables (Properties)
+    ===============================
+     */
     private Indicator indicator1;
     private Indicator indicator2;
     private Double value;
     private String formattedValue;
 
-    //=============
-    // Constructors
-    //=============
-
+    /*
+    ============
+    Constructors
+    ============
+     */
     public Comparison() {
     }
 
-    //==========================
-    // Getter and Setter Methods
-    //==========================
-
+    /*
+    =========================
+    Getter and Setter Methods
+    =========================
+     */
     public Indicator getIndicator1() {
         return indicator1;
     }

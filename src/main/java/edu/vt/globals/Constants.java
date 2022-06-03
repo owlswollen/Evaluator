@@ -37,8 +37,8 @@ public final class Constants {
 //    public static final String PHOTOS_ABSOLUTE_PATH = "C:/Users/gokceonen/DocRoot/EvaluatorStorage/PhotoStorage/";
 
     // Unix (macOS) or Linux
-    public static final String FILES_ABSOLUTE_PATH  = "/Users/gokceonen/DocRoot/EvaluatorStorage/FileStorage/";
-    public static final String PHOTOS_ABSOLUTE_PATH = "/Users/gokceonen/DocRoot/EvaluatorStorage/PhotoStorage/";
+    public static final String FILES_ABSOLUTE_PATH  = "/Users/Gokce/DocRoot/EvaluatorStorage/FileStorage/";
+    public static final String PHOTOS_ABSOLUTE_PATH = "/Users/Gokce/DocRoot/EvaluatorStorage/PhotoStorage/";
 
     //-------------------------------------------------------------------
     // To run on your AWS EC2 instance, on VENUS or JUPITER course server

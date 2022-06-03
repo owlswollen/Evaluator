@@ -188,148 +188,6 @@ public class TreeTableController implements Serializable {
         return "/project/Project?faces-redirect=true";
     }
 
-    /*
-     * Get parent options to be added to the selected node
-     * (displayed in SelectOneMenu in the Add Parent dialog)
-     */
-    private void getParentOptions(Indicator graphRoot) {
-        // Using BFS to show the parent or child option names in a meaningful order in the select one menu
-        // (First parent names, then child names)
-        Queue<Indicator> queue = new ArrayDeque<>();
-        Indicator node;
-        Set<Indicator> visited = new HashSet<>();
-
-        visited.add(graphRoot);
-        // Root node is added to the top of the queue
-        queue.add(graphRoot);
-
-        while (queue.size() != 0) {
-            // Remove the top element of the queue
-            node = queue.poll();
-
-            if (selectedNode != null) {
-                // If the current node is not the root node
-                // and if the current node is not the same node with the selected node
-                // and if the current node is not one of the parents of the selected node
-                // and if the current node is not one of the descendents of the selected node
-                // and if the current node is not an evaluator
-                // then add its name to the parent options list
-                if (!node.isRoot()
-                        && !node.equals(selectedNode.getData())
-                        && node.getChildIndicators().stream().noneMatch(object -> object.equals(selectedNode.getData()))
-                        && !causesCycleWhileAddingParent(selectedNode.getData(), node)
-                        && !node.isEvaluator()) {
-
-                    parentOptionNames.add(node.getName());
-                }
-            }
-
-            for (Indicator child : node.getChildIndicators()) {
-                // Only insert nodes into queue if they have not been explored already
-                if (!visited.contains(child)) {
-                    visited.add(child);
-                    queue.add(child);
-                }
-            }
-        }
-    }
-
-    /*
-     * Check if the parent selected to be added causes a cycle in the graph
-     */
-    private boolean causesCycleWhileAddingParent(Indicator selectedNode, Indicator currentNode) {
-        for (Indicator child : selectedNode.getChildIndicators()) {
-            if (child.equals(currentNode)) {
-                return true;
-            }
-            if (causesCycleWhileAddingParent(child, currentNode)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    //----------------------------------------------
-    // Methods for displaying the graph on TreeTable
-    //----------------------------------------------
-    /*
-     * Show the indicators graph in the TreeTable
-     */
-    public void showGraphOnTreeTable(IndicatorsGraph newGraph, boolean keepPreviousExpansion) {
-        rootTreeNode = new DefaultTreeNode(null, null);
-        indicatorsGraph = newGraph;
-        if (indicatorsGraph != null) {
-            rootIndicator = indicatorsGraph.getRoot();
-            actualRootTreeNode = new DefaultTreeNode(rootIndicator, rootTreeNode);
-            if (keepPreviousExpansion) {
-                actualRootTreeNode.setExpanded(expansionStatus.getOrDefault(actualRootTreeNode.getData().getName(), false));
-            }
-            showGraphOnTreeTableRecursively(actualRootTreeNode, rootIndicator, keepPreviousExpansion);
-        }
-    }
-
-    /*
-     * Recursive function called by showGraphOnTreeTable
-     */
-    private void showGraphOnTreeTableRecursively(TreeNode<Indicator> treeTableNode, Indicator graphNode, boolean keepPreviousExpansion) {
-        for (int i = 0; i < graphNode.getChildIndicators().size(); i++) {
-            if (!graphNode.getChildIndicators().get(i).isEvaluator()) {
-                DefaultTreeNode<Indicator> newNode = new DefaultTreeNode(graphNode.getChildIndicators().get(i));
-                if (keepPreviousExpansion) {
-                    newNode.setExpanded(expansionStatus.getOrDefault(graphNode.getChildIndicators().get(i).getName(), false));
-                }
-                treeTableNode.getChildren().add(newNode);
-                showGraphOnTreeTableRecursively(treeTableNode.getChildren().get(i), graphNode.getChildIndicators().get(i), keepPreviousExpansion);
-            }
-        }
-    }
-
-    /*
-     * Expand all child nodes in the TreeTable
-     * Used in the TreeTable on the Evaluate page
-     */
-    public void expandAllNodes(final TreeNode<Indicator> node) {
-        for (final TreeNode<Indicator> child : node.getChildren()) {
-            expandAllNodes(child);
-        }
-        node.setExpanded(true);
-    }
-
-    /*
-     * Get the previous expansion status of the tree nodes in TreeTable to keep the previous look after a new node added to the tree
-     * Normally, only the root node is expanded by default after the TreeTable is updated (reset) by a node addition
-     */
-    public void checkExpansionStatus() {
-        expansionStatus = new HashMap<>();
-        checkExpansionStatusRecursively(rootTreeNode, expansionStatus);
-    }
-
-    /*
-     * Recursive function called by getExpansionStatus
-     */
-    private void checkExpansionStatusRecursively(TreeNode<Indicator> treeRoot, Map<String, Boolean> expansionStatus) {
-        for (TreeNode<Indicator> treeNode : treeRoot.getChildren()) {
-            expansionStatus.put(treeNode.getData().getName(), treeNode.isExpanded());
-            checkExpansionStatusRecursively(treeNode, expansionStatus);
-        }
-    }
-
-    /*
-     * Update expansion status on node expand
-     */
-    public void onNodeExpand(NodeExpandEvent event) {
-        Indicator collapsedIndicator = (Indicator) event.getTreeNode().getData();
-        expansionStatus.put(collapsedIndicator.getName(), true);
-    }
-
-    /*
-     * Update expansion status on node collapse
-     */
-    public void onNodeCollapse(NodeCollapseEvent event) {
-        Indicator collapsedIndicator = (Indicator) event.getTreeNode().getData();
-        expansionStatus.put(collapsedIndicator.getName(), false);
-    }
-
     //-------------------------------------------------------------
     // Root, Child, Sibling, Parent, Delete, Export, Import Buttons
     //-------------------------------------------------------------
@@ -365,8 +223,7 @@ public class TreeTableController implements Serializable {
         Indicator childIndicatorToAdd = new Indicator(newNodeName);
 
         // Find the indicator to which the child indicator will be added
-        Indicator parentIndicator = null;
-        parentIndicator = findSelectedNodeInIndicatorsGraph(rootIndicator, parentIndicator);
+        Indicator parentIndicator = findSelectedNodeInIndicatorsGraph();
 
         // Remove the evaluators of the parent indicator if the parent indicator used to be a leaf indicator
         if (parentIndicator.isLeaf()) {
@@ -411,8 +268,7 @@ public class TreeTableController implements Serializable {
         // Create new indicator to add to the graph
         Indicator siblingIndicatorToAdd = new Indicator(newNodeName);
 
-        Indicator siblingIndicator = null;
-        siblingIndicator = findSelectedNodeInIndicatorsGraph(rootIndicator, siblingIndicator);
+        Indicator siblingIndicator = findSelectedNodeInIndicatorsGraph();
         String commonParentName = "";
         commonParentName = findCommonParentName(rootTreeNode, commonParentName);
         for (Indicator parentIndicator : siblingIndicator.getParentIndicators()) {
@@ -496,8 +352,7 @@ public class TreeTableController implements Serializable {
             actualRootTreeNode = null;
         } else {
             // Find the indicator to delete
-            Indicator indicatorToDelete = null;
-            indicatorToDelete = findSelectedNodeInIndicatorsGraph(rootIndicator, indicatorToDelete);
+            Indicator indicatorToDelete = findSelectedNodeInIndicatorsGraph();
 
             // Remove indicator from graph
             for (Indicator parent : indicatorToDelete.getParentIndicators()) {
@@ -538,7 +393,7 @@ public class TreeTableController implements Serializable {
         File file = new File(directory, fileName);
         FileOutputStream fileOut = new FileOutputStream(file);
         ObjectOutputStream out = new ObjectOutputStream(fileOut);
-        out.writeObject(indicatorsGraph);
+        out.writeObject(new IndicatorsGraph(selectedNode.getData()));
         out.close();
         fileOut.close();
         FileInputStream fileStream = new FileInputStream(file);
@@ -555,6 +410,8 @@ public class TreeTableController implements Serializable {
      * Import
      */
     public void importIndicatorsGraph(FileUploadEvent event) throws IOException {
+        // Get the imported graph
+        IndicatorsGraph importedBranch = null;
         UploadedFile uploadedFile = event.getFile();
         if (uploadedFile != null && uploadedFile.getContent() != null && uploadedFile.getContent().length > 0 && uploadedFile.getFileName() != null) {
             String filename = event.getFile().getFileName();
@@ -569,7 +426,7 @@ public class TreeTableController implements Serializable {
 
                 FileInputStream fileIn = new FileInputStream(targetFile);
                 ObjectInputStream in = new ObjectInputStream(fileIn);
-                indicatorsGraph = (IndicatorsGraph) in.readObject();
+                importedBranch = (IndicatorsGraph) in.readObject();
                 in.close();
                 fileIn.close();
             } catch (ClassNotFoundException e) {
@@ -577,18 +434,50 @@ public class TreeTableController implements Serializable {
             }
         }
 
-        if (indicatorsGraph == null) {
+        if (importedBranch == null) {
             FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Indicators Graph is empty.", "");
             FacesContext.getCurrentInstance().addMessage(null, facesMsg);
         } else {
+            // Parent indicators of the root indicator of the imported branch will change
+            importedBranch.getRoot().setParentIndicators(new ArrayList<>());
+            if (indicatorsGraph != null) {
+                if (isBranchValidForImport(importedBranch)) {
+                    // Remove the evaluators of the parent indicator if the parent indicator used to be a leaf indicator
+                    Indicator selectedIndicator = selectedNode.getData();
+                    if (selectedIndicator.isLeaf()) {
+                        for (Indicator evaluator : selectedIndicator.getChildIndicators()) {
+                            evaluator.getParentIndicators().remove(selectedIndicator);
+                            selectedIndicator.deleteComparisons(evaluator);
+                        }
+                        selectedIndicator.getChildIndicators().clear();
+                        selectedIndicator.getEvaluatorScores().clear();
+                    }
+
+                    // Add the imported branch to the children of the parent indicator
+                    Indicator newIndicator = importedBranch.getRoot();
+                    selectedIndicator.addChildIndicator(newIndicator);
+
+                    // Add a row and a column for the new child indicator to the pairwise comparison matrix of the parent indicator
+                    // Set 1 to the newly added cells as the default comparison value
+                    for (Indicator siblingIndicator : selectedIndicator.getChildIndicators()) {
+                        selectedIndicator.compareIndicators(newIndicator, siblingIndicator, 1.0);
+                    }
+                } else {
+                    FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Branch could not be imported because it contains some indicators which are already in the indicators graph.", "");
+                    FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
+                    return;
+                }
+            } else {
+                indicatorsGraph = importedBranch;
+            }
             saveGraph();
             showGraphOnTreeTable(indicatorsGraph, true);
         }
     }
 
-    //-----------------------------------------------------
-    // Helper methods for adding child, sibling, and parent
-    //-----------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Helper methods for adding child, sibling, parent, and an imported branch
+    //-------------------------------------------------------------------------
     /*
      * Is new node name already in the indicators graph
      */
@@ -615,20 +504,13 @@ public class TreeTableController implements Serializable {
     /*
      * Find the selected node in the indicators graph
      */
-    private Indicator findSelectedNodeInIndicatorsGraph(Indicator graphRoot, Indicator indicatorFound) {
-        if (graphRoot == selectedNode.getData()) {
-            indicatorFound = graphRoot;
-            return indicatorFound;
-        }
-        List<Indicator> subChildren = graphRoot.getChildIndicators();
-        for (Indicator childNode : subChildren) {
-            // Find the selected node in the indicators graph
-            if (childNode == selectedNode.getData()) {
-                return childNode;
+    private Indicator findSelectedNodeInIndicatorsGraph() {
+        for (Indicator indicator : indicatorsGraph.getIndicatorList()) {
+            if (indicator.getName().equals(selectedNode.getData().getName())) {
+                return indicator;
             }
-            indicatorFound = findSelectedNodeInIndicatorsGraph(childNode, indicatorFound);
         }
-        return indicatorFound;
+        return null;
     }
 
     /*
@@ -646,6 +528,84 @@ public class TreeTableController implements Serializable {
             commonParentName = findCommonParentName(treeNode, commonParentName);
         }
         return commonParentName;
+    }
+
+    /*
+     * Check if the imported branch has any indicators that exist in the indicators graph.
+     * We do not let importing branches that has an indicator that exists in the indicators graph
+     * because it can lead to inconsistency (e.g. the same indicator in two different places with different children).
+     * If the user wants to add a branch which already exist in the graph, they can use the Add Parent functionality.
+     */
+    private boolean isBranchValidForImport(IndicatorsGraph importedBranch) {
+        for (Indicator importedIndicator : importedBranch.getIndicatorList()) {
+            for (Indicator existingIndicator : indicatorsGraph.getIndicatorList()) {
+                if (importedIndicator.getName().equals(existingIndicator.getName())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+     * Get parent options to be added to the selected node
+     * (displayed in SelectOneMenu in the Add Parent dialog)
+     */
+    private void getParentOptions(Indicator graphRoot) {
+        // Using BFS to show the parent or child option names in a meaningful order in the select one menu
+        // (First parent names, then child names)
+        Queue<Indicator> queue = new ArrayDeque<>();
+        Indicator node;
+        Set<Indicator> visited = new HashSet<>();
+
+        visited.add(graphRoot);
+        // Root node is added to the top of the queue
+        queue.add(graphRoot);
+
+        while (queue.size() != 0) {
+            // Remove the top element of the queue
+            node = queue.poll();
+
+            if (selectedNode != null) {
+                // If the current node is not the root node
+                // and if the current node is not the same node with the selected node
+                // and if the current node is not one of the parents of the selected node
+                // and if the current node is not one of the descendents of the selected node
+                // and if the current node is not an evaluator
+                // then add its name to the parent options list
+                if (!node.isRoot()
+                        && !node.equals(selectedNode.getData())
+                        && node.getChildIndicators().stream().noneMatch(object -> object.equals(selectedNode.getData()))
+                        && !causesCycleWhileAddingParent(selectedNode.getData(), node)
+                        && !node.isEvaluator()) {
+
+                    parentOptionNames.add(node.getName());
+                }
+            }
+
+            for (Indicator child : node.getChildIndicators()) {
+                // Only insert nodes into queue if they have not been explored already
+                if (!visited.contains(child)) {
+                    visited.add(child);
+                    queue.add(child);
+                }
+            }
+        }
+    }
+
+    /*
+     * Check if the parent selected to be added causes a cycle in the graph
+     */
+    private boolean causesCycleWhileAddingParent(Indicator selectedNode, Indicator currentNode) {
+        for (Indicator child : selectedNode.getChildIndicators()) {
+            if (child.equals(currentNode)) {
+                return true;
+            }
+            if (causesCycleWhileAddingParent(child, currentNode)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /*
@@ -670,5 +630,86 @@ public class TreeTableController implements Serializable {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
             JsfUtil.addErrorMessage(ex, "A persistence error occurred!");
         }
+    }
+
+    //----------------------------------------------
+    // Methods for displaying the graph on TreeTable
+    //----------------------------------------------
+    /*
+     * Show the indicators graph in the TreeTable
+     */
+    public void showGraphOnTreeTable(IndicatorsGraph newGraph, boolean keepPreviousExpansion) {
+        rootTreeNode = new DefaultTreeNode(null, null);
+        indicatorsGraph = newGraph;
+        if (indicatorsGraph != null) {
+            rootIndicator = indicatorsGraph.getRoot();
+            actualRootTreeNode = new DefaultTreeNode(rootIndicator, rootTreeNode);
+            if (keepPreviousExpansion) {
+                actualRootTreeNode.setExpanded(expansionStatus.getOrDefault(actualRootTreeNode.getData().getName(), false));
+            }
+            showGraphOnTreeTableRecursively(actualRootTreeNode, rootIndicator, keepPreviousExpansion);
+        }
+    }
+
+    /*
+     * Recursive function called by showGraphOnTreeTable
+     */
+    private void showGraphOnTreeTableRecursively(TreeNode<Indicator> treeTableNode, Indicator graphNode, boolean keepPreviousExpansion) {
+        for (int i = 0; i < graphNode.getChildIndicators().size(); i++) {
+            if (!graphNode.getChildIndicators().get(i).isEvaluator()) {
+                DefaultTreeNode<Indicator> newNode = new DefaultTreeNode(graphNode.getChildIndicators().get(i));
+                if (keepPreviousExpansion) {
+                    newNode.setExpanded(expansionStatus.getOrDefault(graphNode.getChildIndicators().get(i).getName(), false));
+                }
+                treeTableNode.getChildren().add(newNode);
+                showGraphOnTreeTableRecursively(treeTableNode.getChildren().get(i), graphNode.getChildIndicators().get(i), keepPreviousExpansion);
+            }
+        }
+    }
+
+    /*
+     * Expand all child nodes in the TreeTable
+     * Used in the TreeTable on the Evaluate page
+     */
+    public void expandAllNodes(final TreeNode<Indicator> node) {
+        for (final TreeNode<Indicator> child : node.getChildren()) {
+            expandAllNodes(child);
+        }
+        node.setExpanded(true);
+    }
+
+    /*
+     * Get the previous expansion status of the tree nodes in TreeTable to keep the previous look after a new node added to the tree
+     * Normally, only the root node is expanded by default after the TreeTable is updated (reset) by a node addition
+     */
+    public void checkExpansionStatus() {
+        expansionStatus = new HashMap<>();
+        checkExpansionStatusRecursively(rootTreeNode, expansionStatus);
+    }
+
+    /*
+     * Recursive function called by getExpansionStatus
+     */
+    private void checkExpansionStatusRecursively(TreeNode<Indicator> treeRoot, Map<String, Boolean> expansionStatus) {
+        for (TreeNode<Indicator> treeNode : treeRoot.getChildren()) {
+            expansionStatus.put(treeNode.getData().getName(), treeNode.isExpanded());
+            checkExpansionStatusRecursively(treeNode, expansionStatus);
+        }
+    }
+
+    /*
+     * Update expansion status on node expand
+     */
+    public void onNodeExpand(NodeExpandEvent event) {
+        Indicator collapsedIndicator = (Indicator) event.getTreeNode().getData();
+        expansionStatus.put(collapsedIndicator.getName(), true);
+    }
+
+    /*
+     * Update expansion status on node collapse
+     */
+    public void onNodeCollapse(NodeCollapseEvent event) {
+        Indicator collapsedIndicator = (Indicator) event.getTreeNode().getData();
+        expansionStatus.put(collapsedIndicator.getName(), false);
     }
 }

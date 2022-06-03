@@ -133,7 +133,7 @@
                                          style="margin: 5px 0 !important"
                                          update="growl"
                                          ajax="false"
-                                         disabled="#{empty treeTableController.rootIndicator}">
+                                         disabled="#{empty treeTableController.selectedNode}">
                             <p:fileDownload value="#{treeTableController.indicatorsGraphFile}"/>
                         </p:commandButton>&nbsp;
                         <p:commandButton value="Import"
@@ -141,7 +141,8 @@
                                          id="importButton"
                                          style="margin: 5px 0 !important"
                                          update="ImportDlg, :treeForm"
-                                         oncomplete="PF('ImportDialog').show()"/>&nbsp;
+                                         oncomplete="PF('ImportDialog').show()"
+                                         disabled="#{treeTableController.selectedNode == null and treeTableController.actualRootTreeNode != null}" />&nbsp;
                         <p:commandButton value="Report"
                                          icon="fas fa-download"
                                          id="reportButton"

@@ -90,6 +90,9 @@ public class TabViewController implements Serializable {
     // Opened project
     private Project selectedProject;
 
+    // Active tab index
+    private String activeTabIndex;
+
     @EJB
     private ProjectFacade projectFacade;
 
@@ -292,11 +295,19 @@ public class TabViewController implements Serializable {
         this.selectedProject = selectedProject;
     }
 
+    public String getActiveTabIndex() {
+        return activeTabIndex;
+    }
+
+    public void setActiveTabIndex(String activeTabIndex) {
+        this.activeTabIndex = activeTabIndex;
+    }
+
     /*
-    ================
-    Instance Methods
-    ================
-     */
+        ================
+        Instance Methods
+        ================
+         */
     /*
      * Set indicator's graph information when the Project Specification page is opened
      */
@@ -307,6 +318,7 @@ public class TabViewController implements Serializable {
             rootIndicator = indicatorsGraph.getRoot();
             scoresPropagated = indicatorsGraph.isSolved();
         }
+        activeTabIndex = "0";
     }
 
     /*
@@ -315,6 +327,7 @@ public class TabViewController implements Serializable {
     public void onNodeSelect(NodeSelectEvent event) {
         rootIndicator = (Indicator) event.getComponent().getAttributes().get("rootIndicator");
         Indicator newSelectedIndicator = (Indicator) event.getComponent().getAttributes().get("selectedIndicator");
+        activeTabIndex = "0";
         getTabContent(newSelectedIndicator);
     }
 

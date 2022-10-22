@@ -37,14 +37,14 @@ public final class Constants {
 //    public static final String PHOTOS_ABSOLUTE_PATH = "C:/Users/gokceonen/DocRoot/EvaluatorStorage/PhotoStorage/";
 
     // Unix (macOS) or Linux
-    public static final String FILES_ABSOLUTE_PATH  = "/Users/Gokce/DocRoot/EvaluatorStorage/FileStorage/";
-    public static final String PHOTOS_ABSOLUTE_PATH = "/Users/Gokce/DocRoot/EvaluatorStorage/PhotoStorage/";
+//    public static final String FILES_ABSOLUTE_PATH  = "/Users/Gokce/DocRoot/EvaluatorStorage/FileStorage/";
+//    public static final String PHOTOS_ABSOLUTE_PATH = "/Users/Gokce/DocRoot/EvaluatorStorage/PhotoStorage/";
 
     //-------------------------------------------------------------------
     // To run on your AWS EC2 instance, on VENUS or JUPITER course server
     //-------------------------------------------------------------------
-//    public static final String FILES_ABSOLUTE_PATH  = "/opt/wildfly/DocRoot/EvaluatorStorage/FileStorage/";
-//    public static final String PHOTOS_ABSOLUTE_PATH = "/opt/wildfly/DocRoot/EvaluatorStorage/PhotoStorage/";
+    public static final String FILES_ABSOLUTE_PATH  = "/opt/wildfly/DocRoot/EvaluatorStorage/FileStorage/";
+    public static final String PHOTOS_ABSOLUTE_PATH = "/opt/wildfly/DocRoot/EvaluatorStorage/PhotoStorage/";
 
     /*
      ---------------------------------
@@ -76,8 +76,8 @@ public final class Constants {
     //---------------
     // To run locally
     //---------------
-    public static final String FILES_URI  = "http://localhost:8080/evaluatorfiles/";
-    public static final String PHOTOS_URI = "http://localhost:8080/evaluatorphotos/";
+//    public static final String FILES_URI  = "http://localhost:8080/evaluatorfiles/";
+//    public static final String PHOTOS_URI = "http://localhost:8080/evaluatorphotos/";
 
     //-----------------------------------------------------
     // To run on your AWS EC2 instance with your IP address
@@ -90,6 +90,12 @@ public final class Constants {
     //-----------------------------------------
 //    public static final String FILES_URI  = "https://venus.cs.vt.edu/evaluatorfiles/";
 //    public static final String PHOTOS_URI = "https://venus.cs.vt.edu/evaluatorphotos/";
+
+    //-----------------------------------------
+    // To run on SHARK server
+    //-----------------------------------------
+    public static final String FILES_URI  = "https://shark.cs.vt.edu/evaluatorfiles/";
+    public static final String PHOTOS_URI = "https://shark.cs.vt.edu/evaluatorphotos/";
 
     /* 
     =============================================

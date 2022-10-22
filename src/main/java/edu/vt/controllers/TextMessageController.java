@@ -145,7 +145,7 @@ public class TextMessageController {
             For the Gmail's SMTP server to accept the unsecure connection, the
             Cloud.Software.Email@gmail.com account's "Allow less secure apps" option is set to be ON.
              */
-            transport.connect("smtp.gmail.com", "Cloud.Software.Email@gmail.com", "nzrvymgfrxpbdmwy");
+            transport.connect("smtp.gmail.com", "Cloud.Software.Engineering@gmail.com", "nibtarvkeelcifus");
 
             // Send the email message containing the text message to the specified email address
             transport.sendMessage(mimeEmailMessage, mimeEmailMessage.getAllRecipients());

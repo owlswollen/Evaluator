@@ -395,14 +395,6 @@ public class TreeTableController implements Serializable {
         ObjectOutputStream out = new ObjectOutputStream(fileOut);
 
         IndicatorsGraph graphToExport = new IndicatorsGraph(selectedNode.getData());
-        // Remove evaluators from indicators
-        // since the project this graph will be imported to may not have the same evaluators
-        for (Indicator indicator : graphToExport.getIndicatorList()) {
-            if (indicator.isLeaf()) {
-                indicator.setChildIndicators(new ArrayList<>());
-            }
-        }
-
         out.writeObject(graphToExport);
         out.close();
         fileOut.close();

@@ -283,7 +283,11 @@ public class ReportManager implements Serializable {
                         for (Object element : elementList) {
                             notes.append(element);
                         }
-                        table.addCell(notes.substring(1, notes.length() - 1));
+                        if (notes.length() > 0) {
+                            table.addCell(notes.substring(1, notes.length() - 1));
+                        } else {
+                            table.addCell("");
+                        }
                     } else {
                         table.addCell("");
                     }

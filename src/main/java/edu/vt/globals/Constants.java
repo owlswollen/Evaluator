@@ -40,9 +40,9 @@ public final class Constants {
 //    public static final String FILES_ABSOLUTE_PATH  = "/Users/Gokce/DocRoot/EvaluatorStorage/FileStorage/";
 //    public static final String PHOTOS_ABSOLUTE_PATH = "/Users/Gokce/DocRoot/EvaluatorStorage/PhotoStorage/";
 
-    //-------------------------------------------------------------------
-    // To run on your AWS EC2 instance, on VENUS or JUPITER course server
-    //-------------------------------------------------------------------
+    //---------------------------------------------------------------------------
+    // To run on your AWS EC2 instance, on VENUS, JUPITER, or SHARK course server
+    //---------------------------------------------------------------------------
     public static final String FILES_ABSOLUTE_PATH  = "/opt/wildfly/DocRoot/EvaluatorStorage/FileStorage/";
     public static final String PHOTOS_ABSOLUTE_PATH = "/opt/wildfly/DocRoot/EvaluatorStorage/PhotoStorage/";
 
